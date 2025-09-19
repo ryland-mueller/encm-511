@@ -1,6 +1,6 @@
 /*
  * File:   main.c
- * Author: Ryland Mueller, Patrick Mitenko, Bogdan Bacea
+ * Author: Ryland "likes boys" Mueller, Patrick Mitenko, Bogdan Bacea
  *
  * Created FOR ENCM 511
  * PLEASE ADD DATE CREATED HERE: 2025-09-18
