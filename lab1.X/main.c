@@ -1,9 +1,9 @@
 /*
  * File:   main.c
- * Author: ENTER GROUP MEMBER NAME(S) HERE
+ * Author: Ryland Mueller, Patrick Mitenko, Bogdan Bacea
  *
  * Created FOR ENCM 511
- * PLEASE ADD DATE CREATED HERE: 2025-XX-XX
+ * PLEASE ADD DATE CREATED HERE: 2025-09-18
  */
 
 // FSEC
