@@ -62,30 +62,56 @@
 
 #define LED0    LATBbits.LATB5
 #define LED1    LATBbits.LATB6
-#define PB1     PORTBbits.RB8
+#define LED2    LATBbits.LATB7
+
 #define PB0     PORTAbits.RA4
+#define PB1     PORTBbits.RB8
+#define PB2     PORTBbits.RB9
 
 
 uint16_t PB3_event;
 uint16_t toggle = 0;
 
-/**
- * You might find it useful to add your own #defines to improve readability here
- */
 
-int main(void) {
-    
-    /** This is usually where you would add run-once code
-     * e.g., peripheral initialization. For the first labs
-     * you might be fine just having it here. For more complex
-     * projects, you might consider having one or more initialize() functions
-     */
-    
+void IOinit(void)
+{
     ANSELA = 0x0000; /* keep this line as it sets I/O pins that can also be analog to be digital */
     ANSELB = 0x0000; /* keep this line as it sets I/O pins that can also be analog to be digital */
     
-//    newClk(500);
+    TRISBbits.TRISB5 = 0;   // Set to output (LED0)
+    TRISBbits.TRISB6 = 0;   // Set to output (LED1)
+    TRISBbits.TRISB7 = 0;   // Set to output (LED2)
     
+    TRISAbits.TRISA4 = 1;   // Set to input (PB0)
+    TRISBbits.TRISB8 = 1;   // Set to input (PB1)
+    TRISBbits.TRISB9 = 1;   // Set to input (PB2)
+    
+    IOCPUAbits.IOCPA4 = 1;  // Enable pull-up (PB0)
+    IOCPUBbits.IOCPB8 = 1;  // Enable pull-up (PB1)
+    IOCPUBbits.IOCPB9 = 1;  // Enable pull-up (PB2)
+    
+    PADCONbits.IOCON = 1;   // Enable interrupt-on-change (IOC)
+    
+    //IOCNBbits.IOCNB9 = 1;   // Enable high-to-low IOC (PB2)
+    IOCPBbits.IOCPB9 = 1;   // Enable low-to-high IOC (PB2)
+    
+    IFS1bits.IOCIF = 0;     // Clear system-wide IOC flag
+    IPC4bits.IOCIP = 3;     // Set IOC priority
+    IEC1bits.IOCIE = 1;     // Enable IOC
+}
+
+
+void delay_ms(uint16_t ms)
+{
+    
+}
+
+
+int main(void)
+{
+    IOinit();
+    
+    /*
     // T3CON config
     T2CONbits.T32 = 0;      // operate timer 2 as 16 bit timer
     T3CONbits.TCKPS = 3;    // set prescaler to 1:8
@@ -97,24 +123,9 @@ int main(void) {
     PR3 = 7812;             // set the count value for 0.5 s (or 500 ms)
     TMR3 = 0;
     T3CONbits.TON = 1;
-    
-    // set pins for LED
-    TRISBbits.TRISB5 = 0;
-    TRISBbits.TRISB6 = 0;
+    */
     
     
-    // set pin for button
-    TRISBbits.TRISB8 = 1;
-    IOCPUBbits.CNPUB8 = 1;
-    
-    PADCONbits.IOCON = 1;
-    IOCNBbits.IOCNB8 = 1;
-    IOCPBbits.IOCPB8 = 1;
-    IOCSTATbits.IOCPBF = 0;
-    
-    IFS1bits.IOCIF = 0;
-    IPC4bits.IOCIP = 3;
-    IEC1bits.IOCIE = 1;
     
     
     LED1 = 0;
@@ -137,6 +148,7 @@ int main(void) {
 }
 
 
+/*
 // Timer 2 interrupt subroutine
 void __attribute__((interrupt, no_auto_psv)) _T2Interrupt(void){
     //Don't forget to clear the timer 2 interrupt flag!
@@ -148,10 +160,12 @@ void __attribute__((interrupt, no_auto_psv)) _T3Interrupt(void){
     IFS0bits.T3IF = 0;
     LED0 ^= 1;
 }
+*/
 
+// Interrupt-on-change ISR
 void __attribute__ ((interrupt, no_auto_psv)) _IOCInterrupt(void) {
     PB3_event = 1;
-    IFS1bits.IOCIF = 0;
+    IFS1bits.IOCIF = 0; // Clear system-wide IOC flag
 }
 
 
