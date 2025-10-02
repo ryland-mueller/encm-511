@@ -68,6 +68,10 @@
 #define PB1     PORTBbits.RB8
 #define PB2     PORTBbits.RB9
 
+// Same for all our ISRs to prevent them from pre-empting each other
+#define ISR_PRIORITY 2
+
+
 // 0 = No PBs pressed, all LEDs off
 // 1 = Only PB0 pressed, LED0 blinks at 0.25 sec interval
 // 2 = PB0 and PB1 are pressed, LED0 blinks at 0.5 sec interval
@@ -77,6 +81,9 @@ uint8_t state = 0;
 uint8_t pb_event = 0;   // Flag that state machine needs to be updated
 
 // NOTE: timer 1 will be used for PB2 debounce, timer 2/3 will be used for LED0/1
+
+uint8_t debounce_elapsed = 0;
+
 
 void IOinit(void)
 {
@@ -104,9 +111,49 @@ void IOinit(void)
     IOCNBbits.IOCNB9 = 1;   // Enable high-to-low IOC (PB2)
     IOCPBbits.IOCPB9 = 1;   // Enable low-to-high IOC (PB2)
     
-    IFS1bits.IOCIF = 0;     // Clear system-wide IOC flag
-    IPC4bits.IOCIP = 3;     // Set IOC priority
-    IEC1bits.IOCIE = 1;     // Enable IOC
+    IFS1bits.IOCIF = 0;             // Clear system-wide IOC flag
+    IPC4bits.IOCIP = ISR_PRIORITY;  // Set IOC priority)
+    IEC1bits.IOCIE = 1;             // Enable IOC
+}
+
+
+void Timer_init(void)
+{
+    // Timer 1 (PB2 debounce)
+    T1CONbits.TCKPS = 3;            // set prescaler to 1:8
+    T1CONbits.TCS = 0;              // use internal clock
+    T1CONbits.TSIDL = 0;            // operate in idle mode
+    IPC0bits.T1IP = ISR_PRIORITY;   // Interrupt priority
+    IFS0bits.T1IF = 0;              // clear interrupt flag
+    IEC0bits.T1IE = 1;              // enable interrupt
+    PR1 = 781;                      // set period for ~50ms
+    TMR1 = 0;                       // reset count
+    T1CONbits.TON = 0;              // turn off timer
+    
+    
+    T2CONbits.T32 = 0;  // Operate timers 2 & 3 as separate 16-bit timers
+    
+    // Timer 2 (LED0)
+    T2CONbits.TCKPS = 3;            // set prescaler to 1:8
+    T2CONbits.TCS = 0;              // use internal clock
+    T2CONbits.TSIDL = 0;            // operate in idle mode
+    IPC1bits.T2IP = ISR_PRIORITY;   // Interrupt priority
+    IFS0bits.T2IF = 0;              // clear interrupt flag
+    IEC0bits.T2IE = 1;              // enable interrupt
+    PR2 = 3906;                     // set period for 0.25 s
+    TMR2 = 0;                       // reset count
+    T2CONbits.TON = 0;              // turn off timer
+    
+    // Timer 3 (LED1)
+    T3CONbits.TCKPS = 3;            // set prescaler to 1:8
+    T3CONbits.TCS = 0;              // use internal clock
+    T3CONbits.TSIDL = 0;            // operate in idle mode
+    IPC2bits.T3IP = ISR_PRIORITY;   // Interrupt priority
+    IFS0bits.T3IF = 0;              // clear interrupt flag
+    IEC0bits.T3IE = 1;              // enable interrupt
+    PR3 = 62496;                    // set period for 4 s
+    TMR3 = 0;                       // reset count
+    T3CONbits.TON = 0;              // turn off timer
 }
 
 
@@ -118,22 +165,9 @@ void delay_ms(uint16_t ms)
 
 int main(void)
 {
+    
+    Timer_init();
     IOinit();
-    
-    /*
-    // T3CON config
-    T2CONbits.T32 = 0;      // operate timer 2 as 16 bit timer
-    T3CONbits.TCKPS = 3;    // set prescaler to 1:8
-    T3CONbits.TCS = 0;      // use internal clock
-    T3CONbits.TSIDL = 0;    // operate in idle mode
-    IPC2bits.T3IP = 2;      // 7 is highest and 1 is lowest pri.
-    IFS0bits.T3IF = 0;
-    IEC0bits.T3IE = 1;      // enable timer interrupt
-    PR3 = 7812;             // set the count value for 0.5 s (or 500 ms)
-    TMR3 = 0;
-    T3CONbits.TON = 1;
-    */
-    
         
     while(1) {        
         
@@ -143,33 +177,67 @@ int main(void)
             
             if(PB2) {   // PB2 = released
                 // if debounce timer has expired, PB2 was pushed, update blink rate (LED1 timer period)
+                if(debounce_elapsed) {
+                    if(PR3 <= 1953) {   // if blink period is at 0.125s, reset to 4s
+                        PR3 = 62496;
+                    } else {            // divide blink period by 2
+                        PR3 = PR3 / 2;
+                        // prevent overflow if timer count is past new period
+                        if (TMR3 > PR3) {
+                            TMR3 = 0;
+                        }
+                    }
+                    debounce_elapsed = 0;
+                    T1CONbits.TON = 0;      // Turn off debounce timer
+                }
             } else {    // PB2 = pressed
-                // start/reset debounce timer
+                TMR1 = 0;           // Reset debounce timer
+                T1CONbits.TON = 1;  // Turn on debounce timer
             }
             
             // State machine inputs
-            if (PB0 == 0 && PB1 = 1) {
+            if (PB0 == 0 && PB1 == 1) {
                 state = 1;
-            } else if (PB0 == 1 && PB1 = 1) {
+            } else if (PB0 == 0 && PB1 == 0) {
                 state = 2;
-            } else if (PB0 == 1 && PB1 = 0) {
+            } else if (PB0 == 1 && PB1 == 0) {
                 state = 3;
             } else {
-                state == 0;
+                state = 0;
             }
             
             // State machine outputs
             if (state == 0) {
-                // disable LED0 and LED1 timers
+                
+                T2CONbits.TON = 0;  // disable LED0 timer
+                LED0 = 0;           // turn off LED0
+                T3CONbits.TON = 0;  // disable LED1 timer
+                LED1 = 0;           // turn off LED1
+                
             } else if (state == 1) {
-                // enable LED0 timer, set period for 0.25 sec
-                // disable LED1 timer
+                
+                PR2 = 3906;         // set LED0 timer period for 0.25 s
+                // prevent overflow if timer count is past new period
+                if (TMR2 > PR2) {
+                    TMR2 = 0;
+                }
+                T2CONbits.TON = 1;  // enable LED0 timer
+                T3CONbits.TON = 0;  // disable LED1 timer
+                LED1 = 0;           // turn off LED1
+                
             } else if (state == 2) {
-                // enable LED0 timer, set period for 0.5 sec
-                // disable LED1 timer
+                
+                PR2 = 7812;         // set LED0 timer period for 0.5 s
+                T2CONbits.TON = 1;  // enable LED0 timer
+                T3CONbits.TON = 0;  // disable LED1 timer
+                LED1 = 0;           // turn off LED1
+                
             } else if (state == 3) {
-                // disable LED0 timer
-                // enable LED1 timer
+                
+                T2CONbits.TON = 0;  // disable LED0 timer
+                LED0 = 0;           // turn off LED0
+                T3CONbits.TON = 1;  // enable LED1 timer
+                
             }
             
             pb_event = 0;
@@ -180,6 +248,11 @@ int main(void)
 }
 
 
+// Timer 1 (PB2 debounce) ISR
+void __attribute__((interrupt, no_auto_psv)) _T1Interrupt(void){
+    debounce_elapsed = 1;
+    IFS0bits.T1IF = 0; // Clear Timer 2 interrupt flag
+}
 
 // Timer 2 (LED0) ISR
 void __attribute__((interrupt, no_auto_psv)) _T2Interrupt(void){
