@@ -62,16 +62,21 @@
 
 #define LED0    LATBbits.LATB5
 #define LED1    LATBbits.LATB6
-#define LED2    LATBbits.LATB7
+//#define LED2    LATBbits.LATB7
 
 #define PB0     PORTAbits.RA4
 #define PB1     PORTBbits.RB8
 #define PB2     PORTBbits.RB9
 
+// 0 = No PBs pressed, all LEDs off
+// 1 = Only PB0 pressed, LED0 blinks at 0.25 sec interval
+// 2 = PB0 and PB1 are pressed, LED0 blinks at 0.5 sec interval
+// 3 = Only PB1 pressed, LED1 blinks at PB2_BLINK_RATE (defined in assignment)
+uint8_t state = 0;
 
-uint16_t PB3_event;
-uint16_t toggle = 0;
+uint8_t pb_event = 0;   // Flag that state machine needs to be updated
 
+// NOTE: timer 1 will be used for PB2 debounce, timer 2/3 will be used for LED0/1
 
 void IOinit(void)
 {
@@ -80,7 +85,7 @@ void IOinit(void)
     
     TRISBbits.TRISB5 = 0;   // Set to output (LED0)
     TRISBbits.TRISB6 = 0;   // Set to output (LED1)
-    TRISBbits.TRISB7 = 0;   // Set to output (LED2)
+    //TRISBbits.TRISB7 = 0;   // Set to output (LED2)
     
     TRISAbits.TRISA4 = 1;   // Set to input (PB0)
     TRISBbits.TRISB8 = 1;   // Set to input (PB1)
@@ -92,7 +97,11 @@ void IOinit(void)
     
     PADCONbits.IOCON = 1;   // Enable interrupt-on-change (IOC)
     
-    //IOCNBbits.IOCNB9 = 1;   // Enable high-to-low IOC (PB2)
+    IOCNAbits.IOCNA4 = 1;   // Enable high-to-low IOC (PB0)
+    IOCPAbits.IOCPA4 = 1;   // Enable low-to-high IOC (PB0)
+    IOCNBbits.IOCNB8 = 1;   // Enable high-to-low IOC (PB1)
+    IOCPBbits.IOCPB8 = 1;   // Enable low-to-high IOC (PB1)
+    IOCNBbits.IOCNB9 = 1;   // Enable high-to-low IOC (PB2)
     IOCPBbits.IOCPB9 = 1;   // Enable low-to-high IOC (PB2)
     
     IFS1bits.IOCIF = 0;     // Clear system-wide IOC flag
@@ -125,22 +134,45 @@ int main(void)
     T3CONbits.TON = 1;
     */
     
-    
-    
-    
-    LED1 = 0;
-    
-    /* Let's clear some flags */
-    PB3_event = 0;
-    
         
     while(1) {        
         
         Idle();
                 
-        if (PB3_event) {
-            PB3_event = 0;
-            LED1 ^= 1;           
+        if (pb_event) {
+            
+            if(PB2) {   // PB2 = released
+                // if debounce timer has expired, PB2 was pushed, update blink rate (LED1 timer period)
+            } else {    // PB2 = pressed
+                // start/reset debounce timer
+            }
+            
+            // State machine inputs
+            if (PB0 == 0 && PB1 = 1) {
+                state = 1;
+            } else if (PB0 == 1 && PB1 = 1) {
+                state = 2;
+            } else if (PB0 == 1 && PB1 = 0) {
+                state = 3;
+            } else {
+                state == 0;
+            }
+            
+            // State machine outputs
+            if (state == 0) {
+                // disable LED0 and LED1 timers
+            } else if (state == 1) {
+                // enable LED0 timer, set period for 0.25 sec
+                // disable LED1 timer
+            } else if (state == 2) {
+                // enable LED0 timer, set period for 0.5 sec
+                // disable LED1 timer
+            } else if (state == 3) {
+                // disable LED0 timer
+                // enable LED1 timer
+            }
+            
+            pb_event = 0;
         }
     }
     
@@ -148,23 +180,22 @@ int main(void)
 }
 
 
-/*
-// Timer 2 interrupt subroutine
+
+// Timer 2 (LED0) ISR
 void __attribute__((interrupt, no_auto_psv)) _T2Interrupt(void){
-    //Don't forget to clear the timer 2 interrupt flag!
-    IFS0bits.T2IF = 0;
+    LED0 ^= 1; // toggle LED0
+    IFS0bits.T2IF = 0; // Clear Timer 2 interrupt flag
 }
 
+// Timer 3 (LED1) ISR
 void __attribute__((interrupt, no_auto_psv)) _T3Interrupt(void){
-    //Don't forget to clear the timer 2 interrupt flag!
-    IFS0bits.T3IF = 0;
-    LED0 ^= 1;
+    LED1 ^= 1; // toggle LED1
+    IFS0bits.T3IF = 0; // Clear Timer 3 interrupt flag
 }
-*/
 
 // Interrupt-on-change ISR
 void __attribute__ ((interrupt, no_auto_psv)) _IOCInterrupt(void) {
-    PB3_event = 1;
+    pb_event = 1;   // flag that state machine needs to be updated
     IFS1bits.IOCIF = 0; // Clear system-wide IOC flag
 }
 
