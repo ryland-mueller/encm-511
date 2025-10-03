@@ -1,6 +1,9 @@
 # encm-511
 
 Useful datasheet pages:
-4 - 28-Pin SOIC, SSOP, SPDIP Pinout
-128 - Interrupt-on-Change
-90 - Interrupt Resources
+
+Pg 4 - Pinout
+
+Pg 128 - Interrupt-on-Change
+
+Pg 90 - Interrupt Resources
