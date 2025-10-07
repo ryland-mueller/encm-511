@@ -59,6 +59,7 @@
 
 #include "xc.h"
 
+#include "delay.h"
 
 #define LED0    LATBbits.LATB5
 #define LED1    LATBbits.LATB6
@@ -118,13 +119,7 @@ void IOinit(void)
 
 
 void Timer_init(void)
-{
-    // Timer 1 (for delay function)
-    T1CONbits.TCKPS = 2;            // set prescaler to 1:64
-    IFS0bits.T2IF = 0;              // clear interrupt flag
-    IEC0bits.T2IE = 0;              // disable interrupt
-    PR1 = 0xFFFF;                   // max timer period (use as counter)  
-    
+{ 
     T2CONbits.T32 = 0;  // Operate timers 2 & 3 as separate 16-bit timers
     
     // Timer 2 (LED0)
@@ -140,19 +135,6 @@ void Timer_init(void)
     IFS0bits.T3IF = 0;              // clear interrupt flag
     IEC0bits.T3IE = 1;              // enable interrupt
     PR3 = 62496;                    // set period for 4 s
-}
-
-
-// delays up to ~1000ms
-void delay_ms(uint16_t ms)
-{
-    TMR1 = 0;                   // reset timer
-    T1CONbits.TON = 1;          // start timer
-    uint16_t period = ms * (uint16_t)62;
-    while(TMR1 < period) {
-        Nop();                  // wait until delay has elapsed
-    }
-    T1CONbits.TON = 0;          // stop timer
 }
 
 
@@ -172,7 +154,7 @@ void blink_rate_update(void)
 
 int main(void)
 {
-    
+    delay_init();
     Timer_init();
     IOinit();
         
@@ -184,8 +166,7 @@ int main(void)
             
             delay_ms(DEBOUNCE_TIME);
             
-            // PB2 transition to released and PB0/PB1 are not pressed
-            if(!pb2_last && PB2 && PB0 && PB1) {
+            if(!pb2_last && PB2) {  // PB2 transition to released
                 blink_rate_update();
             }
             
