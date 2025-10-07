@@ -261,6 +261,3 @@ void __attribute__ ((interrupt, no_auto_psv)) _IOCInterrupt(void) {
     pb_event = 1;   // flag that state machine needs to be updated
     IFS1bits.IOCIF = 0; // Clear system-wide IOC flag
 }
-
-
-
