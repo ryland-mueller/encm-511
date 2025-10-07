@@ -80,11 +80,9 @@
 // 3 = Only PB1 pressed, LED1 blinks at PB2_BLINK_RATE (defined in assignment)
 uint8_t state = 0;
 
-uint8_t pb_event = 0;   // Flag that state machine needs to be updated
+uint8_t pb_event = 0;   // Flag that leaving Idle() is for IOC
 
 uint8_t pb2_last = 0;   // for detecting release of PB2
-
-// NOTE: timer 1 will be used for delay function, timer 2/3 will be used for LED0/1
 
 
 void IOinit(void)
@@ -121,40 +119,27 @@ void IOinit(void)
 
 void Timer_init(void)
 {
-    // Timer 1 (delay function)
+    // Timer 1 (for delay function)
     T1CONbits.TCKPS = 2;            // set prescaler to 1:64
-    T1CONbits.TCS = 0;              // use internal clock
-    T1CONbits.TSIDL = 0;            // operate in idle mode
     IFS0bits.T2IF = 0;              // clear interrupt flag
     IEC0bits.T2IE = 0;              // disable interrupt
-    PR1 = 0xFFFF;                   // max timer period (use as counter)
-    TMR1 = 0;                       // reset count
-    T1CONbits.TON = 0;              // turn off timer
-    
+    PR1 = 0xFFFF;                   // max timer period (use as counter)  
     
     T2CONbits.T32 = 0;  // Operate timers 2 & 3 as separate 16-bit timers
     
     // Timer 2 (LED0)
     T2CONbits.TCKPS = 3;            // set prescaler to 1:256
-    T2CONbits.TCS = 0;              // use internal clock
-    T2CONbits.TSIDL = 0;            // operate in idle mode
     IPC1bits.T2IP = ISR_PRIORITY;   // Interrupt priority
     IFS0bits.T2IF = 0;              // clear interrupt flag
     IEC0bits.T2IE = 1;              // enable interrupt
     PR2 = 3906;                     // set period for 0.25 s
-    TMR2 = 0;                       // reset count
-    T2CONbits.TON = 0;              // turn off timer
     
     // Timer 3 (LED1)
     T3CONbits.TCKPS = 3;            // set prescaler to 1:256
-    T3CONbits.TCS = 0;              // use internal clock
-    T3CONbits.TSIDL = 0;            // operate in idle mode
     IPC2bits.T3IP = ISR_PRIORITY;   // Interrupt priority
     IFS0bits.T3IF = 0;              // clear interrupt flag
     IEC0bits.T3IE = 1;              // enable interrupt
     PR3 = 62496;                    // set period for 4 s
-    TMR3 = 0;                       // reset count
-    T3CONbits.TON = 0;              // turn off timer
 }
 
 
@@ -199,7 +184,8 @@ int main(void)
             
             delay_ms(DEBOUNCE_TIME);
             
-            if(!pb2_last && PB2) {   // PB2 transition to released
+            // PB2 transition to released and PB0/PB1 are not pressed
+            if(!pb2_last && PB2 && PB0 && PB1) {
                 blink_rate_update();
             }
             
@@ -225,10 +211,12 @@ int main(void)
             } else if (state == 1) {
                 
                 PR2 = 3906;         // set LED0 timer period for 0.25 s
+                
                 // prevent overflow if timer count is past new period
                 if (TMR2 > PR2) {
                     TMR2 = 0;
                 }
+                
                 T2CONbits.TON = 1;  // enable LED0 timer
                 T3CONbits.TON = 0;  // disable LED1 timer
                 LED1 = 0;           // turn off LED1
@@ -252,7 +240,6 @@ int main(void)
             pb2_last = PB2;
         }
     }
-    
     return 0;
 }
 
