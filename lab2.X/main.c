@@ -61,6 +61,7 @@
 
 #include "delay.h"
 
+
 #define LED0    LATBbits.LATB5
 #define LED1    LATBbits.LATB6
 //#define LED2    LATBbits.LATB7
@@ -86,7 +87,7 @@ uint8_t pb_event = 0;   // Flag that leaving Idle() is for IOC
 uint8_t pb2_last = 0;   // for detecting release of PB2
 
 
-void IOinit(void)
+void IO_init(void)
 {
     ANSELA = 0x0000; /* keep this line as it sets I/O pins that can also be analog to be digital */
     ANSELB = 0x0000; /* keep this line as it sets I/O pins that can also be analog to be digital */
@@ -118,7 +119,7 @@ void IOinit(void)
 }
 
 
-void Timer_init(void)
+void timer_init(void)
 { 
     T2CONbits.T32 = 0;  // Operate timers 2 & 3 as separate 16-bit timers
     
@@ -155,8 +156,8 @@ void blink_rate_update(void)
 int main(void)
 {
     delay_init();
-    Timer_init();
-    IOinit();
+    timer_init();
+    IO_init();
         
     while(1) {        
         
