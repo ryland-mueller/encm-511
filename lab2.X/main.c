@@ -86,6 +86,11 @@ uint8_t pb_event = 0;   // Flag that leaving Idle() is for IOC
 
 uint8_t pb2_last = 0;   // for detecting release of PB2
 
+// For remembering last LED state so they don't start off every time state changes.
+// Initialize to 1 so we dont have to wait 4s to see LED1 come on the first time
+uint8_t LED0_last = 1;
+uint8_t LED1_last = 1;
+
 
 void IO_init(void)
 {
@@ -200,6 +205,7 @@ int main(void)
                 }
                 
                 T2CONbits.TON = 1;  // enable LED0 timer
+                LED0 = LED0_last;   // Restore previous LED1 state
                 T3CONbits.TON = 0;  // disable LED1 timer
                 LED1 = 0;           // turn off LED1
                 
@@ -207,6 +213,7 @@ int main(void)
                 
                 PR2 = 7812;         // set LED0 timer period for 0.5 s
                 T2CONbits.TON = 1;  // enable LED0 timer
+                LED0 = LED0_last;   // Restore previous LED0 state
                 T3CONbits.TON = 0;  // disable LED1 timer
                 LED1 = 0;           // turn off LED1
                 
@@ -215,6 +222,7 @@ int main(void)
                 T2CONbits.TON = 0;  // disable LED0 timer
                 LED0 = 0;           // turn off LED0
                 T3CONbits.TON = 1;  // enable LED1 timer
+                LED1 = LED1_last;   // Restore previous LED1 state
                 
             }
             
@@ -229,12 +237,14 @@ int main(void)
 // Timer 2 (LED0) ISR
 void __attribute__((interrupt, no_auto_psv)) _T2Interrupt(void){
     LED0 ^= 1; // toggle LED0
+    LED0_last ^= 1;
     IFS0bits.T2IF = 0; // Clear Timer 2 interrupt flag
 }
 
 // Timer 3 (LED1) ISR
 void __attribute__((interrupt, no_auto_psv)) _T3Interrupt(void){
     LED1 ^= 1; // toggle LED1
+    LED1_last ^= 1;
     IFS0bits.T3IF = 0; // Clear Timer 3 interrupt flag
 }
 
