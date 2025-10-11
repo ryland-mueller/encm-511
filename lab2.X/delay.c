@@ -11,6 +11,8 @@ void delay_init(void)
 
 void delay_ms(uint16_t ms)
 {
+    if(ms>1057)                 // avoid overflow
+        ms = 1057
     TMR1 = 0;                   // reset timer
     T1CONbits.TON = 1;          // start timer
     uint16_t period = ms * (uint16_t)62;
@@ -19,3 +21,4 @@ void delay_ms(uint16_t ms)
     }
     T1CONbits.TON = 0;          // stop timer
 }
+
