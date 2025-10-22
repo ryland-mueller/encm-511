@@ -111,7 +111,7 @@ typedef enum
 states currentstate = fast_mode_idle;
 states prevstate = fast_mode_idle;
 
-char blink_setting;         // Would setting this as a char be helpful
+uint8_t blink_setting;         // Would setting this as a char be helpful
 
 void IO_init(void)
 {
@@ -169,7 +169,15 @@ void timer_init(void)
     PR3 = 62496;                    // set period for 4 s
 }
 
-
+void get_blinkrate()
+{
+    if (blink_setting == 0)
+        PR1 = 3906;             // 0.25
+    else if (blink_setting == 1)
+        PR1 = 7812;             // 0.5
+    else
+        PR1 = 15624;            // 1s
+}
 
 int main(void) {
     
@@ -215,7 +223,6 @@ int main(void) {
                     currentstate = prog_mode_idle
             }
 
-            // Clear the flags in this section. can you just set pbstate to zero or just reset it as appropriate
             switch(currentstate)
             {
                 case fast_mode_PB0:
@@ -281,14 +288,14 @@ int main(void) {
                     XmitUART2(blink_setting,1);
                     XmitUART2('\r',1);
                     XmitUART2('\n',1);
-                    PR1 = 15625;              // blinkrate dependent on blinkrate variable 0 = 0.25, 1 = 0.5 and 2 = 1s
+                    get_blinkrate()              // Sets PR1 dependent on blinkrate setting
                     if (TMR1 > PR1) 
                         TMR1 = 0;
                     break;
                 case prog_mode_PB2:
                     pb_stat = 0;
                     Disp2String("Prog Mode: Blink setting = ");    // For this i think you just dont even have the x and then whatever you input is X or just put the previous input for X maybe
-                    XmitUART2(blink_setting,1);
+                    blink_setting = RecvUartChar();                // Need to rework this function still. It should display what it received as it goes though
                     XmitUART2('\r',1);
                     XmitUART2('\n',1);
                     PR1 = 1953;              // 0.125s blinkrate
