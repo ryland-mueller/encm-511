@@ -149,7 +149,7 @@ void timer_init(void)
     
     // Timer 1
     T1CONbits.TCKPS = 3;            // set prescaler to 1:256
-    IPC2bits.T1IP = ISR_PRIORITY;   // Interrupt priority
+    IPC0bits.T1IP = ISR_PRIORITY;   // Interrupt priority
     IFS0bits.T1IF = 0;              // clear interrupt flag
     IEC0bits.T1IE = 1;              // enable interrupt
     PR1 = 62496;                    // set period for 4 s
@@ -186,7 +186,7 @@ int main(void) {
     InitUART2();
     
     while(1) {
-        idle();
+        Idle();
 
         if(pb_stat)
         {
@@ -220,7 +220,7 @@ int main(void) {
                 else if(CHECK_BIT(pb_stat,PB0_CLICKED) && CHECK_BIT(pb_stat,PB1_CLICKED) && CHECK_BIT(pb_stat,PB2_CLICKED) && !CHECK_BIT(pb_stat,PB0_HELD) && !CHECK_BIT(pb_stat,PB1_HELD) && !CHECK_BIT(pb_stat,PB2_HELD))
                     currentstate = fast_mode_idle;
                     else
-                    currentstate = prog_mode_idle
+                    currentstate = prog_mode_idle;
             }
 
             switch(currentstate)
@@ -288,7 +288,7 @@ int main(void) {
                     XmitUART2(blink_setting,1);
                     XmitUART2('\r',1);
                     XmitUART2('\n',1);
-                    get_blinkrate()              // Sets PR1 dependent on blinkrate setting
+                    get_blinkrate();              // Sets PR1 dependent on blinkrate setting
                     if (TMR1 > PR1) 
                         TMR1 = 0;
                     break;
@@ -337,21 +337,18 @@ int main(void) {
 // Timer 1 (LED0) ISR
 void __attribute__((interrupt, no_auto_psv)) _T1Interrupt(void){
     LED0 ^= 1; // toggle LED0
-    LED0_last ^= 1;
     IFS0bits.T2IF = 0; // Clear Timer 2 interrupt flag
 }
 
 // Timer 2 (LED0) ISR
 void __attribute__((interrupt, no_auto_psv)) _T2Interrupt(void){
     LED0 ^= 1; // toggle LED0
-    LED0_last ^= 1;
     IFS0bits.T2IF = 0; // Clear Timer 2 interrupt flag
 }
 
 // Timer 3 (LED1) ISR
 void __attribute__((interrupt, no_auto_psv)) _T3Interrupt(void){
-    LED1 ^= 1; // toggle LED1
-    LED1_last ^= 1;
+    LED0 ^= 1; // toggle LED1
     IFS0bits.T3IF = 0; // Clear Timer 3 interrupt flag
 }
 
