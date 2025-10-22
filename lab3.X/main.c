@@ -69,7 +69,7 @@ char received;
 #define CLEAR_BIT(flags, n)     ((flags) &= ~(1 << (n)))
 #define TOGGLE_BIT(flags, n)    ((flags) ^= (1 << (n)))
 
-uint8_t pb_stat;
+uint8_t pb_stat;        // Bit-field for button status flags
 #define PB0_HELD    0   // Flag set to indicate PB0 is currently being held (after being held for >1s)
 #define PB0_CLICKED 1   // Flag set to indicate PB0 has been clicked. Consumer should clear flag once acting on it
 #define PB1_HELD    2   // Flag set to indicate PB1 is currently being held (after being held for >1s)
@@ -77,7 +77,7 @@ uint8_t pb_stat;
 #define PB2_HELD    4   // Flag set to indicate PB2 is currently being held (after being held for >1s)
 #define PB2_CLICKED 5   // Flag set to indicate PB2 has been clicked. Consumer should clear flag once acting on it
 
-uint8_t pb_last;
+uint8_t pb_last;        // Bit-field for previous states of pushbuttons
 #define PB0_LAST    0   // Indicates the previous state of PB0
 #define PB1_LAST    1   // Indicates the previous state of PB1
 #define PB2_LAST    2   // Indicates the previous state of PB2
