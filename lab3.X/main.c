@@ -72,15 +72,15 @@ char received;
 uint8_t pb_stat;
 #define PB0_HELD    0   // Flag set to indicate PB0 is currently being held (after being held for >1s)
 #define PB0_CLICKED 1   // Flag set to indicate PB0 has been clicked. Consumer should clear flag once acting on it
-#define PB1_HELD    2
-#define PB1_CLICKED 3
-#define PB2_HELD    4
-#define PB2_CLICKED 5
+#define PB1_HELD    2   // Flag set to indicate PB1 is currently being held (after being held for >1s)
+#define PB1_CLICKED 3   // Flag set to indicate PB1 has been clicked. Consumer should clear flag once acting on it
+#define PB2_HELD    4   // Flag set to indicate PB2 is currently being held (after being held for >1s)
+#define PB2_CLICKED 5   // Flag set to indicate PB2 has been clicked. Consumer should clear flag once acting on it
 
 uint8_t pb_last;
-#define PB0_LAST    0
-#define PB1_LAST    1
-#define PB2_LAST    2
+#define PB0_LAST    0   // Indicates the previous state of PB0
+#define PB1_LAST    1   // Indicates the previous state of PB1
+#define PB2_LAST    2   // Indicates the previous state of PB2
 
 typedef enum
 {
@@ -117,9 +117,7 @@ void IO_init(void)
 {
     ANSELA = 0x0000; /* keep this line as it sets I/O pins that can also be analog to be digital */
     ANSELB = 0x0000; /* keep this line as it sets I/O pins that can also be analog to be digital */
-    TRISBbits.TRISB5 = 0; // set RB5 as output
-    _LATB5 = 1;
-    
+
     TRISBbits.TRISB5 = 0;   // Set to output (LED0)
 
     TRISAbits.TRISA4 = 1;   // Set to input (PB0)
@@ -221,6 +219,7 @@ int main(void) {
             switch(currentstate)
             {
                 case fast_mode_PB0:
+                    pb_stat = 0;
                     Disp2String("Fast Mode: PB0 was pressed");
                     XmitUART2('\r',1);
                     XmitUART2('\n',1);
@@ -229,6 +228,7 @@ int main(void) {
                         TMR1 = 0;
                     break;
                 case fast_mode_PB1:
+                    pb_stat = 0;
                     Disp2String("Fast Mode: PB1 was pressed");
                     XmitUART2('\r',1);
                     XmitUART2('\n',1);
@@ -237,6 +237,7 @@ int main(void) {
                         TMR1 = 0;
                     break;
                 case fast_mode_PB2:
+                    pb_stat = 0;
                     Disp2String("Fast Mode: PB2 was pressed");
                     XmitUART2('\r',1);
                     XmitUART2('\n',1);
@@ -245,24 +246,28 @@ int main(void) {
                         TMR1 = 0;
                     break;
                 case fast_mode_PB0_PB1:
+                    pb_stat = 0;
                     Disp2String("Fast Mode: PB0 and PB1 are pressed");
                     XmitUART2('\r',1);
                     XmitUART2('\n',1);
                     LED0 = 1;
                     break;
                 case fast_mode_PB0_PB2:
+                    pb_stat = 0;
                     Disp2String("Fast Mode: PB0 and PB2 are pressed");
                     XmitUART2('\r',1);
                     XmitUART2('\n',1);
                     LED0 = 1;
                     break;
                 case fast_mode_PB1_PB2:
+                    pb_stat = 0;
                     Disp2String("Fast Mode: PB1 and PB2 are pressed");
                     XmitUART2('\r',1);
                     XmitUART2('\n',1);
                     LED0 = 1;
                     break;
                 case prog_mode_PB0:
+                    pb_stat = 0;
                     Disp2String("Prog Mode: PB0 was pressed");
                     XmitUART2('\r',1);
                     XmitUART2('\n',1);
@@ -270,8 +275,8 @@ int main(void) {
                     if (TMR1 > PR1) 
                         TMR1 = 0;
                     break;
-                    break;
                 case prog_mode_PB1:
+                    pb_stat = 0;
                     Disp2String("Prog mode: PB1 was pressed, Setting = ");
                     XmitUART2(blink_setting,1);
                     XmitUART2('\r',1);
@@ -281,6 +286,7 @@ int main(void) {
                         TMR1 = 0;
                     break;
                 case prog_mode_PB2:
+                    pb_stat = 0;
                     Disp2String("Prog Mode: Blink setting = ");    // For this i think you just dont even have the x and then whatever you input is X or just put the previous input for X maybe
                     XmitUART2(blink_setting,1);
                     XmitUART2('\r',1);
@@ -290,12 +296,14 @@ int main(void) {
                         TMR1 = 0;
                     break;
                 case fast_mode_idle:
+                    pb_stat = 0;
                     Disp2String("Fast Mode: IDLE");
                     XmitUART2('\r',1);
                     XmitUART2('\n',1);
                     LED0 = 0;
                     break;
                 case prog_mode_idle:
+                    pb_stat = 0;
                     Disp2String("Prog Mode: IDLE");
                     XmitUART2('\r',1);
                     XmitUART2('\n',1);
