@@ -180,7 +180,6 @@ int main(void) {
     InitUART2();
     
     while(1) {
-        
         idle();
 
         if(pb_stat)
@@ -199,18 +198,22 @@ int main(void) {
                     currentstate = fast_mode_PB0_PB2;
                 else if(!CHECK_BIT(pb_stat,PB0_CLICKED) && !CHECK_BIT(pb_stat,PB1_CLICKED) && !CHECK_BIT(pb_stat,PB2_CLICKED) && !CHECK_BIT(pb_stat,PB0_HELD) && CHECK_BIT(pb_stat,PB1_HELD) && CHECK_BIT(pb_stat,PB2_HELD))
                     currentstate = fast_mode_PB1_PB2;
+                else if(CHECK_BIT(pb_stat,PB0_CLICKED) && CHECK_BIT(pb_stat,PB1_CLICKED) && CHECK_BIT(pb_stat,PB2_CLICKED) && !CHECK_BIT(pb_stat,PB0_HELD) && !CHECK_BIT(pb_stat,PB1_HELD) && !CHECK_BIT(pb_stat,PB2_HELD))
+                    currentstate = prog_mode_idle;
                 else
                     currentstate = fast_mode_idle;
             }
             else if (prevstate == prog_mode_idle)
             {
-                if(CHECK_BIT(pb_stat,PB0_CLICKED) && !CHECK_BIT(pb_stat,PB1_CLICKED) && !CHECK_BIT(pb_stat,PB2_CLICKED) && !CHECK_BIT(pb_stat,PB0_HELD) && !CHECK_BIT(pb_stat,PB1_HELD) && !CHECK_BIT(pb_stat,PB2_HELD))\
+                if(CHECK_BIT(pb_stat,PB0_CLICKED) && !CHECK_BIT(pb_stat,PB1_CLICKED) && !CHECK_BIT(pb_stat,PB2_CLICKED) && !CHECK_BIT(pb_stat,PB0_HELD) && !CHECK_BIT(pb_stat,PB1_HELD) && !CHECK_BIT(pb_stat,PB2_HELD))
                     currentstate = prog_mode_PB0;
-                else if(CHECK_BIT(!pb_stat,PB0_CLICKED) && CHECK_BIT(pb_stat,PB1_CLICKED) && !CHECK_BIT(pb_stat,PB2_CLICKED) && !CHECK_BIT(pb_stat,PB0_HELD) && !CHECK_BIT(pb_stat,PB1_HELD) && !CHECK_BIT(pb_stat,PB2_HELD))\
+                else if(CHECK_BIT(!pb_stat,PB0_CLICKED) && CHECK_BIT(pb_stat,PB1_CLICKED) && !CHECK_BIT(pb_stat,PB2_CLICKED) && !CHECK_BIT(pb_stat,PB0_HELD) && !CHECK_BIT(pb_stat,PB1_HELD) && !CHECK_BIT(pb_stat,PB2_HELD))
                     currentstate = prog_mode_PB1;
-                else if(CHECK_BIT(!pb_stat,PB0_CLICKED) && !CHECK_BIT(pb_stat,PB1_CLICKED) && CHECK_BIT(pb_stat,PB2_CLICKED) && !CHECK_BIT(pb_stat,PB0_HELD) && !CHECK_BIT(pb_stat,PB1_HELD) && !CHECK_BIT(pb_stat,PB2_HELD))\
+                else if(CHECK_BIT(!pb_stat,PB0_CLICKED) && !CHECK_BIT(pb_stat,PB1_CLICKED) && CHECK_BIT(pb_stat,PB2_CLICKED) && !CHECK_BIT(pb_stat,PB0_HELD) && !CHECK_BIT(pb_stat,PB1_HELD) && !CHECK_BIT(pb_stat,PB2_HELD))
                     currentstate = prog_mode_PB2;
-                else
+                else if(CHECK_BIT(pb_stat,PB0_CLICKED) && CHECK_BIT(pb_stat,PB1_CLICKED) && CHECK_BIT(pb_stat,PB2_CLICKED) && !CHECK_BIT(pb_stat,PB0_HELD) && !CHECK_BIT(pb_stat,PB1_HELD) && !CHECK_BIT(pb_stat,PB2_HELD))
+                    currentstate = fast_mode_idle;
+                    else
                     currentstate = prog_mode_idle
             }
 
@@ -219,30 +222,84 @@ int main(void) {
             {
                 case fast_mode_PB0:
                     Disp2String("Fast Mode: PB0 was pressed");
+                    XmitUART2('\r',1);
+                    XmitUART2('\n',1);
+                    PR1 = 3906;              // 0.25s blinkrate
+                    if (TMR1 > PR1) 
+                        TMR1 = 0;
                     break;
                 case fast_mode_PB1:
                     Disp2String("Fast Mode: PB1 was pressed");
+                    XmitUART2('\r',1);
+                    XmitUART2('\n',1);
+                    PR1 = 7812;              // 0.50s blinkrate
+                    if (TMR1 > PR1) 
+                        TMR1 = 0;
                     break;
                 case fast_mode_PB2:
                     Disp2String("Fast Mode: PB2 was pressed");
+                    XmitUART2('\r',1);
+                    XmitUART2('\n',1);
+                    PR1 = 15625;              // 1s blinkrate
+                    if (TMR1 > PR1) 
+                        TMR1 = 0;
                     break;
                 case fast_mode_PB0_PB1:
                     Disp2String("Fast Mode: PB0 and PB1 are pressed");
+                    XmitUART2('\r',1);
+                    XmitUART2('\n',1);
+                    LED0 = 1;
                     break;
                 case fast_mode_PB0_PB2:
                     Disp2String("Fast Mode: PB0 and PB2 are pressed");
+                    XmitUART2('\r',1);
+                    XmitUART2('\n',1);
+                    LED0 = 1;
                     break;
                 case fast_mode_PB1_PB2:
                     Disp2String("Fast Mode: PB1 and PB2 are pressed");
+                    XmitUART2('\r',1);
+                    XmitUART2('\n',1);
+                    LED0 = 1;
                     break;
                 case prog_mode_PB0:
                     Disp2String("Prog Mode: PB0 was pressed");
+                    XmitUART2('\r',1);
+                    XmitUART2('\n',1);
+                    PR1 = 46875;              // 3s blinkrate
+                    if (TMR1 > PR1) 
+                        TMR1 = 0;
+                    break;
                     break;
                 case prog_mode_PB1:
-                    Disp2String("Prog mode: PB1 was pressed, Setting = X"); // Idk how to change setting to char
+                    Disp2String("Prog mode: PB1 was pressed, Setting = ");
+                    XmitUART2(blink_setting,1);
+                    XmitUART2('\r',1);
+                    XmitUART2('\n',1);
+                    PR1 = 15625;              // blinkrate dependent on blinkrate variable 0 = 0.25, 1 = 0.5 and 2 = 1s
+                    if (TMR1 > PR1) 
+                        TMR1 = 0;
                     break;
                 case prog_mode_PB2:
-                    Disp2String("Prog Mode: Blink setting = X");    // For this i think you just dont even have the x and then whatever you input is X or just put the previous input for X maybe
+                    Disp2String("Prog Mode: Blink setting = ");    // For this i think you just dont even have the x and then whatever you input is X or just put the previous input for X maybe
+                    XmitUART2(blink_setting,1);
+                    XmitUART2('\r',1);
+                    XmitUART2('\n',1);
+                    PR1 = 1953;              // 0.125s blinkrate
+                    if (TMR1 > PR1) 
+                        TMR1 = 0;
+                    break;
+                case fast_mode_idle:
+                    Disp2String("Fast Mode: IDLE");
+                    XmitUART2('\r',1);
+                    XmitUART2('\n',1);
+                    LED0 = 0;
+                    break;
+                case prog_mode_idle:
+                    Disp2String("Prog Mode: IDLE");
+                    XmitUART2('\r',1);
+                    XmitUART2('\n',1);
+                    LED0 = 0;
                     break;
             }
 
@@ -260,4 +317,31 @@ int main(void) {
     }
     
     return 0;
+}
+
+// Timer 1 (LED0) ISR
+void __attribute__((interrupt, no_auto_psv)) _T1Interrupt(void){
+    LED0 ^= 1; // toggle LED0
+    LED0_last ^= 1;
+    IFS0bits.T2IF = 0; // Clear Timer 2 interrupt flag
+}
+
+// Timer 2 (LED0) ISR
+void __attribute__((interrupt, no_auto_psv)) _T2Interrupt(void){
+    LED0 ^= 1; // toggle LED0
+    LED0_last ^= 1;
+    IFS0bits.T2IF = 0; // Clear Timer 2 interrupt flag
+}
+
+// Timer 3 (LED1) ISR
+void __attribute__((interrupt, no_auto_psv)) _T3Interrupt(void){
+    LED1 ^= 1; // toggle LED1
+    LED1_last ^= 1;
+    IFS0bits.T3IF = 0; // Clear Timer 3 interrupt flag
+}
+
+// Interrupt-on-change ISR
+void __attribute__ ((interrupt, no_auto_psv)) _IOCInterrupt(void) {
+    pb_event = 1;   // flag that state machine needs to be updated
+    IFS1bits.IOCIF = 0; // Clear system-wide IOC flag
 }
