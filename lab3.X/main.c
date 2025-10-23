@@ -294,13 +294,13 @@ int main(void) {
                     break;
                 case prog_mode_PB2:
                     pb_stat = 0;
+                    PR1 = 1953;              // 0.125s blinkrate
+                    if (TMR1 > PR1) 
+                        TMR1 = 0;
                     Disp2String("Prog Mode: Blink setting = ");    // For this i think you just dont even have the x and then whatever you input is X or just put the previous input for X maybe
                     blink_setting = RecvUartChar();                // Need to rework this function still. It should display what it received as it goes though
                     XmitUART2('\r',1);
                     XmitUART2('\n',1);
-                    PR1 = 1953;              // 0.125s blinkrate
-                    if (TMR1 > PR1) 
-                        TMR1 = 0;
                     break;
                 case fast_mode_idle:
                     pb_stat = 0;
