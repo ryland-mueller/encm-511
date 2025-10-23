@@ -110,24 +110,24 @@ typedef enum
 states next_state = fast_mode_idle;
 states current_state = fast_mode_idle;
 
-uint8_t blink_setting;         // Would setting this as a char be helpful
+uint8_t blink_setting;
 
 // Define the transition combination to compare with pb_stat
-#define PB0_CLICKED (1 << PB0_CLICKED_FLAG)
-#define PB1_CLICKED (1 << PB1_CLICKED_FLAG)
-#define PB2_CLICKED (1 << PB2_CLICKED_FLAG)
-#define PB0_HELD (1 << PB0_HELD_FLAG)
-#define PB1_HELD (1 << PB1_HELD_FLAG)
-#define PB2_HELD (1 << PB2_HELD_FLAG)
-#define PB0_PB1_HELD ((1 << PB0_HELD_FLAG) | \
-                     (1 << PB1_HELD_FLAG))
-#define PB0_PB2_HELD ((1 << PB0_HELD_FLAG) | \
-                     (1 << PB2_HELD_FLAG))
-#define PB1_PB2_HELD ((1 << PB1_HELD_FLAG) | \
-                     (1 << PB2_HELD_FLAG))
-#define PB0_PB1_PB2_HELD ((1 << PB0_HELD_FLAG) | \
-                         (1 << PB1_HELD_FLAG) | \
-                         (1 << PB2_HELD_FLAG))
+#define PB0_CLICKED         (1 << PB0_CLICKED_FLAG)
+#define PB1_CLICKED         (1 << PB1_CLICKED_FLAG)
+#define PB2_CLICKED         (1 << PB2_CLICKED_FLAG)
+#define PB0_HELD            (1 << PB0_HELD_FLAG)
+#define PB1_HELD            (1 << PB1_HELD_FLAG)
+#define PB2_HELD            (1 << PB2_HELD_FLAG)
+#define PB0_PB1_HELD       ((1 << PB0_HELD_FLAG) | \
+                            (1 << PB1_HELD_FLAG))
+#define PB0_PB2_HELD       ((1 << PB0_HELD_FLAG) | \
+                            (1 << PB2_HELD_FLAG))
+#define PB1_PB2_HELD       ((1 << PB1_HELD_FLAG) | \
+                            (1 << PB2_HELD_FLAG))
+#define PB0_PB1_PB2_HELD   ((1 << PB0_HELD_FLAG) | \
+                            (1 << PB1_HELD_FLAG) | \
+                            (1 << PB2_HELD_FLAG))
 
 void get_blinkrate()
 {
