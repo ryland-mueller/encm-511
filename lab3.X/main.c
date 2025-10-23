@@ -119,15 +119,15 @@ uint8_t blink_setting;         // Would setting this as a char be helpful
 #define PB0_HELD (1 << PB0_HELD_FLAG)
 #define PB1_HELD (1 << PB1_HELD_FLAG)
 #define PB2_HELD (1 << PB2_HELD_FLAG)
-#define PB0_PB1_HELD (1 << PB0_HELD_FLAG) | \
-                     (1 << PB1_HELD_FLAG)
-#define PB0_PB2_HELD (1 << PB0_HELD_FLAG) | \
-                     (1 << PB2_HELD_FLAG)
-#define PB1_PB2_HELD (1 << PB1_HELD_FLAG) | \
-                     (1 << PB2_HELD_FLAG)
-#define PB0_PB1_PB2_HELD (1 << PB0_HELD_FLAG) | \
+#define PB0_PB1_HELD ((1 << PB0_HELD_FLAG) | \
+                     (1 << PB1_HELD_FLAG))
+#define PB0_PB2_HELD ((1 << PB0_HELD_FLAG) | \
+                     (1 << PB2_HELD_FLAG))
+#define PB1_PB2_HELD ((1 << PB1_HELD_FLAG) | \
+                     (1 << PB2_HELD_FLAG))
+#define PB0_PB1_PB2_HELD ((1 << PB0_HELD_FLAG) | \
                          (1 << PB1_HELD_FLAG) | \
-                         (1 << PB2_HELD_FLAG)
+                         (1 << PB2_HELD_FLAG))
 
 void get_blinkrate()
 {

@@ -30,6 +30,7 @@ void IO_init(void)
     IFS1bits.IOCIF = 0;             // Clear system-wide IOC flag
     IPC4bits.IOCIP = ISR_PRIORITY;  // Set IOC priority)
     IEC1bits.IOCIE = 1;             // Enable IOC
+    return;
 }
 
 //add timer 1 as well
@@ -57,4 +58,5 @@ void timer_init(void)
     IFS0bits.T3IF = 0;              // clear interrupt flag
     IEC0bits.T3IE = 1;              // enable interrupt
     PR3 = 62496;                    // set period for 4 s
+    return;
 }
