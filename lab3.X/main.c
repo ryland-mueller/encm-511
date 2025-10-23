@@ -63,9 +63,6 @@
 #include "init_functions.h"
 
 
-uint16_t slow = 0;
-char received;
-
 #define HELD_TIME 1000  // time in milliseconds a button must be pressed for it to be considered "held"
 #define DEBOUNCE_TIME 40
 

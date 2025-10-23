@@ -13,7 +13,7 @@
 #define CLEAR_BIT(flags, n)     ((flags) &= ~(1 << (n)))
 #define TOGGLE_BIT(flags, n)    ((flags) ^= (1 << (n)))
 
-extern uint8_t pb_stat;        // Bit-field for button status flags
+extern uint8_t pb_stat;      // Bit-field for button status flags
 #define PB0_HELD_FLAG    0   // Flag set to indicate PB0 is currently being held (after being held for >1s)
 #define PB0_CLICKED_FLAG 1   // Flag set to indicate PB0 has been clicked. Consumer should clear flag once acting on it
 #define PB1_HELD_FLAG    2   // Flag set to indicate PB1 is currently being held (after being held for >1s)
