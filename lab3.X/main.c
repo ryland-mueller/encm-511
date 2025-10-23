@@ -267,6 +267,7 @@ int main(void) {
             {
                 case fast_mode_PB0:
                     pb_stat = 0;
+                    T1CONbits.TON = 1;
                     Disp2String("Fast Mode: PB0 was pressed");
                     XmitUART2('\r',1);
                     XmitUART2('\n',1);
@@ -276,6 +277,7 @@ int main(void) {
                     break;
                 case fast_mode_PB1:
                     pb_stat = 0;
+                    T1CONbits.TON = 1;
                     Disp2String("Fast Mode: PB1 was pressed");
                     XmitUART2('\r',1);
                     XmitUART2('\n',1);
@@ -285,6 +287,7 @@ int main(void) {
                     break;
                 case fast_mode_PB2:
                     pb_stat = 0;
+                    T1CONbits.TON = 1;
                     Disp2String("Fast Mode: PB2 was pressed");
                     XmitUART2('\r',1);
                     XmitUART2('\n',1);
@@ -294,6 +297,7 @@ int main(void) {
                     break;
                 case fast_mode_PB0_PB1:
                     pb_stat = 0;
+                    T1CONbits.TON = 0;
                     Disp2String("Fast Mode: PB0 and PB1 are pressed");
                     XmitUART2('\r',1);
                     XmitUART2('\n',1);
@@ -301,6 +305,7 @@ int main(void) {
                     break;
                 case fast_mode_PB0_PB2:
                     pb_stat = 0;
+                    T1CONbits.TON = 0;
                     Disp2String("Fast Mode: PB0 and PB2 are pressed");
                     XmitUART2('\r',1);
                     XmitUART2('\n',1);
@@ -308,6 +313,7 @@ int main(void) {
                     break;
                 case fast_mode_PB1_PB2:
                     pb_stat = 0;
+                    T1CONbits.TON = 0;
                     Disp2String("Fast Mode: PB1 and PB2 are pressed");
                     XmitUART2('\r',1);
                     XmitUART2('\n',1);
@@ -315,6 +321,7 @@ int main(void) {
                     break;
                 case prog_mode_PB0:
                     pb_stat = 0;
+                    T1CONbits.TON = 1;
                     Disp2String("Prog Mode: PB0 was pressed");
                     XmitUART2('\r',1);
                     XmitUART2('\n',1);
@@ -324,6 +331,7 @@ int main(void) {
                     break;
                 case prog_mode_PB1:
                     pb_stat = 0;
+                    T1CONbits.TON = 1;
                     Disp2String("Prog mode: PB1 was pressed, Setting = ");
                     XmitUART2(blink_setting,1);
                     XmitUART2('\r',1);
@@ -334,6 +342,7 @@ int main(void) {
                     break;
                 case prog_mode_PB2:
                     pb_stat = 0;
+                    T1CONbits.TON = 1;
                     PR1 = 1953;              // 0.125s blinkrate
                     if (TMR1 > PR1) 
                         TMR1 = 0;
@@ -344,6 +353,7 @@ int main(void) {
                     break;
                 case fast_mode_idle:
                     pb_stat = 0;
+                    T1CONbits.TON = 0;
                     Disp2String("Fast Mode: IDLE");
                     XmitUART2('\r',1);
                     XmitUART2('\n',1);
@@ -351,6 +361,7 @@ int main(void) {
                     break;
                 case prog_mode_idle:
                     pb_stat = 0;
+                    T1CONbits.TON = 0;
                     Disp2String("Prog Mode: IDLE");
                     XmitUART2('\r',1);
                     XmitUART2('\n',1);
