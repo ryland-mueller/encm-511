@@ -111,6 +111,31 @@ void RecvUart(char* input, uint8_t buf_size)
     }
 }
 
+char RecvUartChar012()
+{	
+    char last_char;
+    XmitUART2(' ',1);
+    // wait for enter key
+    while (!CHECK_BIT(pb_stat,PB2_CLICKED)) {
+        if (RXFlag == 1) {
+
+            // only store chars '0', '1', '2'
+            if (received_char >= 48 && received_char <= 50) {
+                XmitUART2(0x08,1); // send backspace
+                last_char = received_char;
+                XmitUART2(received_char,1); // loop back display
+            }
+            U2STAbits.OERR = 0;
+            RXFlag = 0;
+        }
+        // if (CNflag == 1) { // this allows breaking out of the busy wait if CN interrupts are enabled...
+        //     add logic here
+        // }
+    }
+    return last_char; 
+}
+
+
 /************************************************************************
  * Receive a single (alphanumeric) character over UART
  * Description: This function allows you to receive a single character, which will only be 
