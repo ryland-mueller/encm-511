@@ -1,3 +1,11 @@
+/*
+ * File:   init_functions.c
+ * Author: Ryland Mueller, Patrick Mitenko, Bogdan Bacea
+ *
+ * Created FOR ENCM 511
+ * PLEASE ADD DATE CREATED HERE: 2025-10-21
+ */
+
 #include "init_functions.h"
 
 void IO_init(void)

@@ -1,8 +1,9 @@
-/* 
- * File:   
- * Author: 
- * Comments:
- * Revision history: 
+/*
+ * File:   init_functions.h
+ * Author: Ryland Mueller, Patrick Mitenko, Bogdan Bacea
+ *
+ * Created FOR ENCM 511
+ * PLEASE ADD DATE CREATED HERE: 2025-10-21
  */
 
 // This is a guard condition so that contents of this file are not included

@@ -1,8 +1,9 @@
-/* 
+/*
  * File:   common.h
- * Author: Ryland
+ * Author: Ryland Mueller, Patrick Mitenko, Bogdan Bacea
  *
- * Created on October 23, 2025, 11:26 AM
+ * Created FOR ENCM 511
+ * PLEASE ADD DATE CREATED HERE: 2025-10-23
  */
 
 #ifndef COMMON_H

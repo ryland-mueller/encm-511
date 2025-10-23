@@ -1,8 +1,9 @@
 /*
  * File:   uart.c
- * Author: psbta
+ * Author: Ryland Mueller, Patrick Mitenko, Bogdan Bacea
  *
- * Created on September 27, 2025, 8:07 PM
+ * Created FOR ENCM 511
+ * PLEASE ADD DATE CREATED HERE: 2025-10-21
  */
 
 
