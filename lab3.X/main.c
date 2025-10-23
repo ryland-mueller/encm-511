@@ -153,7 +153,7 @@ void determine_button_press()
         TMR2 = 0;
         T2CONbits.TON = 1;
     }
-    // Checks to see if the PB is released after the timer is done
+    // checks to see if the release was done before timer 1 was finsihed or after (click vs press)
     if(PB0_RELEASE == 1)
     {
         //TMR2 = 0;
@@ -184,6 +184,20 @@ void determine_button_press()
             SET_BIT(pb_stat,PB2_CLICKED);
         timer_done = 0;
     }   
+    
+   // Set the last state of each PB 
+    if(PB0 == 1)
+        SET_BIT(pb_last,PB0_LAST);
+    else if (PB0 == 0)
+        CLEAR_BIT(pb_last,PB0_LAST);
+    if(PB1 == 1)
+        SET_BIT(pb_last,PB1_LAST);
+    else if (PB0 == 0)
+        CLEAR_BIT(pb_last,PB1_LAST);
+    if(PB2 == 1)
+        SET_BIT(pb_last,PB2_LAST);
+    else if (PB0 == 0)
+        CLEAR_BIT(pb_last,PB2_LAST);
 }
 
 int main(void) {
@@ -200,9 +214,10 @@ int main(void) {
     T1CONbits.TON = 0;
     T2CONbits.TON = 0;
     timer_done = 0;
+    current_state = fast_mode_idle;
     
     while(1) {
-        Idle();
+        //Idle();
         
         if(pb_stat)
         {

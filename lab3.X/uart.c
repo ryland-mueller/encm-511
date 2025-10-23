@@ -160,7 +160,7 @@ void __attribute__ ((interrupt, no_auto_psv)) _U2RXInterrupt(void) {
     
     RXFlag = 1;
     
-    _LATB5 ^= 1;
+    _LATB6 ^= 1;
 }
 
 void __attribute__ ((interrupt, no_auto_psv)) _U2TXInterrupt(void) {
