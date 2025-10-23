@@ -111,7 +111,7 @@ typedef enum
 states currentstate = fast_mode_idle;
 states prevstate = fast_mode_idle;
 
-uint8_t blink_setting;         // Would setting this as a char be helpful
+char blink_setting = '0';         // Would setting this as a char be helpful
 
 void IO_init(void)
 {
@@ -298,7 +298,7 @@ int main(void) {
                     if (TMR1 > PR1) 
                         TMR1 = 0;
                     Disp2String("Prog Mode: Blink setting = ");    // For this i think you just dont even have the x and then whatever you input is X or just put the previous input for X maybe
-                    blink_setting = RecvUartChar();                // Need to rework this function still. It should display what it received as it goes though
+                    blink_setting = RecvUartChar012();             // Need to rework this function still. It should display what it received as it goes though
                     XmitUART2('\r',1);
                     XmitUART2('\n',1);
                     break;
