@@ -69,7 +69,7 @@ char received;
 #define CLEAR_BIT(flags, n)     ((flags) &= ~(1 << (n)))
 #define TOGGLE_BIT(flags, n)    ((flags) ^= (1 << (n)))
 
-uint8_t pb_stat;
+uint8_t pb_stat;        // Bit-field for button status flags
 #define PB0_HELD    0   // Flag set to indicate PB0 is currently being held (after being held for >1s)
 #define PB0_CLICKED 1   // Flag set to indicate PB0 has been clicked. Consumer should clear flag once acting on it
 #define PB1_HELD    2   // Flag set to indicate PB1 is currently being held (after being held for >1s)
@@ -77,7 +77,7 @@ uint8_t pb_stat;
 #define PB2_HELD    4   // Flag set to indicate PB2 is currently being held (after being held for >1s)
 #define PB2_CLICKED 5   // Flag set to indicate PB2 has been clicked. Consumer should clear flag once acting on it
 
-uint8_t pb_last;
+uint8_t pb_last;        // Bit-field for previous states of pushbuttons
 #define PB0_LAST    0   // Indicates the previous state of PB0
 #define PB1_LAST    1   // Indicates the previous state of PB1
 #define PB2_LAST    2   // Indicates the previous state of PB2
@@ -149,7 +149,7 @@ void timer_init(void)
     
     // Timer 1
     T1CONbits.TCKPS = 3;            // set prescaler to 1:256
-    IPC2bits.T1IP = ISR_PRIORITY;   // Interrupt priority
+    IPC0bits.T1IP = ISR_PRIORITY;   // Interrupt priority
     IFS0bits.T1IF = 0;              // clear interrupt flag
     IEC0bits.T1IE = 1;              // enable interrupt
     PR1 = 62496;                    // set period for 4 s
@@ -186,7 +186,7 @@ int main(void) {
     InitUART2();
     
     while(1) {
-        idle();
+        Idle();
 
         if(pb_stat)
         {
@@ -220,7 +220,7 @@ int main(void) {
                 else if(CHECK_BIT(pb_stat,PB0_CLICKED) && CHECK_BIT(pb_stat,PB1_CLICKED) && CHECK_BIT(pb_stat,PB2_CLICKED) && !CHECK_BIT(pb_stat,PB0_HELD) && !CHECK_BIT(pb_stat,PB1_HELD) && !CHECK_BIT(pb_stat,PB2_HELD))
                     currentstate = fast_mode_idle;
                     else
-                    currentstate = prog_mode_idle
+                    currentstate = prog_mode_idle;
             }
 
             switch(currentstate)
@@ -288,7 +288,7 @@ int main(void) {
                     XmitUART2(blink_setting,1);
                     XmitUART2('\r',1);
                     XmitUART2('\n',1);
-                    get_blinkrate()              // Sets PR1 dependent on blinkrate setting
+                    get_blinkrate();              // Sets PR1 dependent on blinkrate setting
                     if (TMR1 > PR1) 
                         TMR1 = 0;
                     break;
@@ -337,21 +337,18 @@ int main(void) {
 // Timer 1 (LED0) ISR
 void __attribute__((interrupt, no_auto_psv)) _T1Interrupt(void){
     LED0 ^= 1; // toggle LED0
-    LED0_last ^= 1;
     IFS0bits.T2IF = 0; // Clear Timer 2 interrupt flag
 }
 
 // Timer 2 (LED0) ISR
 void __attribute__((interrupt, no_auto_psv)) _T2Interrupt(void){
     LED0 ^= 1; // toggle LED0
-    LED0_last ^= 1;
     IFS0bits.T2IF = 0; // Clear Timer 2 interrupt flag
 }
 
 // Timer 3 (LED1) ISR
 void __attribute__((interrupt, no_auto_psv)) _T3Interrupt(void){
-    LED1 ^= 1; // toggle LED1
-    LED1_last ^= 1;
+    LED0 ^= 1; // toggle LED1
     IFS0bits.T3IF = 0; // Clear Timer 3 interrupt flag
 }
 
