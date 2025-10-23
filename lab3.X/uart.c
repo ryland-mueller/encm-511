@@ -121,7 +121,7 @@ void RecvUart(char* input, uint8_t buf_size)
  * Note: there is commented-out skeleton code that could be (re)implemented to allow the function
  * return early without the ENTER key given an interrupt-set global flag. 
  ************************************************************************/
-char RecvUartChar012()
+char RecvUartChar012(void)
 {	
     char last_char;
     XmitUART2(' ',1);

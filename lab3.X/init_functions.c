@@ -1,8 +1,5 @@
 #include "init_functions.h"
 
-// Same for all our ISRs to prevent them from pre-empting each other
-#define ISR_PRIORITY 2
-
 void IO_init(void)
 {
     ANSELA = 0x0000; /* keep this line as it sets I/O pins that can also be analog to be digital */
