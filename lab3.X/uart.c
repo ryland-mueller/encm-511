@@ -121,31 +121,23 @@ void RecvUart(char* input, uint8_t buf_size)
  * Note: there is commented-out skeleton code that could be (re)implemented to allow the function
  * return early without the ENTER key given an interrupt-set global flag. 
  ************************************************************************/
-char RecvUartChar()
+char RecvUartChar012()
 {	
     char last_char;
     XmitUART2(' ',1);
     // wait for enter key
-    while (last_char != 0x0D) {
+    while (!CHECK_BIT(pb_stat,PB0_CLICKED)) { //right now you have to hit enter to leave, change this to PB2 
         if (RXFlag == 1) {
-            
-            // return the last character received if you see ENTER
-            if (received_char == 0x0D) {
-                RXFlag = 0;
-                return last_char;
-            }
-            
-            // only store alphanumeric characters
-            if (received_char >= 32 && received_char <= 126) {
+                       
+            // only store chars '0', '1', '2'
+            if (received_char >= 48 && received_char <= 50) {
                 XmitUART2(0x08,1); // send backspace
                 last_char = received_char;
                 XmitUART2(received_char,1); // loop back display
             }
-           
             U2STAbits.OERR = 0;
             RXFlag = 0;
         }
-        
         // if (CNflag == 1) { // this allows breaking out of the busy wait if CN interrupts are enabled...
         //     add logic here
         // }
