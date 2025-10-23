@@ -22,6 +22,8 @@
       <itemPath>uart.h</itemPath>
       <itemPath>init_functions.c</itemPath>
       <itemPath>init_functions.h</itemPath>
+      <itemPath>delay.c</itemPath>
+      <itemPath>delay.h</itemPath>
     </logicalFolder>
   </logicalFolder>
   <sourceRootList>

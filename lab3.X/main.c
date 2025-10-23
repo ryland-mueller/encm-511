@@ -60,10 +60,7 @@
 #include "xc.h"
 #include "uart.h"
 #include "init_functions.h"
-
-
-uint16_t slow = 0;
-char received;
+#include "delay.h"
 
 #define SET_BIT(flags, n)       ((flags) |= (1 << (n)))
 #define CHECK_BIT(flags, n)     (((flags) >> (n)) & 1)
@@ -104,13 +101,22 @@ typedef enum
 #define PB1     PORTBbits.RB8
 #define PB2     PORTBbits.RB9
 
-
 #define DEBOUNCE_TIME 40    // in milliseconds
 
 states next_state = fast_mode_idle;
 states current_state = fast_mode_idle;
 
-uint8_t blink_setting;         // Would setting this as a char be helpful
+uint8_t blink_setting;      // Would setting this as a char be helpful
+uint8_t pb_event;           // Flag that is set whenever a PB interrupt occurs
+uint8_t timer_done;         // Flag that is set when timer 2 is reached
+
+#define PB0_PRESS (CHECK_BIT(pb_last,PB0_LAST) && !PB0)
+#define PB1_PRESS (CHECK_BIT(pb_last,PB1_LAST) && !PB1)
+#define PB2_PRESS (CHECK_BIT(pb_last,PB2_LAST) && !PB2)
+
+#define PB0_RELEASE (!CHECK_BIT(pb_last,PB0_LAST) && PB0)
+#define PB1_RELEASE (!CHECK_BIT(pb_last,PB1_LAST) && PB1)
+#define PB2_RELEASE (!CHECK_BIT(pb_last,PB2_LAST) && PB2)
 
 // Define the transition combination to compare with pb_stat
 #define PB0_CLICKED (1 << PB0_CLICKED_FLAG)
@@ -139,17 +145,71 @@ void get_blinkrate()
         PR1 = 15624;            // 1s
 }
 
+void determine_button_press()
+{
+    // If any of the buttons are pressed, restart the timer and turn it on
+    if(PB0_PRESS || PB1_PRESS || PB2_PRESS)
+    {
+        TMR2 = 0;
+        T2CONbits.TON = 1;
+    }
+    // Checks to see if the PB is released after the timer is done
+    if(PB0_RELEASE == 1)
+    {
+        //TMR2 = 0;
+        T2CONbits.TON = 0;
+        if (timer_done == 1)
+            SET_BIT(pb_stat,PB0_HELD);
+        else
+            SET_BIT(pb_stat,PB0_CLICKED);
+        timer_done = 0;
+    }
+    if(PB1_RELEASE == 1)
+    {
+        //TMR2 = 0;
+        T2CONbits.TON = 0;
+        if (timer_done == 1)
+            SET_BIT(pb_stat,PB1_HELD);
+        else
+            SET_BIT(pb_stat,PB1_CLICKED);
+        timer_done = 0;
+    }
+    if(PB2_RELEASE == 1)
+    {
+        //TMR2 = 0;
+        T2CONbits.TON = 0;
+        if (timer_done == 1)
+            SET_BIT(pb_stat,PB2_HELD);
+        else
+            SET_BIT(pb_stat,PB2_CLICKED);
+        timer_done = 0;
+    }   
+}
+
 int main(void) {
     
     IO_init();
     timer_init();
     InitUART2();
     
+    // Initialize variables and timers 
+    pb_stat = 0x00;         // Set the flag to zero
+    pb_last = 0xff;         // Set the last button press to one (idle state value)
+    pb_event = 0;
+    PR2 = 15625;    // Set Timer 2 limit to 1s, will be used for determining button presses
+    T1CONbits.TON = 0;
+    T2CONbits.TON = 0;
+    timer_done = 0;
+    
     while(1) {
         Idle();
-
+        
         if(pb_stat)
         {
+            
+        delay_ms(DEBOUNCE_TIME);
+        determine_button_press();
+        
             if(current_state == fast_mode_idle)
             {
                 if(pb_stat == PB0_CLICKED)
@@ -205,21 +265,21 @@ int main(void) {
             }
             else if (current_state == fast_mode_PB0_PB1)
             {
-                if(pb_stat == PB0_PB1_HELD)
+                if((pb_stat == PB0_HELD) || (pb_stat == PB1_HELD) || (pb_stat == PB2_HELD))
                     next_state = fast_mode_idle;
                 else
                     next_state = current_state;
             }
             else if (current_state == fast_mode_PB0_PB2)
             {
-                if(pb_stat == PB0_PB2_HELD)
+                if((pb_stat == PB0_HELD) || (pb_stat == PB1_HELD) || (pb_stat == PB2_HELD))
                     next_state = fast_mode_idle;
                 else
                     next_state = current_state;
             }
             else if (current_state == fast_mode_PB1_PB2)
             {
-                if(pb_stat == PB1_PB2_HELD)
+                if((pb_stat == PB0_HELD) || (pb_stat == PB1_HELD) || (pb_stat == PB2_HELD))
                     next_state = fast_mode_idle;
                 else
                     next_state = current_state;
@@ -252,6 +312,7 @@ int main(void) {
             {
                 case fast_mode_PB0:
                     pb_stat = 0;
+                    T1CONbits.TON = 1;
                     Disp2String("Fast Mode: PB0 was pressed");
                     XmitUART2('\r',1);
                     XmitUART2('\n',1);
@@ -261,6 +322,7 @@ int main(void) {
                     break;
                 case fast_mode_PB1:
                     pb_stat = 0;
+                    T1CONbits.TON = 1;
                     Disp2String("Fast Mode: PB1 was pressed");
                     XmitUART2('\r',1);
                     XmitUART2('\n',1);
@@ -270,6 +332,7 @@ int main(void) {
                     break;
                 case fast_mode_PB2:
                     pb_stat = 0;
+                    T1CONbits.TON = 1;
                     Disp2String("Fast Mode: PB2 was pressed");
                     XmitUART2('\r',1);
                     XmitUART2('\n',1);
@@ -279,6 +342,7 @@ int main(void) {
                     break;
                 case fast_mode_PB0_PB1:
                     pb_stat = 0;
+                    T1CONbits.TON = 0;
                     Disp2String("Fast Mode: PB0 and PB1 are pressed");
                     XmitUART2('\r',1);
                     XmitUART2('\n',1);
@@ -286,6 +350,7 @@ int main(void) {
                     break;
                 case fast_mode_PB0_PB2:
                     pb_stat = 0;
+                    T1CONbits.TON = 0;
                     Disp2String("Fast Mode: PB0 and PB2 are pressed");
                     XmitUART2('\r',1);
                     XmitUART2('\n',1);
@@ -293,6 +358,7 @@ int main(void) {
                     break;
                 case fast_mode_PB1_PB2:
                     pb_stat = 0;
+                    T1CONbits.TON = 0;
                     Disp2String("Fast Mode: PB1 and PB2 are pressed");
                     XmitUART2('\r',1);
                     XmitUART2('\n',1);
@@ -300,6 +366,7 @@ int main(void) {
                     break;
                 case prog_mode_PB0:
                     pb_stat = 0;
+                    T1CONbits.TON = 1;
                     Disp2String("Prog Mode: PB0 was pressed");
                     XmitUART2('\r',1);
                     XmitUART2('\n',1);
@@ -309,6 +376,7 @@ int main(void) {
                     break;
                 case prog_mode_PB1:
                     pb_stat = 0;
+                    T1CONbits.TON = 1;
                     Disp2String("Prog mode: PB1 was pressed, Setting = ");
                     XmitUART2(blink_setting,1);
                     XmitUART2('\r',1);
@@ -319,6 +387,7 @@ int main(void) {
                     break;
                 case prog_mode_PB2:
                     pb_stat = 0;
+                    T1CONbits.TON = 1;
                     Disp2String("Prog Mode: Blink setting = ");    // For this i think you just dont even have the x and then whatever you input is X or just put the previous input for X maybe
                     blink_setting = RecvUartChar();                // Need to rework this function still. It should display what it received as it goes though
                     XmitUART2('\r',1);
@@ -329,6 +398,7 @@ int main(void) {
                     break;
                 case fast_mode_idle:
                     pb_stat = 0;
+                    T1CONbits.TON = 0;
                     Disp2String("Fast Mode: IDLE");
                     XmitUART2('\r',1);
                     XmitUART2('\n',1);
@@ -336,13 +406,15 @@ int main(void) {
                     break;
                 case prog_mode_idle:
                     pb_stat = 0;
+                    T1CONbits.TON = 0;
                     Disp2String("Prog Mode: IDLE");
                     XmitUART2('\r',1);
                     XmitUART2('\n',1);
                     LED0 = 0;
                     break;
             }
-
+            
+            pb_event = 0;
         }
     }
     
@@ -357,18 +429,18 @@ void __attribute__((interrupt, no_auto_psv)) _T1Interrupt(void){
 
 // Timer 2 (LED0) ISR
 void __attribute__((interrupt, no_auto_psv)) _T2Interrupt(void){
-    LED0 ^= 1; // toggle LED0
+    timer_done = 1;    // Set flag that timer is finished
     IFS0bits.T2IF = 0; // Clear Timer 2 interrupt flag
 }
 
 // Timer 3 (LED1) ISR
 void __attribute__((interrupt, no_auto_psv)) _T3Interrupt(void){
-    LED0 ^= 1; // toggle LED1
+    //LED0 ^= 1; // toggle LED1
     IFS0bits.T3IF = 0; // Clear Timer 3 interrupt flag
 }
 
 // Interrupt-on-change ISR
 void __attribute__ ((interrupt, no_auto_psv)) _IOCInterrupt(void) {
-    //pb_event = 1;   // flag that state machine needs to be updated
+    pb_event = 1;   // flag that state machine needs to be updated
     IFS1bits.IOCIF = 0; // Clear system-wide IOC flag
 }

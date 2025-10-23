@@ -38,25 +38,26 @@ void timer_init(void)
 { 
     T2CONbits.T32 = 0;              // Operate timers 2 & 3 as separate 16-bit timers
     
-    // Timer 1
+    // Timer 1 (Used to blink LED0)
     T1CONbits.TCKPS = 3;            // set prescaler to 1:256
     IPC0bits.T1IP = ISR_PRIORITY;   // Interrupt priority
     IFS0bits.T1IF = 0;              // clear interrupt flag
     IEC0bits.T1IE = 1;              // enable interrupt
     PR1 = 62496;                    // set period for 4 s
 
-    // Timer 2
+    // Timer 2 (Used to determine click vs hold)
     T2CONbits.TCKPS = 3;            // set prescaler to 1:256
     IPC1bits.T2IP = ISR_PRIORITY;   // Interrupt priority
     IFS0bits.T2IF = 0;              // clear interrupt flag
     IEC0bits.T2IE = 1;              // enable interrupt
     PR2 = 3906;                     // set period for 0.25 s
     
-    // Timer 3
-    T3CONbits.TCKPS = 3;            // set prescaler to 1:256
+    // Timer 3 (Used for delay)
+    T3CONbits.TCKPS = 2;            // set prescaler to 1:64
     IPC2bits.T3IP = ISR_PRIORITY;   // Interrupt priority
     IFS0bits.T3IF = 0;              // clear interrupt flag
-    IEC0bits.T3IE = 1;              // enable interrupt
-    PR3 = 62496;                    // set period for 4 s
+    IEC0bits.T3IE = 0;              // disable interrupt
+    PR1 = 0xFFFF;                   // max timer period (use as counter)
+    
     return;
 }
