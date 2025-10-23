@@ -65,6 +65,9 @@
 uint16_t slow = 0;
 char received;
 
+#define HELD_TIME 1000  // time in milliseconds a button must be pressed for it to be considered "held"
+#define DEBOUNCE_TIME 40
+
 #define SET_BIT(flags, n)       ((flags) |= (1 << (n)))
 #define CHECK_BIT(flags, n)     (((flags) >> (n)) & 1)
 #define CLEAR_BIT(flags, n)     ((flags) &= ~(1 << (n)))
@@ -78,10 +81,19 @@ uint8_t pb_stat;        // Bit-field for button status flags
 #define PB2_HELD_FLAG    4   // Flag set to indicate PB2 is currently being held (after being held for >1s)
 #define PB2_CLICKED_FLAG 5   // Flag set to indicate PB2 has been clicked. Consumer should clear flag once acting on it
 
-uint8_t pb_last;        // Bit-field for previous states of pushbuttons
-#define PB0_LAST    0   // Indicates the previous state of PB0
-#define PB1_LAST    1   // Indicates the previous state of PB1
-#define PB2_LAST    2   // Indicates the previous state of PB2
+uint8_t pb_manager_flags;   // Bit-field of flags to be used by button manager logic
+#define PB_UPDATE   0   // Indicates an IOC interrupt has occured
+#define PB0_LAST    1   // Indicates the previous state of PB0
+#define PB1_LAST    2   // Indicates the previous state of PB1
+#define PB2_LAST    3   // Indicates the previous state of PB2
+#define PB0_ON      4   // Indicates PB0 is currently pressed and its counter is running
+#define PB1_ON      5   // Indicates PB1 is currently pressed and its counter is running
+#define PB2_ON      6   // Indicates PB2 is currently pressed and its counter is running
+
+uint8_t pb0_time = 0;   // Count of milliseconds that PB0 has been held for
+uint8_t pb1_time = 0;   // Count of milliseconds that PB1 has been held for
+uint8_t pb2_time = 0;   // Count of milliseconds that PB2 has been held for
+
 
 typedef enum
 {
@@ -103,9 +115,6 @@ typedef enum
 #define PB0     PORTAbits.RA4
 #define PB1     PORTBbits.RB8
 #define PB2     PORTBbits.RB9
-
-
-#define DEBOUNCE_TIME 40    // in milliseconds
 
 states next_state = fast_mode_idle;
 states current_state = fast_mode_idle;
@@ -147,6 +156,41 @@ int main(void) {
     
     while(1) {
         Idle();
+        
+        if(CHECK_BIT(pb_manager_flags, PB_UPDATE))
+        {
+            CLEAR_BIT(pb_manager_flags, PB_UPDATE);
+            
+            if(CHECK_BIT(pb_manager_flags, PB0_LAST) && !PB0) // Transition to pressed
+                SET_BIT(pb_manager_flags, PB0_ON);  // Start timing the press
+                
+            if(!PB0 && pb0_time >= HELD_TIME)    // Pressed for long enough to be "held"
+                SET_BIT(pb_stat, PB0_HELD_FLAG);
+            
+            if(!CHECK_BIT(pb_manager_flags, PB0_LAST) && PB0){   // Transition to released
+                
+                if(pb0_time >= DEBOUNCE_TIME && pb0_time < HELD_TIME)
+                    SET_BIT(pb_stat, PB0_CLICKED_FLAG); // flag a click occurred
+                
+                // stop timing the press
+                CLEAR_BIT(pb_manager_flags, PB0_ON);
+                pb0_time = 0;
+            }
+            
+            // Update "last" flags
+            if(PB0)
+                SET_BIT(pb_manager_flags, PB0_LAST);
+            else
+                CLEAR_BIT(pb_manager_flags, PB0_LAST);
+            if(PB1)
+                SET_BIT(pb_manager_flags, PB1_LAST);
+            else
+                CLEAR_BIT(pb_manager_flags, PB1_LAST);
+            if(PB2)
+                SET_BIT(pb_manager_flags, PB2_LAST);
+            else
+                CLEAR_BIT(pb_manager_flags, PB2_LAST);
+        }
 
         if(pb_stat)
         {
@@ -244,7 +288,7 @@ int main(void) {
                     next_state = prog_mode_idle;
                 else
                     next_state = current_state;
-            }    
+            }
 
             current_state = next_state;
 
@@ -355,20 +399,25 @@ void __attribute__((interrupt, no_auto_psv)) _T1Interrupt(void){
     IFS0bits.T2IF = 0; // Clear Timer 2 interrupt flag
 }
 
-// Timer 2 (LED0) ISR
+// Timer 2 (button manager) ISR
 void __attribute__((interrupt, no_auto_psv)) _T2Interrupt(void){
-    LED0 ^= 1; // toggle LED0
+    SET_BIT(pb_manager_flags, PB_UPDATE);   // flag that the button press logic needs to be run
+    if(CHECK_BIT(pb_manager_flags, PB0_ON))
+        pb0_time++;
+    if(CHECK_BIT(pb_manager_flags, PB1_ON))
+        pb1_time++;
+    if(CHECK_BIT(pb_manager_flags, PB2_ON))
+        pb2_time++;
     IFS0bits.T2IF = 0; // Clear Timer 2 interrupt flag
 }
 
-// Timer 3 (LED1) ISR
+// Timer 3 ISR
 void __attribute__((interrupt, no_auto_psv)) _T3Interrupt(void){
-    LED0 ^= 1; // toggle LED1
-    IFS0bits.T3IF = 0; // Clear Timer 3 interrupt flag
+    // not used
 }
 
 // Interrupt-on-change ISR
 void __attribute__ ((interrupt, no_auto_psv)) _IOCInterrupt(void) {
-    //pb_event = 1;   // flag that state machine needs to be updated
+    SET_BIT(pb_manager_flags, PB_UPDATE);   // flag that the button press logic needs to be run
     IFS1bits.IOCIF = 0; // Clear system-wide IOC flag
 }

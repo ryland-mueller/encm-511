@@ -33,7 +33,7 @@ void IO_init(void)
     return;
 }
 
-//add timer 1 as well
+
 void timer_init(void)
 { 
     T2CONbits.T32 = 0;              // Operate timers 2 & 3 as separate 16-bit timers
@@ -46,11 +46,11 @@ void timer_init(void)
     PR1 = 62496;                    // set period for 4 s
 
     // Timer 2
-    T2CONbits.TCKPS = 3;            // set prescaler to 1:256
+    T2CONbits.TCKPS = 1;            // set prescaler to 1:8
     IPC1bits.T2IP = ISR_PRIORITY;   // Interrupt priority
     IFS0bits.T2IF = 0;              // clear interrupt flag
     IEC0bits.T2IE = 1;              // enable interrupt
-    PR2 = 3906;                     // set period for 0.25 s
+    PR2 = 500;                      // set period for 1ms
     
     // Timer 3
     T3CONbits.TCKPS = 3;            // set prescaler to 1:256
