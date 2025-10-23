@@ -110,6 +110,10 @@ uint8_t blink_setting;      // Would setting this as a char be helpful
 uint8_t pb_event;           // Flag that is set whenever a PB interrupt occurs
 uint8_t timer_done;         // Flag that is set when timer 2 is reached
 
+uint8_t pb0_last_state;
+uint8_t pb0_click;
+uint8_t pb0_press;
+
 #define PB0_PRESS (CHECK_BIT(pb_last,PB0_LAST) && !PB0)
 #define PB1_PRESS (CHECK_BIT(pb_last,PB1_LAST) && !PB1)
 #define PB2_PRESS (CHECK_BIT(pb_last,PB2_LAST) && !PB2)
@@ -148,20 +152,20 @@ void get_blinkrate()
 void determine_button_press()
 {
     // If any of the buttons are pressed, restart the timer and turn it on
-    if(PB0_PRESS || PB1_PRESS || PB2_PRESS)
+    if(pb0_last_state && !PB0)
     {
         TMR2 = 0;
         T2CONbits.TON = 1;
     }
-    // checks to see if the release was done before timer 1 was finsihed or after (click vs press)
-    if(PB0_RELEASE == 1)
+    // checks to see if the release was done before timer 1 was finished or after (click vs press)
+    if(!pb0_last_state && PB0)
     {
         //TMR2 = 0;
         T2CONbits.TON = 0;
         if (timer_done == 1)
             SET_BIT(pb_stat,PB0_HELD);
         else
-            SET_BIT(pb_stat,PB0_CLICKED);
+            pb0_click == 1;
         timer_done = 0;
     }
     if(PB1_RELEASE == 1)
@@ -184,6 +188,8 @@ void determine_button_press()
             SET_BIT(pb_stat,PB2_CLICKED);
         timer_done = 0;
     }   
+    
+    pb0_last_state = PB0;
     
    // Set the last state of each PB 
     if(PB0 == 1)
@@ -215,11 +221,13 @@ int main(void) {
     T2CONbits.TON = 0;
     timer_done = 0;
     current_state = fast_mode_idle;
+    pb0_last_state = 1;
+    pb0_click = 0;
     
     while(1) {
-        //Idle();
+        Idle();
         
-        if(pb_stat)
+        if(pb_event)
         {
             
         delay_ms(DEBOUNCE_TIME);
@@ -227,7 +235,7 @@ int main(void) {
         
             if(current_state == fast_mode_idle)
             {
-                if(pb_stat == PB0_CLICKED)
+                if(pb0_click = 1)
                     next_state = fast_mode_PB0;
                 else if(pb_stat == PB1_CLICKED)
                     next_state = fast_mode_PB1;
@@ -259,7 +267,7 @@ int main(void) {
             }
             else if (current_state == fast_mode_PB0)
             {
-                if(pb_stat == PB0_CLICKED)
+                if(pb0_click = 1)
                     next_state = fast_mode_idle;
                 else
                     next_state = current_state;
@@ -326,14 +334,15 @@ int main(void) {
             switch(current_state)
             {
                 case fast_mode_PB0:
+                    pb0_click = 0;
                     pb_stat = 0;
-                    T1CONbits.TON = 1;
                     Disp2String("Fast Mode: PB0 was pressed");
                     XmitUART2('\r',1);
                     XmitUART2('\n',1);
                     PR1 = 3906;              // 0.25s blinkrate
                     if (TMR1 > PR1) 
                         TMR1 = 0;
+                    T1CONbits.TON = 1;
                     break;
                 case fast_mode_PB1:
                     pb_stat = 0;
@@ -412,6 +421,7 @@ int main(void) {
                         TMR1 = 0;
                     break;
                 case fast_mode_idle:
+                    pb0_click = 0;
                     pb_stat = 0;
                     T1CONbits.TON = 0;
                     Disp2String("Fast Mode: IDLE");
