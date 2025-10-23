@@ -56,6 +56,7 @@ void timer_init(void)
     IFS0bits.T2IF = 0;              // clear interrupt flag
     IEC0bits.T2IE = 1;              // enable interrupt
     PR2 = 500;                      // set period for 1ms
+    T2CONbits.TON = 1;
     
     // Timer 3
     T3CONbits.TCKPS = 3;            // set prescaler to 1:256
