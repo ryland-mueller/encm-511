@@ -220,21 +220,21 @@ int main(void) {
             }
             else if(current_state == fast_mode_PB0_PB1)
             {
-                if(pb_stat == PB0_PB1_HELD)
+                if(pb_stat == (PB0_HELD || PB1_HELD || PB2_HELD))
                     next_state = fast_mode_idle;
                 else
                     next_state = current_state;
             }
             else if(current_state == fast_mode_PB0_PB2)
             {
-                if(pb_stat == PB0_PB2_HELD)
+                if(pb_stat == (PB0_HELD || PB1_HELD || PB2_HELD))
                     next_state = fast_mode_idle;
                 else
                     next_state = current_state;
             }
             else if(current_state == fast_mode_PB1_PB2)
             {
-                if(pb_stat == PB1_PB2_HELD)
+                if(pb_stat == (PB0_HELD || PB1_HELD || PB2_HELD))
                     next_state = fast_mode_idle;
                 else
                     next_state = current_state;
