@@ -20,6 +20,8 @@
       <itemPath>main.c</itemPath>
       <itemPath>uart.c</itemPath>
       <itemPath>uart.h</itemPath>
+      <itemPath>init_functions.c</itemPath>
+      <itemPath>init_functions.h</itemPath>
     </logicalFolder>
   </logicalFolder>
   <sourceRootList>

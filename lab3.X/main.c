@@ -59,6 +59,7 @@
 
 #include "xc.h"
 #include "uart.h"
+#include "init_functions.h"
 
 
 uint16_t slow = 0;
@@ -70,12 +71,12 @@ char received;
 #define TOGGLE_BIT(flags, n)    ((flags) ^= (1 << (n)))
 
 uint8_t pb_stat;        // Bit-field for button status flags
-#define PB0_HELD    0   // Flag set to indicate PB0 is currently being held (after being held for >1s)
-#define PB0_CLICKED 1   // Flag set to indicate PB0 has been clicked. Consumer should clear flag once acting on it
-#define PB1_HELD    2   // Flag set to indicate PB1 is currently being held (after being held for >1s)
-#define PB1_CLICKED 3   // Flag set to indicate PB1 has been clicked. Consumer should clear flag once acting on it
-#define PB2_HELD    4   // Flag set to indicate PB2 is currently being held (after being held for >1s)
-#define PB2_CLICKED 5   // Flag set to indicate PB2 has been clicked. Consumer should clear flag once acting on it
+#define PB0_HELD_FLAG    0   // Flag set to indicate PB0 is currently being held (after being held for >1s)
+#define PB0_CLICKED_FLAG 1   // Flag set to indicate PB0 has been clicked. Consumer should clear flag once acting on it
+#define PB1_HELD_FLAG    2   // Flag set to indicate PB1 is currently being held (after being held for >1s)
+#define PB1_CLICKED_FLAG 3   // Flag set to indicate PB1 has been clicked. Consumer should clear flag once acting on it
+#define PB2_HELD_FLAG    4   // Flag set to indicate PB2 is currently being held (after being held for >1s)
+#define PB2_CLICKED_FLAG 5   // Flag set to indicate PB2 has been clicked. Consumer should clear flag once acting on it
 
 uint8_t pb_last;        // Bit-field for previous states of pushbuttons
 #define PB0_LAST    0   // Indicates the previous state of PB0
@@ -103,71 +104,30 @@ typedef enum
 #define PB1     PORTBbits.RB8
 #define PB2     PORTBbits.RB9
 
-// Same for all our ISRs to prevent them from pre-empting each other
-#define ISR_PRIORITY 2
 
 #define DEBOUNCE_TIME 40    // in milliseconds
 
-states currentstate = fast_mode_idle;
-states prevstate = fast_mode_idle;
+states next_state = fast_mode_idle;
+states current_state = fast_mode_idle;
 
 uint8_t blink_setting;         // Would setting this as a char be helpful
 
-void IO_init(void)
-{
-    ANSELA = 0x0000; /* keep this line as it sets I/O pins that can also be analog to be digital */
-    ANSELB = 0x0000; /* keep this line as it sets I/O pins that can also be analog to be digital */
-
-    TRISBbits.TRISB5 = 0;   // Set to output (LED0)
-
-    TRISAbits.TRISA4 = 1;   // Set to input (PB0)
-    TRISBbits.TRISB8 = 1;   // Set to input (PB1)
-    TRISBbits.TRISB9 = 1;   // Set to input (PB2)
-    
-    IOCPUAbits.IOCPA4 = 1;  // Enable pull-up (PB0)
-    IOCPUBbits.IOCPB8 = 1;  // Enable pull-up (PB1)
-    IOCPUBbits.IOCPB9 = 1;  // Enable pull-up (PB2)
-
-    PADCONbits.IOCON = 1;   // Enable interrupt-on-change (IOC)
-    
-    IOCNAbits.IOCNA4 = 1;   // Enable high-to-low IOC (PB0)
-    IOCPAbits.IOCPA4 = 1;   // Enable low-to-high IOC (PB0)
-    IOCNBbits.IOCNB8 = 1;   // Enable high-to-low IOC (PB1)
-    IOCPBbits.IOCPB8 = 1;   // Enable low-to-high IOC (PB1)
-    IOCNBbits.IOCNB9 = 1;   // Enable high-to-low IOC (PB2)
-    IOCPBbits.IOCPB9 = 1;   // Enable low-to-high IOC (PB2)
-    
-    IFS1bits.IOCIF = 0;             // Clear system-wide IOC flag
-    IPC4bits.IOCIP = ISR_PRIORITY;  // Set IOC priority)
-    IEC1bits.IOCIE = 1;             // Enable IOC
-}
-
-//add timer 1 as well
-void timer_init(void)
-{ 
-    T2CONbits.T32 = 0;              // Operate timers 2 & 3 as separate 16-bit timers
-    
-    // Timer 1
-    T1CONbits.TCKPS = 3;            // set prescaler to 1:256
-    IPC0bits.T1IP = ISR_PRIORITY;   // Interrupt priority
-    IFS0bits.T1IF = 0;              // clear interrupt flag
-    IEC0bits.T1IE = 1;              // enable interrupt
-    PR1 = 62496;                    // set period for 4 s
-
-    // Timer 2
-    T2CONbits.TCKPS = 3;            // set prescaler to 1:256
-    IPC1bits.T2IP = ISR_PRIORITY;   // Interrupt priority
-    IFS0bits.T2IF = 0;              // clear interrupt flag
-    IEC0bits.T2IE = 1;              // enable interrupt
-    PR2 = 3906;                     // set period for 0.25 s
-    
-    // Timer 3
-    T3CONbits.TCKPS = 3;            // set prescaler to 1:256
-    IPC2bits.T3IP = ISR_PRIORITY;   // Interrupt priority
-    IFS0bits.T3IF = 0;              // clear interrupt flag
-    IEC0bits.T3IE = 1;              // enable interrupt
-    PR3 = 62496;                    // set period for 4 s
-}
+// Define the transition combination to compare with pb_stat
+#define PB0_CLICKED (1 << PB0_CLICKED_FLAG)
+#define PB1_CLICKED (1 << PB1_CLICKED_FLAG)
+#define PB2_CLICKED (1 << PB2_CLICKED_FLAG)
+#define PB0_HELD (1 << PB0_HELD_FLAG)
+#define PB1_HELD (1 << PB1_HELD_FLAG)
+#define PB2_HELD (1 << PB2_HELD_FLAG)
+#define PB0_PB1_HELD (1 << PB0_HELD_FLAG) | \
+                     (1 << PB1_HELD_FLAG)
+#define PB0_PB2_HELD (1 << PB0_HELD_FLAG) | \
+                     (1 << PB2_HELD_FLAG)
+#define PB1_PB2_HELD (1 << PB1_HELD_FLAG) | \
+                     (1 << PB2_HELD_FLAG)
+#define PB0_PB1_PB2_HELD (1 << PB0_HELD_FLAG) | \
+                         (1 << PB1_HELD_FLAG) | \
+                         (1 << PB2_HELD_FLAG)
 
 void get_blinkrate()
 {
@@ -190,40 +150,105 @@ int main(void) {
 
         if(pb_stat)
         {
-            if(prevstate == fast_mode_idle)
+            if(current_state == fast_mode_idle)
             {
-                if(CHECK_BIT(pb_stat,PB0_CLICKED) && !CHECK_BIT(pb_stat,PB1_CLICKED) && !CHECK_BIT(pb_stat,PB2_CLICKED) && !CHECK_BIT(pb_stat,PB0_HELD) && !CHECK_BIT(pb_stat,PB1_HELD) && !CHECK_BIT(pb_stat,PB2_HELD))
-                    currentstate = fast_mode_PB0;
-                else if(!CHECK_BIT(pb_stat,PB0_CLICKED) && CHECK_BIT(pb_stat,PB1_CLICKED) && !CHECK_BIT(pb_stat,PB2_CLICKED) && !CHECK_BIT(pb_stat,PB0_HELD) && !CHECK_BIT(pb_stat,PB1_HELD) && !CHECK_BIT(pb_stat,PB2_HELD))
-                    currentstate = fast_mode_PB1;
-                else if(!CHECK_BIT(pb_stat,PB0_CLICKED) && !CHECK_BIT(pb_stat,PB1_CLICKED) && CHECK_BIT(pb_stat,PB2_CLICKED) && !CHECK_BIT(pb_stat,PB0_HELD) && !CHECK_BIT(pb_stat,PB1_HELD) && !CHECK_BIT(pb_stat,PB2_HELD))
-                    currentstate = fast_mode_PB2;
-                else if(!CHECK_BIT(pb_stat,PB0_CLICKED) && !CHECK_BIT(pb_stat,PB1_CLICKED) && !CHECK_BIT(pb_stat,PB2_CLICKED) && CHECK_BIT(pb_stat,PB0_HELD) && CHECK_BIT(pb_stat,PB1_HELD) && !CHECK_BIT(pb_stat,PB2_HELD))
-                    currentstate = fast_mode_PB0_PB1;
-                else if(!CHECK_BIT(pb_stat,PB0_CLICKED) && !CHECK_BIT(pb_stat,PB1_CLICKED) && !CHECK_BIT(pb_stat,PB2_CLICKED) && CHECK_BIT(pb_stat,PB0_HELD) && !CHECK_BIT(pb_stat,PB1_HELD) && CHECK_BIT(pb_stat,PB2_HELD))
-                    currentstate = fast_mode_PB0_PB2;
-                else if(!CHECK_BIT(pb_stat,PB0_CLICKED) && !CHECK_BIT(pb_stat,PB1_CLICKED) && !CHECK_BIT(pb_stat,PB2_CLICKED) && !CHECK_BIT(pb_stat,PB0_HELD) && CHECK_BIT(pb_stat,PB1_HELD) && CHECK_BIT(pb_stat,PB2_HELD))
-                    currentstate = fast_mode_PB1_PB2;
-                else if(CHECK_BIT(pb_stat,PB0_CLICKED) && CHECK_BIT(pb_stat,PB1_CLICKED) && CHECK_BIT(pb_stat,PB2_CLICKED) && !CHECK_BIT(pb_stat,PB0_HELD) && !CHECK_BIT(pb_stat,PB1_HELD) && !CHECK_BIT(pb_stat,PB2_HELD))
-                    currentstate = prog_mode_idle;
+                if(pb_stat == PB0_CLICKED)
+                    next_state = fast_mode_PB0;
+                else if(pb_stat == PB1_CLICKED)
+                    next_state = fast_mode_PB1;
+                else if(pb_stat == PB2_CLICKED)
+                    next_state = fast_mode_PB2;
+                else if(pb_stat == PB0_PB1_HELD)
+                    next_state = fast_mode_PB0_PB1;
+                else if(pb_stat == PB0_PB2_HELD)
+                    next_state = fast_mode_PB0_PB2;
+                else if(pb_stat == PB1_PB2_HELD)
+                    next_state = fast_mode_PB1_PB2;
+                else if(pb_stat == PB0_PB1_PB2_HELD)
+                    next_state = prog_mode_idle;
                 else
-                    currentstate = fast_mode_idle;
+                    next_state = fast_mode_idle;
             }
-            else if (prevstate == prog_mode_idle)
+            else if (current_state == prog_mode_idle)
             {
-                if(CHECK_BIT(pb_stat,PB0_CLICKED) && !CHECK_BIT(pb_stat,PB1_CLICKED) && !CHECK_BIT(pb_stat,PB2_CLICKED) && !CHECK_BIT(pb_stat,PB0_HELD) && !CHECK_BIT(pb_stat,PB1_HELD) && !CHECK_BIT(pb_stat,PB2_HELD))
-                    currentstate = prog_mode_PB0;
-                else if(CHECK_BIT(!pb_stat,PB0_CLICKED) && CHECK_BIT(pb_stat,PB1_CLICKED) && !CHECK_BIT(pb_stat,PB2_CLICKED) && !CHECK_BIT(pb_stat,PB0_HELD) && !CHECK_BIT(pb_stat,PB1_HELD) && !CHECK_BIT(pb_stat,PB2_HELD))
-                    currentstate = prog_mode_PB1;
-                else if(CHECK_BIT(!pb_stat,PB0_CLICKED) && !CHECK_BIT(pb_stat,PB1_CLICKED) && CHECK_BIT(pb_stat,PB2_CLICKED) && !CHECK_BIT(pb_stat,PB0_HELD) && !CHECK_BIT(pb_stat,PB1_HELD) && !CHECK_BIT(pb_stat,PB2_HELD))
-                    currentstate = prog_mode_PB2;
-                else if(CHECK_BIT(pb_stat,PB0_CLICKED) && CHECK_BIT(pb_stat,PB1_CLICKED) && CHECK_BIT(pb_stat,PB2_CLICKED) && !CHECK_BIT(pb_stat,PB0_HELD) && !CHECK_BIT(pb_stat,PB1_HELD) && !CHECK_BIT(pb_stat,PB2_HELD))
-                    currentstate = fast_mode_idle;
+                if(pb_stat == PB0_CLICKED)
+                    next_state = prog_mode_PB0;
+                else if(pb_stat == PB1_CLICKED)
+                    next_state = prog_mode_PB1;
+                else if(pb_stat == PB2_CLICKED)
+                    next_state = prog_mode_PB2;
+                else if(pb_stat == PB0_PB1_PB2_HELD)
+                    next_state = fast_mode_idle;
                     else
-                    currentstate = prog_mode_idle;
+                    next_state = prog_mode_idle;
             }
+            else if (current_state == fast_mode_PB0)
+            {
+                if(pb_stat == PB0_CLICKED)
+                    next_state = fast_mode_idle;
+                else
+                    next_state = current_state;
+            }
+            else if (current_state == fast_mode_PB1)
+            {
+                if(pb_stat == PB1_CLICKED)
+                    next_state = fast_mode_idle;
+                else
+                    next_state = current_state;
+            }    
+            else if (current_state == fast_mode_PB2)
+            {
+                if(pb_stat == PB2_CLICKED)
+                    next_state = fast_mode_idle;
+                else
+                    next_state = current_state;
+            }
+            else if (current_state == fast_mode_PB0_PB1)
+            {
+                if(pb_stat == PB0_PB1_HELD)
+                    next_state = fast_mode_idle;
+                else
+                    next_state = current_state;
+            }
+            else if (current_state == fast_mode_PB0_PB2)
+            {
+                if(pb_stat == PB0_PB2_HELD)
+                    next_state = fast_mode_idle;
+                else
+                    next_state = current_state;
+            }
+            else if (current_state == fast_mode_PB1_PB2)
+            {
+                if(pb_stat == PB1_PB2_HELD)
+                    next_state = fast_mode_idle;
+                else
+                    next_state = current_state;
+            }
+            else if (current_state == prog_mode_PB0)
+            {
+                if(pb_stat == PB0_CLICKED)
+                    next_state = prog_mode_idle;
+                else
+                    next_state = current_state;
+            }
+            else if (current_state == prog_mode_PB1)
+            {
+                if(pb_stat == PB1_CLICKED)
+                    next_state = prog_mode_idle;
+                else
+                    next_state = current_state;
+            }
+            else if (current_state == prog_mode_PB2)
+            {
+                if(pb_stat == PB2_CLICKED)
+                    next_state = prog_mode_idle;
+                else
+                    next_state = current_state;
+            }    
 
-            switch(currentstate)
+            current_state = next_state;
+
+            switch(current_state)
             {
                 case fast_mode_PB0:
                     pb_stat = 0;
@@ -318,17 +343,7 @@ int main(void) {
                     break;
             }
 
-            prevstate = currentstate;
         }
-
-
-        Disp2String("Enter a character (hit enter to receive): ");
-        received = RecvUartChar();
-        Disp2String("\r\n you entered ");
-        XmitUART2(received,1);
-        XmitUART2('\r',1);
-        XmitUART2('\n',1);
-        
     }
     
     return 0;
@@ -354,6 +369,6 @@ void __attribute__((interrupt, no_auto_psv)) _T3Interrupt(void){
 
 // Interrupt-on-change ISR
 void __attribute__ ((interrupt, no_auto_psv)) _IOCInterrupt(void) {
-    pb_event = 1;   // flag that state machine needs to be updated
+    //pb_event = 1;   // flag that state machine needs to be updated
     IFS1bits.IOCIF = 0; // Clear system-wide IOC flag
 }
