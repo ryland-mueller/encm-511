@@ -6,7 +6,11 @@
  * PLEASE ADD DATE CREATED HERE: 2025-10-21
  */
 
-#include "init_functions.h"
+#include "string.h"
+#include "common.h"
+
+// Same for all our ISRs to prevent them from pre-empting each other
+#define ISR_PRIORITY 2
 
 void IO_init(void)
 {
@@ -43,25 +47,25 @@ void timer_init(void)
 { 
     T2CONbits.T32 = 0;              // Operate timers 2 & 3 as separate 16-bit timers
     
-    // Timer 1
+    // Timer 1 (for LED0)
     T1CONbits.TCKPS = 3;            // set prescaler to 1:256
     IPC0bits.T1IP = ISR_PRIORITY;   // Interrupt priority
     IFS0bits.T1IF = 0;              // clear interrupt flag
     IEC0bits.T1IE = 1;              // enable interrupt
     PR1 = 62496;                    // set period for 4 s
 
-    // Timer 2
+    // Timer 2 (for button timing)
     T2CONbits.TCKPS = 1;            // set prescaler to 1:8
     IPC1bits.T2IP = ISR_PRIORITY;   // Interrupt priority
     IFS0bits.T2IF = 0;              // clear interrupt flag
     IEC0bits.T2IE = 1;              // enable interrupt
     PR2 = 500;                      // set period for 1ms
+    T2CONbits.TON = 1;              // start da tima
     
-    // Timer 3
-    T3CONbits.TCKPS = 3;            // set prescaler to 1:256
-    IPC2bits.T3IP = ISR_PRIORITY;   // Interrupt priority
+    // Timer 3 (for delay function)
+    T3CONbits.TCKPS = 2;            // set prescaler to 1:64
     IFS0bits.T3IF = 0;              // clear interrupt flag
-    IEC0bits.T3IE = 1;              // enable interrupt
-    PR3 = 62496;                    // set period for 4 s
+    IEC0bits.T3IE = 0;              // disable interrupt
+    PR3 = 0xFFFF;                   // max timer period (use as counter)
     return;
 }
