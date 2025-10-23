@@ -152,93 +152,93 @@ int main(void) {
         {
             if(current_state == fast_mode_idle)
             {
-                if(pb_stat == PB0_CLICKED)
+                if      (pb_stat == PB0_CLICKED)
                     next_state = fast_mode_PB0;
-                else if(pb_stat == PB1_CLICKED)
+                else if (pb_stat == PB1_CLICKED)
                     next_state = fast_mode_PB1;
-                else if(pb_stat == PB2_CLICKED)
+                else if (pb_stat == PB2_CLICKED)
                     next_state = fast_mode_PB2;
-                else if(pb_stat == PB0_PB1_HELD)
+                else if (pb_stat == PB0_PB1_HELD)
                     next_state = fast_mode_PB0_PB1;
-                else if(pb_stat == PB0_PB2_HELD)
+                else if (pb_stat == PB0_PB2_HELD)
                     next_state = fast_mode_PB0_PB2;
-                else if(pb_stat == PB1_PB2_HELD)
+                else if (pb_stat == PB1_PB2_HELD)
                     next_state = fast_mode_PB1_PB2;
-                else if(pb_stat == PB0_PB1_PB2_HELD)
+                else if (pb_stat == PB0_PB1_PB2_HELD)
                     next_state = prog_mode_idle;
                 else
                     next_state = fast_mode_idle;
             }
-            else if (current_state == prog_mode_idle)
+            else if(current_state == prog_mode_idle)
             {
-                if(pb_stat == PB0_CLICKED)
+                if      (pb_stat == PB0_CLICKED)
                     next_state = prog_mode_PB0;
-                else if(pb_stat == PB1_CLICKED)
+                else if (pb_stat == PB1_CLICKED)
                     next_state = prog_mode_PB1;
-                else if(pb_stat == PB2_CLICKED)
+                else if (pb_stat == PB2_CLICKED)
                     next_state = prog_mode_PB2;
-                else if(pb_stat == PB0_PB1_PB2_HELD)
+                else if (pb_stat == PB0_PB1_PB2_HELD)
                     next_state = fast_mode_idle;
-                    else
+                else
                     next_state = prog_mode_idle;
             }
-            else if (current_state == fast_mode_PB0)
+            else if(current_state == fast_mode_PB0)
             {
                 if(pb_stat == PB0_CLICKED)
                     next_state = fast_mode_idle;
                 else
                     next_state = current_state;
             }
-            else if (current_state == fast_mode_PB1)
+            else if(current_state == fast_mode_PB1)
             {
                 if(pb_stat == PB1_CLICKED)
                     next_state = fast_mode_idle;
                 else
                     next_state = current_state;
             }    
-            else if (current_state == fast_mode_PB2)
+            else if(current_state == fast_mode_PB2)
             {
                 if(pb_stat == PB2_CLICKED)
                     next_state = fast_mode_idle;
                 else
                     next_state = current_state;
             }
-            else if (current_state == fast_mode_PB0_PB1)
+            else if(current_state == fast_mode_PB0_PB1)
             {
                 if(pb_stat == PB0_PB1_HELD)
                     next_state = fast_mode_idle;
                 else
                     next_state = current_state;
             }
-            else if (current_state == fast_mode_PB0_PB2)
+            else if(current_state == fast_mode_PB0_PB2)
             {
                 if(pb_stat == PB0_PB2_HELD)
                     next_state = fast_mode_idle;
                 else
                     next_state = current_state;
             }
-            else if (current_state == fast_mode_PB1_PB2)
+            else if(current_state == fast_mode_PB1_PB2)
             {
                 if(pb_stat == PB1_PB2_HELD)
                     next_state = fast_mode_idle;
                 else
                     next_state = current_state;
             }
-            else if (current_state == prog_mode_PB0)
+            else if(current_state == prog_mode_PB0)
             {
                 if(pb_stat == PB0_CLICKED)
                     next_state = prog_mode_idle;
                 else
                     next_state = current_state;
             }
-            else if (current_state == prog_mode_PB1)
+            else if(current_state == prog_mode_PB1)
             {
                 if(pb_stat == PB1_CLICKED)
                     next_state = prog_mode_idle;
                 else
                     next_state = current_state;
             }
-            else if (current_state == prog_mode_PB2)
+            else if(current_state == prog_mode_PB2)
             {
                 if(pb_stat == PB2_CLICKED)
                     next_state = prog_mode_idle;
