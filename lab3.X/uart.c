@@ -135,41 +135,6 @@ char RecvUartChar012()
     return last_char; 
 }
 
-
-/************************************************************************
- * Receive a single (alphanumeric) character over UART
- * Description: This function allows you to receive a single character, which will only be 
- * "accepted" (returned) after receiving the ENTER key (0x0D). 
- * While receiving characters, the program is designed to send back the received character.
- * To display this, it sends a BACKSPACE (0x08) to clear the previous character from the 
- * receiving terminal, before sending the new current character. 
- * 
- * Note: there is commented-out skeleton code that could be (re)implemented to allow the function
- * return early without the ENTER key given an interrupt-set global flag. 
- ************************************************************************/
-char RecvUartChar012(void)
-{	
-    char last_char;
-    XmitUART2(' ',1);
-    // wait for enter key
-    while (!CHECK_BIT(pb_stat,PB0_CLICKED)) { //right now you have to hit enter to leave, change this to PB2 
-        if (RXFlag == 1) {
-                       
-            // only store chars '0', '1', '2'
-            if (received_char >= 48 && received_char <= 50) {
-                XmitUART2(0x08,1); // send backspace
-                last_char = received_char;
-                XmitUART2(received_char,1); // loop back display
-            }
-            U2STAbits.OERR = 0;
-            RXFlag = 0;
-        }
-        // if (CNflag == 1) { // this allows breaking out of the busy wait if CN interrupts are enabled...
-        //     add logic here
-        // }
-    }
-}
-
 void __attribute__ ((interrupt, no_auto_psv)) _U2RXInterrupt(void) {
 
 	IFS1bits.U2RXIF = 0;
