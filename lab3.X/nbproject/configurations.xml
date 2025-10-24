@@ -25,6 +25,8 @@
       <itemPath>common.h</itemPath>
       <itemPath>delay.c</itemPath>
       <itemPath>delay.h</itemPath>
+      <itemPath>buttons.h</itemPath>
+      <itemPath>buttons.c</itemPath>
     </logicalFolder>
   </logicalFolder>
   <sourceRootList>
