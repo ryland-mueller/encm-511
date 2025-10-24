@@ -9,6 +9,8 @@
 #ifndef COMMON_H
 #define	COMMON_H
 
+#include "xc.h"
+
 #define SET_BIT(flags, n)       ((flags) |= (1 << (n)))
 #define CHECK_BIT(flags, n)     (((flags) >> (n)) & 1)
 #define CLEAR_BIT(flags, n)     ((flags) &= ~(1 << (n)))

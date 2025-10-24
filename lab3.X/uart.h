@@ -11,11 +11,6 @@
 #ifndef UART_H
 #define	UART_H
 
-#include <xc.h> // include processor files - each processor file is guarded.  
-#include "string.h"
-
-#include "common.h"
-
 void InitUART2(void);
 void Disp2String(char *str);
 void XmitUART2(char CharNum, unsigned int repeatNo);

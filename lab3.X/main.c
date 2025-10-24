@@ -57,7 +57,6 @@
 #pragma config ALTI2C1 = ALTI2CEN   //Alternate I2C pin Location->SDA1 and SCL1 on RB9 and RB8
 
 
-#include "xc.h"
 #include "common.h"
 #include "uart.h"
 #include "init_functions.h"

@@ -7,6 +7,8 @@
  */
 
 
+#include "string.h"
+#include "common.h"
 #include "uart.h"
 
 uint8_t received_char = 0;

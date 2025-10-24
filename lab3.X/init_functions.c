@@ -6,7 +6,12 @@
  * PLEASE ADD DATE CREATED HERE: 2025-10-21
  */
 
+#include "string.h"
+#include "common.h"
 #include "init_functions.h"
+
+// Same for all our ISRs to prevent them from pre-empting each other
+#define ISR_PRIORITY 2
 
 void IO_init(void)
 {
