@@ -11,7 +11,7 @@ uint16_t pb1_time = 0;  // extern in header, initialized to zero here
 uint16_t pb2_time = 0;  // extern in header, initialized to zero here
 
 #define HELD_TIME 1000  // time in milliseconds a button must be pressed for it to be considered "held"
-#define DEBOUNCE_TIME 40
+#define DEBOUNCE_TIME 100
 
 //DEBUG
 char str_buffer[10];

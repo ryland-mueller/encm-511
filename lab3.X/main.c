@@ -221,117 +221,116 @@ int main(void) {
                 else
                     next_state = current_state;
             }
-            
-            if(current_state != next_state)
-                state_changed = 1;
-                
-            current_state = next_state;
-            
-            
-            if(state_changed)
-            {
-                switch(current_state)
-                {
-                    case fast_mode_PB0:
-                        Disp2String("Fast Mode: PB0 was pressed");
-                        XmitUART2('\r',1);
-                        XmitUART2('\n',1);
-                        PR1 = 3906;              // 0.25s blinkrate
-                        if (TMR1 > PR1) 
-                            TMR1 = 0;
-                        T1CONbits.TON = 1;
-                        break;
-                    case fast_mode_PB1:
-                        T1CONbits.TON = 1;
-                        Disp2String("Fast Mode: PB1 was pressed");
-                        XmitUART2('\r',1);
-                        XmitUART2('\n',1);
-                        PR1 = 7812;              // 0.50s blinkrate
-                        if (TMR1 > PR1) 
-                            TMR1 = 0;
-                        break;
-                    case fast_mode_PB2:
-                        T1CONbits.TON = 1;
-                        Disp2String("Fast Mode: PB2 was pressed");
-                        XmitUART2('\r',1);
-                        XmitUART2('\n',1);
-                        PR1 = 15625;              // 1s blinkrate
-                        if (TMR1 > PR1) 
-                            TMR1 = 0;
-                        break;
-                    case fast_mode_PB0_PB1:
-                        T1CONbits.TON = 0;
-                        Disp2String("Fast Mode: PB0 and PB1 are pressed");
-                        XmitUART2('\r',1);
-                        XmitUART2('\n',1);
-                        LED0 = 1;
-                        break;
-                    case fast_mode_PB0_PB2:
-                        T1CONbits.TON = 0;
-                        Disp2String("Fast Mode: PB0 and PB2 are pressed");
-                        XmitUART2('\r',1);
-                        XmitUART2('\n',1);
-                        LED0 = 1;
-                        break;
-                    case fast_mode_PB1_PB2:
-                        T1CONbits.TON = 0;
-                        Disp2String("Fast Mode: PB1 and PB2 are pressed");
-                        XmitUART2('\r',1);
-                        XmitUART2('\n',1);
-                        LED0 = 1;
-                        break;
-                    case prog_mode_PB0:
-                        T1CONbits.TON = 1;
-                        Disp2String("Prog Mode: PB0 was pressed");
-                        XmitUART2('\r',1);
-                        XmitUART2('\n',1);
-                        PR1 = 46875;              // 3s blinkrate
-                        if (TMR1 > PR1) 
-                            TMR1 = 0;
-                        break;
-                    case prog_mode_PB1:
-                        T1CONbits.TON = 1;
-                        Disp2String("Prog mode: PB1 was pressed, Setting = ");
-                        XmitUART2(blink_setting,1);
-                        XmitUART2('\r',1);
-                        XmitUART2('\n',1);
-                        get_blinkrate();              // Sets PR1 dependent on blinkrate setting
-                        if (TMR1 > PR1) 
-                            TMR1 = 0;
-                        break;
-                    case prog_mode_PB2:
-                        T1CONbits.TON = 1;
-                        PR1 = 1953;              // 0.125s blinkrate
-                        if (TMR1 > PR1) 
-                            TMR1 = 0;
-                        Disp2String("Prog Mode: Blink setting = ");    // For this i think you just dont even have the x and then whatever you input is X or just put the previous input for X maybe
-                        blink_setting = RecvUartChar012();             // Need to rework this function still. It should display what it received as it goes though
-                        XmitUART2('\r',1);
-                        XmitUART2('\n',1);
-                        break;
-                    case fast_mode_idle:
-                        T1CONbits.TON = 0;
-                        Disp2String("Fast Mode: IDLE");
-                        XmitUART2('\r',1);
-                        XmitUART2('\n',1);
-                        LED0 = 0;
-                        break;
-                    case prog_mode_idle:
-                        T1CONbits.TON = 0;
-                        Disp2String("Prog Mode: IDLE");
-                        XmitUART2('\r',1);
-                        XmitUART2('\n',1);
-                        LED0 = 0;
-                        break;
-                }
-                state_changed = 0;
-                pb_stat = 0;
-                buttons_reset();
-            }
-            
-            
+        } 
+        
+        if(current_state != next_state)
+            state_changed = 1;
 
+        current_state = next_state;
+
+
+        if(state_changed)
+        {
+            switch(current_state)
+            {
+                case fast_mode_PB0:
+                    Disp2String("Fast Mode: PB0 was pressed");
+                    XmitUART2('\r',1);
+                    XmitUART2('\n',1);
+                    PR1 = 3906;              // 0.25s blinkrate
+                    if (TMR1 > PR1) 
+                        TMR1 = 0;
+                    T1CONbits.TON = 1;
+                    break;
+                case fast_mode_PB1:
+                    T1CONbits.TON = 1;
+                    Disp2String("Fast Mode: PB1 was pressed");
+                    XmitUART2('\r',1);
+                    XmitUART2('\n',1);
+                    PR1 = 7812;              // 0.50s blinkrate
+                    if (TMR1 > PR1) 
+                        TMR1 = 0;
+                    break;
+                case fast_mode_PB2:
+                    T1CONbits.TON = 1;
+                    Disp2String("Fast Mode: PB2 was pressed");
+                    XmitUART2('\r',1);
+                    XmitUART2('\n',1);
+                    PR1 = 15625;              // 1s blinkrate
+                    if (TMR1 > PR1) 
+                        TMR1 = 0;
+                    break;
+                case fast_mode_PB0_PB1:
+                    T1CONbits.TON = 0;
+                    Disp2String("Fast Mode: PB0 and PB1 are pressed");
+                    XmitUART2('\r',1);
+                    XmitUART2('\n',1);
+                    LED0 = 1;
+                    break;
+                case fast_mode_PB0_PB2:
+                    T1CONbits.TON = 0;
+                    Disp2String("Fast Mode: PB0 and PB2 are pressed");
+                    XmitUART2('\r',1);
+                    XmitUART2('\n',1);
+                    LED0 = 1;
+                    break;
+                case fast_mode_PB1_PB2:
+                    T1CONbits.TON = 0;
+                    Disp2String("Fast Mode: PB1 and PB2 are pressed");
+                    XmitUART2('\r',1);
+                    XmitUART2('\n',1);
+                    LED0 = 1;
+                    break;
+                case prog_mode_PB0:
+                    T1CONbits.TON = 1;
+                    Disp2String("Prog Mode: PB0 was pressed");
+                    XmitUART2('\r',1);
+                    XmitUART2('\n',1);
+                    PR1 = 46875;              // 3s blinkrate
+                    if (TMR1 > PR1) 
+                        TMR1 = 0;
+                    break;
+                case prog_mode_PB1:
+                    T1CONbits.TON = 1;
+                    Disp2String("Prog mode: PB1 was pressed, Setting = ");
+                    XmitUART2(blink_setting,1);
+                    XmitUART2('\r',1);
+                    XmitUART2('\n',1);
+                    get_blinkrate();              // Sets PR1 dependent on blinkrate setting
+                    if (TMR1 > PR1) 
+                        TMR1 = 0;
+                    break;
+                case prog_mode_PB2:
+                    T1CONbits.TON = 1;
+                    PR1 = 1953;              // 0.125s blinkrate
+                    if (TMR1 > PR1) 
+                        TMR1 = 0;
+                    Disp2String("Prog Mode: Blink setting = ");    // For this i think you just dont even have the x and then whatever you input is X or just put the previous input for X maybe
+                    blink_setting = RecvUartChar012();             // Need to rework this function still. It should display what it received as it goes though
+                    XmitUART2('\r',1);
+                    XmitUART2('\n',1);
+                    next_state = prog_mode_idle;
+                    break;
+                case fast_mode_idle:
+                    T1CONbits.TON = 0;
+                    Disp2String("Fast Mode: IDLE");
+                    XmitUART2('\r',1);
+                    XmitUART2('\n',1);
+                    LED0 = 0;
+                    break;
+                case prog_mode_idle:
+                    T1CONbits.TON = 0;
+                    Disp2String("Prog Mode: IDLE");
+                    XmitUART2('\r',1);
+                    XmitUART2('\n',1);
+                    LED0 = 0;
+                    break;
+            }
+            state_changed = 0;
+            pb_stat = 0;
+            buttons_reset();
         }
+
     }
     
     return 0;

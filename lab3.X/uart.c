@@ -10,6 +10,9 @@
 #include "string.h"
 #include "common.h"
 #include "uart.h"
+#include "buttons.h"
+
+#define HELD_TIME 1000  // time in milliseconds a button must be pressed for it to be considered "held"
 
 uint8_t received_char = 0;
 uint8_t RXFlag = 0;
@@ -115,10 +118,32 @@ void RecvUart(char* input, uint8_t buf_size)
 
 char RecvUartChar012()
 {	
+    pb_stat = 0;
+    buttons_reset();
     char last_char;
     XmitUART2(' ',1);
     // wait for enter key
-    while (!CHECK_BIT(pb_stat,PB2_CLICKED)) {
+    while (!(pb_stat & PB2_CLICKED)) {
+        
+        // If PB2 becomes pressed, start timing the press
+        if(CHECK_BIT(pb_manager_flags, PB2_LAST) && !PB2)
+            SET_BIT(pb_manager_flags, PB2_ON);
+
+        // If PB2 is released:
+        if(!CHECK_BIT(pb_manager_flags, PB2_LAST) && PB2){
+            // If PB2 was pressed only briefly, set "clicked" flag
+            if(CHECK_BIT(pb_manager_flags, PB2_ON) && pb2_time < HELD_TIME && pb2_time > 60)
+                SET_BIT(pb_stat, PB2_CLICKED_FLAG);
+            // Stop timing the press
+            CLEAR_BIT(pb_manager_flags, PB2_ON);
+            pb2_time = 0;
+        }
+        
+        if(PB2)
+            SET_BIT(pb_manager_flags, PB2_LAST);
+        else
+            CLEAR_BIT(pb_manager_flags, PB2_LAST);
+        
         if (RXFlag == 1) {
 
             // only store chars '0', '1', '2'
