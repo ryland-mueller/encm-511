@@ -132,7 +132,7 @@ char RecvUartChar012()
         // If PB2 is released:
         if(!CHECK_BIT(pb_manager_flags, PB2_LAST) && PB2){
             // If PB2 was pressed only briefly, set "clicked" flag
-            if(CHECK_BIT(pb_manager_flags, PB2_ON) && pb2_time < HELD_TIME && pb2_time > 60)
+            if(CHECK_BIT(pb_manager_flags, PB2_ON) && pb2_time < HELD_TIME && pb2_time > 40)
                 SET_BIT(pb_stat, PB2_CLICKED_FLAG);
             // Stop timing the press
             CLEAR_BIT(pb_manager_flags, PB2_ON);
@@ -170,7 +170,7 @@ void __attribute__ ((interrupt, no_auto_psv)) _U2RXInterrupt(void) {
     
     RXFlag = 1;
     
-    _LATB5 ^= 1;
+    //_LATB5 ^= 1;
 }
 
 void __attribute__ ((interrupt, no_auto_psv)) _U2TXInterrupt(void) {
