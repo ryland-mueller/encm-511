@@ -1,12 +1,15 @@
 /* 
  * File:   ADC.h
- * Author: every
+ * Author: Ryland Mueller, Patrick Mitenko, Bogdan Bacea
  *
  * Created on October 28, 2025, 7:22 AM
  */
 
 #ifndef ADC_H
 #define	ADC_H
+
+void ADC_init(void);
+
 
 #ifdef	__cplusplus
 extern "C" {

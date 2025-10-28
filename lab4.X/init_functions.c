@@ -16,8 +16,10 @@
 void IO_init(void)
 {
     ANSELA = 0x0000; /* keep this line as it sets I/O pins that can also be analog to be digital */
-    ANSELB = 0x0000; /* keep this line as it sets I/O pins that can also be analog to be digital */
+    ANSELB = 0x0008; /* keep this line as it sets I/O pins that can also be analog to be digital */
 
+    TRISBbits.TRISB3 = 1;   // Set to input (ADC_input)
+    
     TRISBbits.TRISB5 = 0;   // Set to output (LED0)
 
     TRISAbits.TRISA4 = 1;   // Set to input (PB0)
