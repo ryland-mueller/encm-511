@@ -9,7 +9,7 @@
 #define	ADC_H
 
 void ADC_init(void);
-
+uint16_t do_adc(void);
 
 #ifdef	__cplusplus
 extern "C" {
@@ -24,3 +24,6 @@ extern "C" {
 
 #endif	/* ADC_H */
 
+
+       
+#endif

@@ -27,4 +27,22 @@ void ADC_init(void)
     AD1CON1bits.MODE12 = 0;     //10-bit ADC mode
     
     AD1CON1bits.ADON = 1;       //Enable ADC
-};
+}
+
+
+uint16_t do_adc(void)
+{
+    uint16_t value = 0;
+    
+    AD1CON1bits.SAMP = 1;       // start A/D conversion
+    delay_ms(1);
+    AD1CON1bits.SAMP = 0;
+    
+    while (!AD1CON1bits.DONE){} // wait for ADC read to finish
+        
+    value = ADC1BUF0;     //  set value to lower 16bits of adc buffer
+    
+    return value;
+    
+    
+}
