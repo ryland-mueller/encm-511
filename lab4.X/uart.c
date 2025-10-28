@@ -11,6 +11,7 @@
 #include "common.h"
 #include "uart.h"
 #include "buttons.h"
+#include <math.h>
 
 #define HELD_TIME 1000  // time in milliseconds a button must be pressed for it to be considered "held"
 
@@ -56,6 +57,44 @@ void Disp2String(char *str) //Displays String of characters
     }
 
     return;
+}
+
+// Displays 16 bit number in Hex form using UART2
+void Disp2Hex(unsigned int DispData){
+char i;
+char nib = 0x00;
+XmitUART2(' ',1); // Disp Gap
+XmitUART2('0',1); // Disp Hex notation 0x
+XmitUART2('x',1);
+for (i=3; i>=0; i--) {
+nib = ((DispData >> (4*i)) & 0x000F);
+if (nib >= 0x0A) {
+nib = nib +0x37; //For Hex values A-F
+}
+else {
+nib = nib+0x30; //For hex values 0-9
+}
+XmitUART2(nib,1);
+}
+XmitUART2(' ',1);
+DispData = 0x0000; // Clear DispData
+return;
+}
+
+// Displays 16 bit unsigned in in decimal form
+void Disp2Dec(uint16_t Dec_num) {
+uint8_t rem; //remainder in div by 10
+uint16_t quot;
+uint8_t ctr = 0; //counter
+XmitUART2(' ',1); // Disp Gap
+while(ctr<5) {
+quot = Dec_num/(pow(10,(4-ctr)));
+rem = quot%10;
+XmitUART2(rem + 0x30 , 1);
+ctr = ctr + 1;
+}
+XmitUART2(' ',1); // Disp Gap
+return;
 }
 
 void XmitUART2(char CharNum, unsigned int repeatNo)

@@ -62,12 +62,14 @@
 #include "init_functions.h"
 #include "delay.h"
 #include "buttons.h"
+#include "ADC.h"
 
 // DEBUG
 #include <stdio.h>
 
 uint8_t pb_stat = 0;    // extern in header, initialized to zero here
-
+uint16_t voltage;
+uint16_t adc_val;
 
 typedef enum
 {
@@ -99,7 +101,18 @@ int main(void) {
     IO_init();
     timer_init();
     InitUART2();
+    adc_init();
     
+    voltage = 1000;
+    Disp2Dec(voltage);
+    
+    while(1)
+    {
+        adc_val = do_adc();
+        //voltage = adc_val / 1024 * 3;
+        Disp2Dec(adc_val);
+        delay_ms(1000);
+    }
     
     return 0;
 }
