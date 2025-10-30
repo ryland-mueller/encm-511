@@ -26,7 +26,7 @@ void InitUART2(void)
 
     U2MODE = 0b0000000010001000;
 
-    U2BRG = 103;            // Baud rate = 9600
+    U2BRG = 25;            // Baud rate = 38400
     
 	U2STAbits.UTXISEL0 = 0;
     U2STAbits.UTXISEL1 = 0;
@@ -99,6 +99,7 @@ return;
 
 void XmitUART2(char CharNum, unsigned int repeatNo)
 {	
+    
 	U2STAbits.UTXEN = 1;
 	while(repeatNo!=0) 
 	{

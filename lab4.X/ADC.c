@@ -33,19 +33,12 @@ void adc_init(void)
 
 
 uint16_t do_adc(void)
-{
-    uint16_t value = 0;
-    
+{    
     AD1CON1bits.SAMP = 1;       // start A/D conversion
-    //delay_ms(1);
     
     while (!AD1CON1bits.DONE){} // wait for ADC read to finish
     
-    AD1CON1bits.SAMP = 0;
+    AD1CON1bits.SAMP = 0;       // stop conversion
     
-    value = ADC1BUF0;     //  set value to lower 16bits of adc buffer
-    
-    return value;
-    
-    
+    return ADC1BUF0;            // return result
 }

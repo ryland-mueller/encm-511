@@ -64,10 +64,19 @@
 #include "buttons.h"
 #include "ADC.h"
 
+#include <string.h>
+
 // DEBUG
 #include <stdio.h>
 
+#define BAR_MAX_WIDTH 64
+
+#define BAR_DIVISOR (1024 / BAR_MAX_WIDTH)
+
+#define USE_ANSI_EL 1   // Whether to use ANSI Erase Line escape sequence
+
 uint8_t pb_stat = 0;    // extern in header, initialized to zero here
+
 uint16_t voltage;
 uint16_t adc_val;
 
@@ -92,26 +101,46 @@ states current_state = fast_mode_idle;
 
 uint8_t state_changed;
 
-char blink_setting = '0';
+char bar_char = '='; // = or - or X
 
 
+void update_bar(void)
+{
+    XmitUART2('\r', 1);     // Reset cursor to beginning of line
+    
+    // Clear line
+#ifndef USE_ANSI_EL
+    XmitUART2(' ', 80);
+    XmitUART2('\r', 1);
+#else
+    Disp2String("\033[2K");
+#endif
+    
+    uint16_t adc_reading = do_adc();
+    
+    uint16_t bar_val = adc_reading / BAR_DIVISOR;
+    
+    XmitUART2('[', 1);
+    XmitUART2(bar_char, bar_val);
+    XmitUART2(' ', BAR_MAX_WIDTH - bar_val - 1);
+    XmitUART2(']', 1);
 
-int main(void) {
+    Disp2Hex(adc_reading);
+}
+
+
+int main(void)
+{
     
     IO_init();
     timer_init();
     InitUART2();
     adc_init();
     
-    voltage = 1000;
-    Disp2Dec(voltage);
-    
     while(1)
     {
-        adc_val = do_adc();
-        //voltage = adc_val / 1024 * 3;
-        Disp2Dec(adc_val);
-        delay_ms(1000);
+        update_bar();
+        delay_ms(100);  // any longer delay and it feels sluggish
     }
     
     return 0;
