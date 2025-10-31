@@ -86,6 +86,57 @@ uint8_t bar_val = 0;
 
 uint16_t samples[AVERAGING_N] = {0};
 
+// GPT FILTER SPECIAL START ----------------------------------------------------
+typedef struct {
+    // coefficients in Q14
+    int16_t b0, b1, b2;
+    int16_t a1, a2;
+
+    // state variables
+    int32_t x1, x2;
+    int32_t y1, y2;
+} iir_biquad_u16_t;
+
+/* Initialize with Q14 coefficients */
+static inline void iir_biquad_u16_init(iir_biquad_u16_t *f,
+                                       int16_t b0, int16_t b1, int16_t b2,
+                                       int16_t a1, int16_t a2)
+{
+    f->b0 = b0; f->b1 = b1; f->b2 = b2;
+    f->a1 = a1; f->a2 = a2;
+    f->x1 = f->x2 = 0;
+    f->y1 = f->y2 = 0;
+}
+
+/* Process one sample (uint16_t input/output) */
+static inline uint16_t iir_biquad_u16_process(iir_biquad_u16_t *f, uint16_t xin)
+{
+    // Convert to signed centered around 0
+    int32_t x0 = ((int32_t)xin - 32768);
+
+    // Biquad difference equation in Q14
+    int32_t acc =
+        (f->b0 * x0) +
+        (f->b1 * f->x1) +
+        (f->b2 * f->x2) -
+        (f->a1 * f->y1) -
+        (f->a2 * f->y2);
+
+    // Shift back from Q28 ? Q14
+    acc >>= 14;
+
+    // Update states
+    f->x2 = f->x1; f->x1 = x0;
+    f->y2 = f->y1; f->y1 = acc;
+
+    // Convert back to unsigned
+    int32_t y = acc + 32768;
+    if (y < 0) y = 0;
+    if (y > 65535) y = 65535;
+    return (uint16_t)y;
+}
+// GPT FILTER SPECIAL END ------------------------------------------------------
+
 
 void update_bar(void)
 {
@@ -123,13 +174,17 @@ int main(void)
     
     XmitUART2(" ", BAR_POSITIONS + 1);    // move cursor to 'home'
     
+    iir_biquad_u16_t lp;
+    iir_biquad_u16_init(&lp, 1106, 2212, 1106, -18740, 6766);
+    
     while(1)
     {
+        /*  MOVING AVERAGE FILTER
         // shift old values back in averaging array
         for(int i = 0; i < AVERAGING_N - 1; i++) {
             samples[i] = samples[i + 1];
         }
-        // update latest value in averaging array
+        // Sample ADC to latest value in averaging array
         samples[AVERAGING_N - 1] = do_adc();
         // calculate average
         adc_reading = 0;
@@ -137,6 +192,9 @@ int main(void)
             adc_reading += samples[i];
         }
         adc_reading = adc_reading / AVERAGING_N;
+         */
+        
+        adc_reading = iir_biquad_u16_process(&lp, do_adc());
         
         if(adc_reading != prev_reading) {
             

@@ -28,6 +28,7 @@ void InitUART2(void)
     U2MODEbits.BRGH = 1;
     U2MODEbits.WAKE = 1;
     
+    //U2BRG = 25;            // Baud rate = 38400
     U2BRG = 8;            // Baud rate = 115200
     
 	U2STAbits.UTXISEL0 = 0;
