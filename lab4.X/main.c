@@ -64,64 +64,45 @@
 #include "buttons.h"
 #include "ADC.h"
 
-#include <string.h>
 
-// DEBUG
-#include <stdio.h>
+#define BAR_POSITIONS 64
 
-#define BAR_MAX_WIDTH 64
+#define BAR_DIVISOR (1024 / BAR_POSITIONS)
 
-#define BAR_DIVISOR (1024 / BAR_MAX_WIDTH)
-
-#define USE_ANSI_EL 1   // Whether to use ANSI Erase Line escape sequence
+#define ADC_HYSTERESIS 1
 
 uint8_t pb_stat = 0;    // extern in header, initialized to zero here
 
-uint16_t voltage;
-uint16_t adc_val;
-
-typedef enum
-{
-    fast_mode_idle,
-    fast_mode_PB0,
-    fast_mode_PB1,
-    fast_mode_PB2,
-    fast_mode_PB0_PB1,
-    fast_mode_PB0_PB2,
-    fast_mode_PB1_PB2,
-    prog_mode_idle,
-    prog_mode_PB0,
-    prog_mode_PB1,
-    prog_mode_PB2
-} states;
-
-
-states next_state = fast_mode_idle;
-states current_state = fast_mode_idle;
-
-uint8_t state_changed;
-
 char bar_char = '='; // = or - or X
 
+uint16_t prev_reading = 0;
 uint16_t prev_bar_val = 0;
 
+uint8_t bar_update = 1;
+uint8_t num_update = 1;
 
-void update_bar(uint16_t bar_val)
+uint16_t adc_reading = 0;
+uint8_t bar_val = 0;
+
+
+void update_bar(void)
 {
+    Disp2String("\033[?25l");   // Hide cursor
     Disp2String("\033[s");  // save cursor position
     XmitUART2('\r', 1);     // reset cursor to beginning of line
     
     // build bar graph
     XmitUART2('[', 1);
     XmitUART2(bar_char, bar_val);
-    XmitUART2(' ', BAR_MAX_WIDTH - bar_val -1);
+    XmitUART2(' ', BAR_POSITIONS - bar_val - 1);    // minus one for max of 63rd bar char (64 positions 0-indexed)
     XmitUART2(']', 1);
     
     Disp2String("\033[u");  // restore cursor position
 }
 
-void update_num (uint16_t adc_reading)
+void update_num(void)
 {
+    Disp2String("\033[?25l");   // Hide cursor
     Disp2String("\033[s");  // save cursor position
     Disp2Hex(adc_reading);  // transmit ADC value
     Disp2String("\033[u");  // restore cursor position
@@ -136,21 +117,36 @@ int main(void)
     InitUART2();
     adc_init();
     
-    XmitUART2(" ", BAR_MAX_WIDTH + 1);    // move cursor to 'home'
+    XmitUART2(" ", BAR_POSITIONS + 1);    // move cursor to 'home'
     
     while(1)
     {
         // update the ADC reading
-        uint16_t adc_reading = do_adc();
-        update_num(adc_reading);
+        adc_reading = do_adc();
         
-        uint16_t bar_val = adc_reading / BAR_DIVISOR;
+        bar_val = adc_reading / BAR_DIVISOR;
         
-        // check if the bar graph needs to update and update it
-        if(bar_val != prev_bar_val)
-        {
-            update_bar(bar_val);
-            prev_bar_val = bar_val;
+        int16_t adc_diff = adc_reading - prev_reading;
+        if(adc_diff < 0) adc_diff = adc_diff * (-1);    // absolute value
+        
+        if(adc_diff > ADC_HYSTERESIS) {
+            
+            num_update = 1;
+            prev_reading = adc_reading;
+            
+            if(bar_val != prev_bar_val) {
+                bar_update = 1;
+                prev_bar_val = bar_val;
+            }
+        }
+        
+        if(bar_update) {
+            update_bar();
+            bar_update = 0;
+        }
+        if(num_update) {
+            update_num();
+            num_update = 0;
         }
                 
         delay_ms(100);  // any longer delay and it feels sluggish
