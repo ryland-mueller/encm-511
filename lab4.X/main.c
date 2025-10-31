@@ -69,7 +69,7 @@
 
 #define BAR_DIVISOR (1024 / BAR_POSITIONS)
 
-#define ADC_HYSTERESIS 1
+#define AVERAGING_N 11
 
 uint8_t pb_stat = 0;    // extern in header, initialized to zero here
 
@@ -84,10 +84,11 @@ uint8_t num_update = 1;
 uint16_t adc_reading = 0;
 uint8_t bar_val = 0;
 
+uint16_t samples[AVERAGING_N] = {0};
+
 
 void update_bar(void)
 {
-    Disp2String("\033[?25l");   // Hide cursor
     Disp2String("\033[s");  // save cursor position
     XmitUART2('\r', 1);     // reset cursor to beginning of line
     
@@ -102,7 +103,6 @@ void update_bar(void)
 
 void update_num(void)
 {
-    Disp2String("\033[?25l");   // Hide cursor
     Disp2String("\033[s");  // save cursor position
     Disp2Hex(adc_reading);  // transmit ADC value
     Disp2String("\033[u");  // restore cursor position
@@ -117,22 +117,33 @@ int main(void)
     InitUART2();
     adc_init();
     
+    Disp2String("\033[?25l");   // Hide cursor
+    Disp2String("\033[2J");     // Clear screen
+    Disp2String("\r");          // Return cursor
+    
     XmitUART2(" ", BAR_POSITIONS + 1);    // move cursor to 'home'
     
     while(1)
     {
-        // update the ADC reading
-        adc_reading = do_adc();
+        // shift old values back in averaging array
+        for(int i = 0; i < AVERAGING_N - 1; i++) {
+            samples[i] = samples[i + 1];
+        }
+        // update latest value in averaging array
+        samples[AVERAGING_N - 1] = do_adc();
+        // calculate average
+        adc_reading = 0;
+        for(int i = 0; i < AVERAGING_N; i++) {
+            adc_reading += samples[i];
+        }
+        adc_reading = adc_reading / AVERAGING_N;
         
-        bar_val = adc_reading / BAR_DIVISOR;
-        
-        int16_t adc_diff = adc_reading - prev_reading;
-        if(adc_diff < 0) adc_diff = adc_diff * (-1);    // absolute value
-        
-        if(adc_diff > ADC_HYSTERESIS) {
+        if(adc_reading != prev_reading) {
             
             num_update = 1;
             prev_reading = adc_reading;
+            
+            bar_val = adc_reading / BAR_DIVISOR;
             
             if(bar_val != prev_bar_val) {
                 bar_update = 1;
@@ -149,7 +160,7 @@ int main(void)
             num_update = 0;
         }
                 
-        delay_ms(100);  // any longer delay and it feels sluggish
+        delay_ms(10);
     }
     
     return 0;
