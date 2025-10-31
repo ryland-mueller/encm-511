@@ -19,8 +19,6 @@ void IO_init(void)
     ANSELB = 0x0008; /* keep this line as it sets I/O pins that can also be analog to be digital */
 
     TRISBbits.TRISB3 = 1;   // Set to input (ADC_input)
-    
-    TRISBbits.TRISB5 = 0;   // Set to output (LED0)
 
     TRISAbits.TRISA4 = 1;   // Set to input (PB0)
     TRISBbits.TRISB8 = 1;   // Set to input (PB1)
@@ -49,14 +47,6 @@ void IO_init(void)
 void timer_init(void)
 { 
     T2CONbits.T32 = 0;              // Operate timers 2 & 3 as separate 16-bit timers
-
-    // Timer 2 (for button timing)
-    T2CONbits.TCKPS = 1;            // set prescaler to 1:8
-    IPC1bits.T2IP = ISR_PRIORITY;   // Interrupt priority
-    IFS0bits.T2IF = 0;              // clear interrupt flag
-    IEC0bits.T2IE = 1;              // enable interrupt
-    PR2 = 500;                      // set period for 1ms
-    T2CONbits.TON = 1;
     
     // Timer 3 (for delay function)
     T3CONbits.TCKPS = 2;            // set prescaler to 1:64

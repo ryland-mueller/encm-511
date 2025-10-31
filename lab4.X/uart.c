@@ -10,10 +10,8 @@
 #include "string.h"
 #include "common.h"
 #include "uart.h"
-#include "buttons.h"
 #include <math.h>
 
-#define HELD_TIME 1000  // time in milliseconds a button must be pressed for it to be considered "held"
 
 uint8_t received_char = 0;
 uint8_t RXFlag = 0;
@@ -161,48 +159,7 @@ void RecvUart(char* input, uint8_t buf_size)
 
 char RecvUartChar012()
 {	
-    pb_stat = 0;
-    buttons_reset();
-    char last_char;
-    XmitUART2(' ',1);
-    // wait for enter key
-    while (!(pb_stat & PB2_CLICKED)) {
-        
-        // If PB2 becomes pressed, start timing the press
-        if(CHECK_BIT(pb_manager_flags, PB2_LAST) && !PB2)
-            SET_BIT(pb_manager_flags, PB2_ON);
-
-        // If PB2 is released:
-        if(!CHECK_BIT(pb_manager_flags, PB2_LAST) && PB2){
-            // If PB2 was pressed only briefly, set "clicked" flag
-            if(CHECK_BIT(pb_manager_flags, PB2_ON) && pb2_time < HELD_TIME && pb2_time > 40)
-                SET_BIT(pb_stat, PB2_CLICKED_FLAG);
-            // Stop timing the press
-            CLEAR_BIT(pb_manager_flags, PB2_ON);
-            pb2_time = 0;
-        }
-        
-        if(PB2)
-            SET_BIT(pb_manager_flags, PB2_LAST);
-        else
-            CLEAR_BIT(pb_manager_flags, PB2_LAST);
-        
-        if (RXFlag == 1) {
-
-            // only store chars '0', '1', '2'
-            if (received_char >= 48 && received_char <= 50) {
-                XmitUART2(0x08,1); // send backspace
-                last_char = received_char;
-                XmitUART2(received_char,1); // loop back display
-            }
-            U2STAbits.OERR = 0;
-            RXFlag = 0;
-        }
-        // if (CNflag == 1) { // this allows breaking out of the busy wait if CN interrupts are enabled...
-        //     add logic here
-        // }
-    }
-    return last_char; 
+    // dog
 }
 
 void __attribute__ ((interrupt, no_auto_psv)) _U2RXInterrupt(void) {

@@ -61,7 +61,6 @@
 #include "uart.h"
 #include "init_functions.h"
 #include "delay.h"
-#include "buttons.h"
 #include "ADC.h"
 
 
@@ -78,8 +77,13 @@ char bar_char = '='; // = or - or X
 uint16_t prev_reading = 0;
 uint16_t prev_bar_val = 0;
 
-uint8_t bar_update = 1;
-uint8_t num_update = 1;
+uint8_t app_flags = 0;
+#define BAR_UPDATE_FLAG     0   // Flag that ADC bar has to be updated
+#define NUM_UPDATE_FLAG     1   // Flag that ADC value display has to be updated
+#define PB_UPDATE_FLAG      2   // Flag that an IOC interrupt occured (for buttons)
+#define PB0_LAST            3   // Last value of PB0
+#define PB1_LAST            4   // Last value of PB0
+#define PB2_LAST            5   // Last value of PB0
 
 uint16_t adc_reading = 0;
 uint8_t bar_val = 0;
@@ -123,8 +127,45 @@ int main(void)
     
     XmitUART2(' ', BAR_POSITIONS + 1);    // move cursor to 'home'
     
+    // Ensure these are printed once right at startup
+    SET_BIT(app_flags, BAR_UPDATE_FLAG);
+    SET_BIT(app_flags, NUM_UPDATE_FLAG);
+    
     while(1)
     {
+        
+        if(CHECK_BIT(app_flags, PB_UPDATE_FLAG))
+        {
+            CLEAR_BIT(app_flags, PB_UPDATE_FLAG);
+            
+            if(!PB0 && CHECK_BIT(app_flags, PB0_LAST)) {    // Transition to pressed
+                bar_char = '=';
+                SET_BIT(app_flags, BAR_UPDATE_FLAG);
+            }
+            if(!PB1 && CHECK_BIT(app_flags, PB1_LAST)) {    // Transition to pressed
+                bar_char = '-';
+                SET_BIT(app_flags, BAR_UPDATE_FLAG);
+            }
+            if(!PB2 && CHECK_BIT(app_flags, PB2_LAST)) {    // Transition to pressed
+                bar_char = 'X';
+                SET_BIT(app_flags, BAR_UPDATE_FLAG);
+            }
+            
+            // Update last button values
+            if(PB0)
+                SET_BIT(app_flags, PB0_LAST);
+            else
+                CLEAR_BIT(app_flags, PB0_LAST);
+            if(PB1)
+                SET_BIT(app_flags, PB1_LAST);
+            else
+                CLEAR_BIT(app_flags, PB1_LAST);
+            if(PB2)
+                SET_BIT(app_flags, PB2_LAST);
+            else
+                CLEAR_BIT(app_flags, PB2_LAST);
+        }
+        
         // MOVING AVERAGE FILTER
         // shift old values back in averaging array
         for(int i = 0; i < AVERAGING_N - 1; i++) {
@@ -141,24 +182,24 @@ int main(void)
         
         if(adc_reading != prev_reading) {
             
-            num_update = 1;
+            SET_BIT(app_flags, NUM_UPDATE_FLAG);
             prev_reading = adc_reading;
             
             bar_val = adc_reading / BAR_DIVISOR;
             
             if(bar_val != prev_bar_val) {
-                bar_update = 1;
+                SET_BIT(app_flags, BAR_UPDATE_FLAG);
                 prev_bar_val = bar_val;
             }
         }
         
-        if(bar_update) {
+        if(CHECK_BIT(app_flags, BAR_UPDATE_FLAG)) {
             update_bar();
-            bar_update = 0;
+            CLEAR_BIT(app_flags, BAR_UPDATE_FLAG);
         }
-        if(num_update) {
+        if(CHECK_BIT(app_flags, NUM_UPDATE_FLAG)) {
             update_num();
-            num_update = 0;
+            CLEAR_BIT(app_flags, NUM_UPDATE_FLAG);
         }
                 
         delay_ms(10);
@@ -167,20 +208,9 @@ int main(void)
     return 0;
 }
 
-// Timer 2 (button manager) ISR
-void __attribute__((interrupt, no_auto_psv)) _T2Interrupt(void){
-    SET_BIT(pb_manager_flags, PB_UPDATE);   // flag that the button press logic needs to be run
-    if(CHECK_BIT(pb_manager_flags, PB0_ON))
-        pb0_time++;
-    if(CHECK_BIT(pb_manager_flags, PB1_ON))
-        pb1_time++;
-    if(CHECK_BIT(pb_manager_flags, PB2_ON))
-        pb2_time++;
-    IFS0bits.T2IF = 0; // Clear Timer 2 interrupt flag
-}
 
 // Interrupt-on-change ISR
 void __attribute__ ((interrupt, no_auto_psv)) _IOCInterrupt(void) {
-    SET_BIT(pb_manager_flags, PB_UPDATE);   // flag that the button press logic needs to be run
+    SET_BIT(app_flags, PB_UPDATE_FLAG);
     IFS1bits.IOCIF = 0; // Clear system-wide IOC flag
 }
