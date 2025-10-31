@@ -64,8 +64,6 @@
 #include "buttons.h"
 #include "ADC.h"
 
-#include <string.h>   // for memset
-
 
 #define BAR_POSITIONS 64
 
@@ -87,48 +85,6 @@ uint16_t adc_reading = 0;
 uint8_t bar_val = 0;
 
 uint16_t samples[AVERAGING_N] = {0};
-
-// GPT FILTER SPECIAL START ----------------------------------------------------
-#define FIR_MAX_TAPS 7
-
-typedef struct {
-    uint16_t coeffs[FIR_MAX_TAPS];
-    uint16_t buffer[FIR_MAX_TAPS];
-    uint8_t n_taps;
-    uint8_t index;
-} fir_u16_t;
-
-// Initialize FIR filter (zero buffer to avoid startup transients)
-void fir_u16_init(fir_u16_t *f, const uint16_t *coeffs, uint8_t n_taps) {
-    f->n_taps = n_taps;
-    f->index = 0;
-    memcpy(f->coeffs, coeffs, n_taps * sizeof(uint16_t));
-    memset(f->buffer, 0, sizeof(f->buffer)); // clear delay line
-}
-
-// Process one sample
-uint16_t fir_u16_process(fir_u16_t *f, uint16_t input) {
-    f->buffer[f->index] = input;  // store new sample
-
-    // Accumulate output using 32-bit integer
-    uint32_t acc = 0;
-    int j = f->index;
-    for (uint8_t i = 0; i < f->n_taps; i++) {
-        acc += (uint32_t)f->coeffs[i] * f->buffer[j];
-        if (j == 0)
-            j = f->n_taps - 1;
-        else
-            j--;
-    }
-
-    // advance circular index
-    f->index++;
-    if (f->index >= f->n_taps) f->index = 0;
-
-    // Normalize back to 16-bit output (scale if needed)
-    return (uint16_t)(acc / 32768U);
-}
-// GPT FILTER SPECIAL END ------------------------------------------------------
 
 
 void update_bar(void)
@@ -167,14 +123,9 @@ int main(void)
     
     XmitUART2(" ", BAR_POSITIONS + 1);    // move cursor to 'home'
     
-    // Example: 7-tap low-pass filter (scaled so coeffs sum ? 32768)
-    uint16_t coeffs[7] = {2000, 4000, 6000, 8000, 6000, 4000, 2000};
-    fir_u16_t fir;
-    fir_u16_init(&fir, coeffs, 7);
-    
     while(1)
     {
-        /*  MOVING AVERAGE FILTER
+        // MOVING AVERAGE FILTER
         // shift old values back in averaging array
         for(int i = 0; i < AVERAGING_N - 1; i++) {
             samples[i] = samples[i + 1];
@@ -187,9 +138,6 @@ int main(void)
             adc_reading += samples[i];
         }
         adc_reading = adc_reading / AVERAGING_N;
-        */
-        
-        adc_reading = fir_u16_process(&fir, do_adc());
         
         if(adc_reading != prev_reading) {
             
