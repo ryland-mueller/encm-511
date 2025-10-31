@@ -49,13 +49,6 @@ void IO_init(void)
 void timer_init(void)
 { 
     T2CONbits.T32 = 0;              // Operate timers 2 & 3 as separate 16-bit timers
-    
-    // Timer 1 (for LED0)
-    T1CONbits.TCKPS = 3;            // set prescaler to 1:256
-    IPC0bits.T1IP = ISR_PRIORITY;   // Interrupt priority
-    IFS0bits.T1IF = 0;              // clear interrupt flag
-    IEC0bits.T1IE = 1;              // enable interrupt
-    PR1 = 62496;                    // set period for 4 s
 
     // Timer 2 (for button timing)
     T2CONbits.TCKPS = 1;            // set prescaler to 1:8

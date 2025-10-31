@@ -121,7 +121,7 @@ int main(void)
     Disp2String("\033[2J");     // Clear screen
     Disp2String("\r");          // Return cursor
     
-    XmitUART2(" ", BAR_POSITIONS + 1);    // move cursor to 'home'
+    XmitUART2(' ', BAR_POSITIONS + 1);    // move cursor to 'home'
     
     while(1)
     {
@@ -167,12 +167,6 @@ int main(void)
     return 0;
 }
 
-// Timer 1 (LED0) ISR
-void __attribute__((interrupt, no_auto_psv)) _T1Interrupt(void){
-    LED0 ^= 1; // toggle LED0
-    IFS0bits.T1IF = 0; // Clear Timer 2 interrupt flag
-}
-
 // Timer 2 (button manager) ISR
 void __attribute__((interrupt, no_auto_psv)) _T2Interrupt(void){
     SET_BIT(pb_manager_flags, PB_UPDATE);   // flag that the button press logic needs to be run
@@ -183,11 +177,6 @@ void __attribute__((interrupt, no_auto_psv)) _T2Interrupt(void){
     if(CHECK_BIT(pb_manager_flags, PB2_ON))
         pb2_time++;
     IFS0bits.T2IF = 0; // Clear Timer 2 interrupt flag
-}
-
-// Timer 3 ISR
-void __attribute__((interrupt, no_auto_psv)) _T3Interrupt(void){
-    // not used
 }
 
 // Interrupt-on-change ISR
