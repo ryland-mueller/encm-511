@@ -70,8 +70,6 @@
 
 #define AVERAGING_N 11
 
-uint8_t pb_stat = 0;    // extern in header, initialized to zero here
-
 char bar_char = '='; // = or - or X
 
 uint16_t prev_reading = 0;
@@ -84,6 +82,7 @@ uint8_t app_flags = 0;
 #define PB0_LAST            3   // Last value of PB0
 #define PB1_LAST            4   // Last value of PB0
 #define PB2_LAST            5   // Last value of PB0
+#define NUM_MODE            6   // 0 = Hex display, 1 = decimal display
 
 uint16_t adc_reading = 0;
 uint8_t bar_val = 0;
@@ -108,7 +107,8 @@ void update_bar(void)
 void update_num(void)
 {
     Disp2String("\033[s");  // save cursor position
-    Disp2Hex(adc_reading);  // transmit ADC value
+    // transmit ADC value
+    CHECK_BIT(app_flags, NUM_MODE) ? Disp2Dec(adc_reading) : Disp2Hex(adc_reading);
     Disp2String("\033[u");  // restore cursor position
 }
 
@@ -165,6 +165,21 @@ int main(void)
             else
                 CLEAR_BIT(app_flags, PB2_LAST);
         }
+        
+        switch(RecvUartChar()) {
+            case 'x':
+                CLEAR_BIT(app_flags, NUM_MODE);
+                SET_BIT(app_flags, NUM_UPDATE_FLAG);
+                break;
+            case 'd':
+                SET_BIT(app_flags, NUM_MODE);
+                SET_BIT(app_flags, NUM_UPDATE_FLAG);
+                break;
+            default:
+                break;
+        }
+                    
+                   
         
         // MOVING AVERAGE FILTER
         // shift old values back in averaging array

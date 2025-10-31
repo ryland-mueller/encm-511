@@ -157,9 +157,14 @@ void RecvUart(char* input, uint8_t buf_size)
     }
 }
 
-char RecvUartChar012()
+char RecvUartChar(void)
 {	
-    // dog
+    if (RXFlag == 1) {
+        U2STAbits.OERR = 0;
+        RXFlag = 0;
+        return received_char;
+    }
+    return 0;
 }
 
 void __attribute__ ((interrupt, no_auto_psv)) _U2RXInterrupt(void) {

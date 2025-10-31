@@ -15,7 +15,7 @@ void InitUART2(void);
 void Disp2String(char *str);
 void XmitUART2(char CharNum, unsigned int repeatNo);
 void RecvUart(char* input, uint8_t buf_size);
-char RecvUartChar012(void);
+char RecvUartChar(void);
 void Disp2Dec(uint16_t Dec_num);
 void Disp2Hex(unsigned int DispData);
 
