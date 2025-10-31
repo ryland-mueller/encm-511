@@ -103,29 +103,28 @@ uint8_t state_changed;
 
 char bar_char = '='; // = or - or X
 
+uint16_t prev_bar_val = 0;
 
-void update_bar(void)
+
+void update_bar(uint16_t bar_val)
 {
-    XmitUART2('\r', 1);     // Reset cursor to beginning of line
+    Disp2String("\033[s");  // save cursor position
+    XmitUART2('\r', 1);     // reset cursor to beginning of line
     
-    // Clear line
-#ifndef USE_ANSI_EL
-    XmitUART2(' ', 80);
-    XmitUART2('\r', 1);
-#else
-    Disp2String("\033[2K");
-#endif
-    
-    uint16_t adc_reading = do_adc();
-    
-    uint16_t bar_val = adc_reading / BAR_DIVISOR;
-    
+    // build bar graph
     XmitUART2('[', 1);
     XmitUART2(bar_char, bar_val);
-    XmitUART2(' ', BAR_MAX_WIDTH - bar_val - 1);
+    XmitUART2(' ', BAR_MAX_WIDTH - bar_val -1);
     XmitUART2(']', 1);
+    
+    Disp2String("\033[u");  // restore cursor position
+}
 
-    Disp2Hex(adc_reading);
+void update_num (uint16_t adc_reading)
+{
+    Disp2String("\033[s");  // save cursor position
+    Disp2Hex(adc_reading);  // transmit ADC value
+    Disp2String("\033[u");  // restore cursor position
 }
 
 
@@ -137,9 +136,23 @@ int main(void)
     InitUART2();
     adc_init();
     
+    XmitUART2(" ", BAR_MAX_WIDTH + 1);    // move cursor to 'home'
+    
     while(1)
     {
-        update_bar();
+        // update the ADC reading
+        uint16_t adc_reading = do_adc();
+        update_num(adc_reading);
+        
+        uint16_t bar_val = adc_reading / BAR_DIVISOR;
+        
+        // check if the bar graph needs to update and update it
+        if(bar_val != prev_bar_val)
+        {
+            update_bar(bar_val);
+            prev_bar_val = bar_val;
+        }
+                
         delay_ms(100);  // any longer delay and it feels sluggish
     }
     

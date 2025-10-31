@@ -24,9 +24,11 @@ void InitUART2(void)
     RPINR19bits.U2RXR = 11; // Assign U2RX to RP11 (pin 22)
     RPOR5bits.RP10R = 5;    // Assign RP10 (pin 21) to U2TX
 
-    U2MODE = 0b0000000010001000;
-
-    U2BRG = 25;            // Baud rate = 38400
+    //U2MODE = 0b0000000010001000;
+    U2MODEbits.BRGH = 1;
+    U2MODEbits.WAKE = 1;
+    
+    U2BRG = 8;            // Baud rate = 115200
     
 	U2STAbits.UTXISEL0 = 0;
     U2STAbits.UTXISEL1 = 0;
