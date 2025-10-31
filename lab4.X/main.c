@@ -64,6 +64,8 @@
 #include "buttons.h"
 #include "ADC.h"
 
+#include <string.h>   // for memset
+
 
 #define BAR_POSITIONS 64
 
@@ -87,53 +89,44 @@ uint8_t bar_val = 0;
 uint16_t samples[AVERAGING_N] = {0};
 
 // GPT FILTER SPECIAL START ----------------------------------------------------
+#define FIR_MAX_TAPS 7
+
 typedef struct {
-    // coefficients in Q14
-    int16_t b0, b1, b2;
-    int16_t a1, a2;
+    uint16_t coeffs[FIR_MAX_TAPS];
+    uint16_t buffer[FIR_MAX_TAPS];
+    uint8_t n_taps;
+    uint8_t index;
+} fir_u16_t;
 
-    // state variables
-    int32_t x1, x2;
-    int32_t y1, y2;
-} iir_biquad_u16_t;
-
-/* Initialize with Q14 coefficients */
-static inline void iir_biquad_u16_init(iir_biquad_u16_t *f,
-                                       int16_t b0, int16_t b1, int16_t b2,
-                                       int16_t a1, int16_t a2)
-{
-    f->b0 = b0; f->b1 = b1; f->b2 = b2;
-    f->a1 = a1; f->a2 = a2;
-    f->x1 = f->x2 = 0;
-    f->y1 = f->y2 = 0;
+// Initialize FIR filter (zero buffer to avoid startup transients)
+void fir_u16_init(fir_u16_t *f, const uint16_t *coeffs, uint8_t n_taps) {
+    f->n_taps = n_taps;
+    f->index = 0;
+    memcpy(f->coeffs, coeffs, n_taps * sizeof(uint16_t));
+    memset(f->buffer, 0, sizeof(f->buffer)); // clear delay line
 }
 
-/* Process one sample (uint16_t input/output) */
-static inline uint16_t iir_biquad_u16_process(iir_biquad_u16_t *f, uint16_t xin)
-{
-    // Convert to signed centered around 0
-    int32_t x0 = ((int32_t)xin - 32768);
+// Process one sample
+uint16_t fir_u16_process(fir_u16_t *f, uint16_t input) {
+    f->buffer[f->index] = input;  // store new sample
 
-    // Biquad difference equation in Q14
-    int32_t acc =
-        (f->b0 * x0) +
-        (f->b1 * f->x1) +
-        (f->b2 * f->x2) -
-        (f->a1 * f->y1) -
-        (f->a2 * f->y2);
+    // Accumulate output using 32-bit integer
+    uint32_t acc = 0;
+    int j = f->index;
+    for (uint8_t i = 0; i < f->n_taps; i++) {
+        acc += (uint32_t)f->coeffs[i] * f->buffer[j];
+        if (j == 0)
+            j = f->n_taps - 1;
+        else
+            j--;
+    }
 
-    // Shift back from Q28 ? Q14
-    acc >>= 14;
+    // advance circular index
+    f->index++;
+    if (f->index >= f->n_taps) f->index = 0;
 
-    // Update states
-    f->x2 = f->x1; f->x1 = x0;
-    f->y2 = f->y1; f->y1 = acc;
-
-    // Convert back to unsigned
-    int32_t y = acc + 32768;
-    if (y < 0) y = 0;
-    if (y > 65535) y = 65535;
-    return (uint16_t)y;
+    // Normalize back to 16-bit output (scale if needed)
+    return (uint16_t)(acc / 32768U);
 }
 // GPT FILTER SPECIAL END ------------------------------------------------------
 
@@ -174,8 +167,10 @@ int main(void)
     
     XmitUART2(" ", BAR_POSITIONS + 1);    // move cursor to 'home'
     
-    iir_biquad_u16_t lp;
-    iir_biquad_u16_init(&lp, 1106, 2212, 1106, -18740, 6766);
+    // Example: 7-tap low-pass filter (scaled so coeffs sum ? 32768)
+    uint16_t coeffs[7] = {2000, 4000, 6000, 8000, 6000, 4000, 2000};
+    fir_u16_t fir;
+    fir_u16_init(&fir, coeffs, 7);
     
     while(1)
     {
@@ -192,9 +187,9 @@ int main(void)
             adc_reading += samples[i];
         }
         adc_reading = adc_reading / AVERAGING_N;
-         */
+        */
         
-        adc_reading = iir_biquad_u16_process(&lp, do_adc());
+        adc_reading = fir_u16_process(&fir, do_adc());
         
         if(adc_reading != prev_reading) {
             
