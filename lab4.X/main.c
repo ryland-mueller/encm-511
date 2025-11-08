@@ -73,7 +73,7 @@
 char bar_char = '='; // = or - or X
 
 uint16_t prev_reading = 0;
-uint16_t prev_bar_val = 0;
+uint8_t prev_bar_val = 0;
 
 uint8_t app_flags = 0;
 #define BAR_UPDATE_FLAG     0   // Flag that ADC bar has to be updated
