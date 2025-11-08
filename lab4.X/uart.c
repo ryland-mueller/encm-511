@@ -26,26 +26,26 @@ void InitUART2(void)
     U2MODEbits.BRGH = 1;
     U2MODEbits.WAKE = 1;
     
-    //U2BRG = 25;            // Baud rate = 38400
-    U2BRG = 8;            // Baud rate = 115200
+    //U2BRG = 25;               // Baud rate = 38400
+    U2BRG = 8;                  // Baud rate = 115200
     
-	U2STAbits.UTXISEL0 = 0;
-    U2STAbits.UTXISEL1 = 0;
-    U2STAbits.URXEN = 1;
-    U2STAbits.UTXEN = 1;
-    U2STAbits.URXISEL = 0b00;
+	U2STAbits.UTXISEL0 = 0;     // Interrupt when a character is transferred to the Transmit Shift Register 
+    U2STAbits.UTXISEL1 = 0;     // (this implies there is at least one character open in the transmit buffer)
+    U2STAbits.URXEN = 1;        // Receive is enabled, U2RX pin is controlled by UART2
+    U2STAbits.UTXEN = 1;        // Transmit is enabled, U2TX pin is controlled by UART2
+    U2STAbits.URXISEL = 0b00;   // Interrupt is set when any character is received and transferred from the RSR to the receive buffer
 
-	IFS1bits.U2TXIF = 0;	
-    IPC7bits.U2TXIP = 3; 
-    
-	IEC1bits.U2TXIE = 1; 
-	IFS1bits.U2RXIF = 0; 
-	IPC7bits.U2RXIP = 4; 
-    IEC1bits.U2RXIE = 1;
+	IFS1bits.U2TXIF = 0;	    // Set flag to 0
+    IPC7bits.U2TXIP = 3;        // Set priority
+    IEC1bits.U2TXIE = 1;        // Enable interrupt
 
-	U2MODEbits.UARTEN = 1;	
+	IFS1bits.U2RXIF = 0;        // Set flag to 0
+	IPC7bits.U2RXIP = 4;        // Set priority
+    IEC1bits.U2RXIE = 1;        // Enable interrupt
 
-	U2STAbits.UTXEN = 1;
+	U2MODEbits.UARTEN = 1;	    // Enable UART Rx
+
+	U2STAbits.UTXEN = 1;        // Enable UART Tx
 	return;
 }
 
