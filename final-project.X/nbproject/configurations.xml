@@ -59,6 +59,9 @@
       </logicalFolder>
       <itemPath>main.c</itemPath>
       <itemPath>uart.c</itemPath>
+      <itemPath>FreeRTOS/init_functions.c</itemPath>
+      <itemPath>FreeRTOS/init_functions.h</itemPath>
+      <itemPath>FreeRTOS/common.h</itemPath>
     </logicalFolder>
   </logicalFolder>
   <sourceRootList>

@@ -97,18 +97,24 @@ void vTask1(void *pvParameters)
     }
 }
 
-void vTask2(void *pvParameters)
-{
-    for(;;)
-    {
 
-        xSemaphoreTake(uart_sem, portMAX_DELAY);
-        Disp2String("hello from Task 2\n\r");
-        xSemaphoreGive(uart_sem);
-        
-        vTaskDelay(pdMS_TO_TICKS(500));
+void vBreathingLedTask( void * pvParameters )
+{
+    TickType_t LastWakeTime;
+    const TickType_t Frequency = 1000;    // Perform an action every n ticks.
+
+    LastWakeTime = xTaskGetTickCount(); // get current time.
+
+    for( ;; )
+    {
+        // Wait for the next cycle.
+        vTaskDelayUntil( &LastWakeTime, Frequency );
+
+        // Perform action here.
+        OC1RS = OC1RS*2;                // double the duty cycle (overflow intentional here, just testing)
     }
 }
+
 
 void vTask3(void *pvParameters)
 {
@@ -133,7 +139,7 @@ int main(void) {
     prvHardwareSetup();
 
 	xTaskCreate( vTask1, "Task1", configMINIMAL_STACK_SIZE, NULL, 1, NULL );
-    xTaskCreate( vTask2, "Task2", configMINIMAL_STACK_SIZE, NULL, 2, NULL );
+    xTaskCreate( vBreathingLedTask, "vBreathingLedTask", configMINIMAL_STACK_SIZE, NULL, 2, NULL );
     xTaskCreate( vTask3, "Task3", configMINIMAL_STACK_SIZE, NULL, 3, NULL );
     
     uart_sem = xSemaphoreCreateMutex();
