@@ -24,10 +24,10 @@
       <itemPath>init_functions.c</itemPath>
       <itemPath>init_functions.h</itemPath>
       <itemPath>main.c</itemPath>
-      <itemPath>uart.c</itemPath>
-      <itemPath>uart.h</itemPath>
       <itemPath>ADC.c</itemPath>
       <itemPath>ADC.h</itemPath>
+      <itemPath>uart.c</itemPath>
+      <itemPath>uart.h</itemPath>
     </logicalFolder>
   </logicalFolder>
   <sourceRootList>
