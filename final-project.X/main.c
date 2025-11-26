@@ -59,7 +59,7 @@
 
 #define TASK_STACK_SIZE 200
 #define TASK_PRIORITY 5
-
+uint8_t pb_stat = 0;    // extern in header, initialized to zero here
 
 void vApplicationIdleHook( void )
 {

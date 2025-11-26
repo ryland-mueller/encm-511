@@ -1,4 +1,5 @@
 #include "common.h"
+#include "button_task.h"
 
 uint8_t pb_manager_flags = 0;   // extern in header, initialized to zero here
 uint16_t pb0_time = 0;  // extern in header, initialized to zero here
