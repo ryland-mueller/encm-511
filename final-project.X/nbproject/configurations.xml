@@ -64,10 +64,12 @@
       <itemPath>do_ADC_task.c</itemPath>
       <itemPath>init_functions.c</itemPath>
       <itemPath>common.c</itemPath>
+      <itemPath>button_task.c</itemPath>
+      <itemPath>button_task.h</itemPath>
     </logicalFolder>
   </logicalFolder>
   <sourceRootList>
-    <Elem>FreeRTOS</Elem>
+    <Elem>.</Elem>
   </sourceRootList>
   <projectmakefile>Makefile</projectmakefile>
   <confs>
