@@ -8,6 +8,10 @@
 #ifndef BUTTON_TASK_H
 #define	BUTTON_TASK_H
 
+extern states next_state;
+extern states current_state;
+
+
 extern uint8_t pb_manager_flags;   // Bit-field of flags to be used by button manager logic
 #define PB_UPDATE   0   // Indicates an IOC interrupt has occured
 #define PB0_LAST    1   // Indicates the previous state of PB0

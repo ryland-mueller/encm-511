@@ -61,6 +61,9 @@
 #define TASK_PRIORITY 5
 uint8_t pb_stat = 0;    // extern in header, initialized to zero here
 
+states next_state = waiting_state;
+states current_state = waiting_state;
+
 void vApplicationIdleHook( void )
 {
 }

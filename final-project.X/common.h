@@ -46,9 +46,23 @@ extern uint8_t pb_stat;      // Bit-field for button status flags
                             (1 << PB2_HELD_FLAG))
 #define PB1_PB2_HELD       ((1 << PB1_HELD_FLAG) | \
                             (1 << PB2_HELD_FLAG))
-#define PB0_PB1_PB2_HELD   ((1 << PB0_HELD_FLAG) | \
-                            (1 << PB1_HELD_FLAG) | \
-                            (1 << PB2_HELD_FLAG))
+#define PB1_PB2_CLICKED   ((1 << PB1_CLICKED_FLAG) | \
+                            (1 << PB2_CLICKED_FLAG))
+
+typedef enum
+{
+    waiting_state,
+    set_timer,
+    timer_countdown,
+    timer_paused,
+    timer_countdown_info,
+    timer_info_paused,
+    timer_countdown_nblink,
+    timer_nblink_paused,
+    timer_countdown_info_nblink,
+    timer_info_nblink_paused,
+    timer_finished       
+} states;
 ///////////////////////////////////////////////////////////////////////////////
 ///////  mutexs and semaphores declerations here for global use  //////////////
 ///////////////////////////////////////////////////////////////////////////////
