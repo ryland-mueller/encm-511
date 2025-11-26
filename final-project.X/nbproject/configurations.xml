@@ -32,6 +32,8 @@
         <itemPath>FreeRTOS/portable/MPLAB/PIC24_dsPIC/portmacro.h</itemPath>
       </logicalFolder>
       <itemPath>uart.h</itemPath>
+      <itemPath>common.h</itemPath>
+      <itemPath>init_functions.h</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -59,9 +61,9 @@
       </logicalFolder>
       <itemPath>main.c</itemPath>
       <itemPath>uart.c</itemPath>
-      <itemPath>FreeRTOS/init_functions.c</itemPath>
-      <itemPath>FreeRTOS/init_functions.h</itemPath>
-      <itemPath>FreeRTOS/common.h</itemPath>
+      <itemPath>do_ADC_task.c</itemPath>
+      <itemPath>init_functions.c</itemPath>
+      <itemPath>common.c</itemPath>
     </logicalFolder>
   </logicalFolder>
   <sourceRootList>
@@ -75,7 +77,7 @@
         <targetDevice>PIC24FJ256GA702</targetDevice>
         <targetHeader></targetHeader>
         <targetPluginBoard></targetPluginBoard>
-        <platformTool>noID</platformTool>
+        <platformTool>snap</platformTool>
         <languageToolchain>XC16</languageToolchain>
         <languageToolchainVersion>2.10</languageToolchainVersion>
         <platform>3</platform>
@@ -394,6 +396,8 @@
                   value="${memories.instruction.ram.ranges}"/>
         <property key="memories.programmemory" value="true"/>
         <property key="memories.programmemory.ranges" value="0-2aeff"/>
+        <property key="programmerToGoFilePath"
+                  value="/Users/benjamin/Dropbox/2025-MPLAB-workspaces/freertos-start.X/debug/default/freertos-start_ptg"/>
         <property key="programoptions.donoteraseauxmem" value="false"/>
         <property key="programoptions.eraseb4program" value="true"/>
         <property key="programoptions.pgmentry.voltage" value="low"/>

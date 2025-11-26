@@ -55,16 +55,11 @@
 #pragma config ALTI2C1 = ALTI2CEN    //Alternate I2C pin Location->SDA1 and SCL1 on RB9 and RB8
 
 
-#include "FreeRTOS.h"
-#include "task.h"
-#include "uart.h"
-#include "semphr.h"
-#include <xc.h>
+#include "common.h"
 
 #define TASK_STACK_SIZE 200
 #define TASK_PRIORITY 5
 
-SemaphoreHandle_t uart_sem;
 
 void vApplicationIdleHook( void )
 {
@@ -136,13 +131,17 @@ void prvHardwareSetup(void)
 
 int main(void) {
     
+    global_adc_value = 0;
+    adc_value_sem = xSemaphoreCreateMutex();
+    
+    uart_sem = xSemaphoreCreateMutex();
+
     prvHardwareSetup();
 
-	xTaskCreate( vTask1, "Task1", configMINIMAL_STACK_SIZE, NULL, 1, NULL );
+	xTaskCreate( vDoAdcTask, "DoAdcTask", configMINIMAL_STACK_SIZE, NULL, 1, NULL );
     xTaskCreate( vBreathingLedTask, "vBreathingLedTask", configMINIMAL_STACK_SIZE, NULL, 2, NULL );
     xTaskCreate( vTask3, "Task3", configMINIMAL_STACK_SIZE, NULL, 3, NULL );
     
-    uart_sem = xSemaphoreCreateMutex();
 
     
     vTaskStartScheduler();

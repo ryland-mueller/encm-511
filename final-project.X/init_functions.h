@@ -16,5 +16,8 @@ void IO_init(void);
 // Initializes the timers, used to clean up main
 void timer_init(void);
 
+// Initializes the adc, used to clean up main
+void adc_init(void);
+
 
 #endif
