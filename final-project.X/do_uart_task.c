@@ -18,6 +18,8 @@
 void do_uart_init(void) 
 {
 
+    xUartTransmitQueue = xQueueCreate(64,1);
+
     RPINR19bits.U2RXR = 11;     // Assign U2RX to RP11 (pin 22)
     RPOR5bits.RP10R = 5;        // Assign RP10 (pin 21) to U2TX
 
@@ -46,7 +48,7 @@ void do_uart_init(void)
 	return;
 }
 
-void vDoUartTask( void * pvParameters )
+void vDoUartTransmitTask( void * pvParameters )
 {
     TickType_t LastWakeTime;
     const TickType_t Frequency = 1000;    // Perform an action every n ticks.
@@ -60,13 +62,22 @@ void vDoUartTask( void * pvParameters )
         
         // Perform action here.
         xSemaphoreTake(adc_value_sem, portMAX_DELAY);   // take adc mutex
-        xSemaphoreTake(uart_sem, portMAX_DELAY);        // take uart mutex
+        xSemaphoreTake(uart_tx_sem, portMAX_DELAY);     // take uart mutex
 
+        // print the present ADC value
         Disp2String("\033[2J");
         Disp2String("\033[H");
         Disp2Dec(global_adc_value);
-        
-        xSemaphoreGive(uart_sem);                  // give uart mutex
+        XmitUART2('\r',1);
+        XmitUART2('\n',1);
+
+        // dump the xUartTransmitQueue
+        uint8_t charToDisplay = 0;
+        if (xQueueReceive(xUartTransmitQueue, &charToDisplay, 0) == pdTRUE) {
+            XmitUART2(charToDisplay,1);
+        }
+
+        xSemaphoreGive(uart_tx_sem);                  // give uart mutex
         xSemaphoreGive(adc_value_sem);             // give adc mutex
     
     }

@@ -63,13 +63,16 @@ typedef enum
     timer_finished       
 } states;
 ///////////////////////////////////////////////////////////////////////////////
-///////  mutexs and semaphores declerations here for global use  //////////////
+///////  mutexs, semaphores, queues declerations here for global use  /////////
 ///////////////////////////////////////////////////////////////////////////////
 
-extern SemaphoreHandle_t uart_sem;          
+extern SemaphoreHandle_t uart_tx_sem;       // mutex to transmit on the UART (might not be needed if only one task uses)
+extern QueueHandle_t xUartTransmitQueue;    // queue to transmit on the UART
 
-extern uint16_t global_adc_value;          // global adc value
-extern SemaphoreHandle_t adc_value_sem;    // and its mutex
+
+extern uint16_t global_adc_value;           // global adc value
+extern SemaphoreHandle_t adc_value_sem;     // and its mutex
+
 
 //definitions must be in common.c
 ///////////////////////////////////////////////////////////////////////////////
@@ -84,7 +87,7 @@ void vDoAdcTask( void * pvParameters );
 
 // UART task and its initalization
 void do_uart_init(void);
-void vDoUartTask( void * pvParameters );
+void vDoUartTransmitTask( void * pvParameters );
 
 
 ///////////////////////////////////////////////////////////////////////////////

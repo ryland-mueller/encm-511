@@ -87,9 +87,9 @@ static int counter = 0;
 //{
 //    for(;;)
 //    {
-//        xSemaphoreTake(uart_sem, portMAX_DELAY);
+//        xSemaphoreTake(uart_tx_sem, portMAX_DELAY);
 //        Disp2String("hello from Task 1\n\r");
-//        xSemaphoreGive(uart_sem);
+//        xSemaphoreGive(uart_tx_sem);
 //        
 //        vTaskDelay(pdMS_TO_TICKS(1000));
 //    }
@@ -141,17 +141,18 @@ int main(void) {
     global_adc_value = 0;
     adc_value_sem = xSemaphoreCreateMutex();
     
-    uart_sem = xSemaphoreCreateMutex();
+    uart_tx_sem = xSemaphoreCreateMutex();
 
     prvHardwareSetup();
 
     prvTaskSetup();
 
 	xTaskCreate( vDoAdcTask, "vDoAdcTask", configMINIMAL_STACK_SIZE, NULL, 1, NULL );
-    xTaskCreate( vDoUartTask, "vDoUartTask", configMINIMAL_STACK_SIZE, NULL, 2, NULL );
-    //xTaskCreate( vTask3, "Task3", configMINIMAL_STACK_SIZE, NULL, 3, NULL );
+    xTaskCreate( vDoUartTransmitTask, "vDoUartTransmitTask", configMINIMAL_STACK_SIZE, NULL, 2, NULL );
+    //xTaskCreate( vButtonTask, "vButtonTask", configMINIMAL_STACK_SIZE, NULL, 3, NULL );
     
-
+    // uint8_t charToSend = 66;
+    // xQueueSendToBack(xUartTransmitQueue, (void*)&charToSend, portMAX_DELAY);
     
     vTaskStartScheduler();
     
