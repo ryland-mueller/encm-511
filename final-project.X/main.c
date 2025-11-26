@@ -80,17 +80,17 @@ void vApplicationStackOverflowHook( TaskHandle_t pxTask, char *pcTaskName )
 
 static int counter = 0;
 
-void vTask1(void *pvParameters)
-{
-    for(;;)
-    {
-        xSemaphoreTake(uart_sem, portMAX_DELAY);
-        Disp2String("hello from Task 1\n\r");
-        xSemaphoreGive(uart_sem);
-        
-        vTaskDelay(pdMS_TO_TICKS(1000));
-    }
-}
+//void vTask1(void *pvParameters)
+//{
+//    for(;;)
+//    {
+//        xSemaphoreTake(uart_sem, portMAX_DELAY);
+//        Disp2String("hello from Task 1\n\r");
+//        xSemaphoreGive(uart_sem);
+//        
+//        vTaskDelay(pdMS_TO_TICKS(1000));
+//    }
+//}
 
 
 void vBreathingLedTask( void * pvParameters )
@@ -124,9 +124,13 @@ void vTask3(void *pvParameters)
 
 void prvHardwareSetup(void)
 {
-    TRISBbits.TRISB5 = 0;
-    InitUART2();
-    
+    IO_init();
+}
+
+void prvTaskSetup()
+{
+    do_uart_init();
+    do_adc_init();
 }
 
 int main(void) {
@@ -138,9 +142,11 @@ int main(void) {
 
     prvHardwareSetup();
 
-	xTaskCreate( vDoAdcTask, "DoAdcTask", configMINIMAL_STACK_SIZE, NULL, 1, NULL );
-    xTaskCreate( vBreathingLedTask, "vBreathingLedTask", configMINIMAL_STACK_SIZE, NULL, 2, NULL );
-    xTaskCreate( vTask3, "Task3", configMINIMAL_STACK_SIZE, NULL, 3, NULL );
+    prvTaskSetup();
+
+	xTaskCreate( vDoAdcTask, "vDoAdcTask", configMINIMAL_STACK_SIZE, NULL, 1, NULL );
+    xTaskCreate( vDoUartTask, "vDoUartTask", configMINIMAL_STACK_SIZE, NULL, 2, NULL );
+    //xTaskCreate( vTask3, "Task3", configMINIMAL_STACK_SIZE, NULL, 3, NULL );
     
 
     

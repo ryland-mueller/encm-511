@@ -31,7 +31,6 @@
         <itemPath>FreeRTOSConfig.h</itemPath>
         <itemPath>FreeRTOS/portable/MPLAB/PIC24_dsPIC/portmacro.h</itemPath>
       </logicalFolder>
-      <itemPath>uart.h</itemPath>
       <itemPath>common.h</itemPath>
       <itemPath>init_functions.h</itemPath>
     </logicalFolder>
@@ -60,12 +59,14 @@
         <itemPath>FreeRTOS/timers.c</itemPath>
       </logicalFolder>
       <itemPath>main.c</itemPath>
-      <itemPath>uart.c</itemPath>
-      <itemPath>do_ADC_task.c</itemPath>
       <itemPath>init_functions.c</itemPath>
       <itemPath>common.c</itemPath>
       <itemPath>button_task.c</itemPath>
       <itemPath>button_task.h</itemPath>
+      <itemPath>do_adc_task.c</itemPath>
+      <itemPath>do_uart_task.c</itemPath>
+      <itemPath>uart_functions.c</itemPath>
+      <itemPath>uart_functions.h</itemPath>
     </logicalFolder>
   </logicalFolder>
   <sourceRootList>

@@ -56,34 +56,13 @@ void timer_init(void)
     return;
 }
 
-void PWM_init(void)
-{
-    RPOR1bits.RP2R = 13;            // set pin 6 to PWM out pin (OC1)
-    OC1R  = 0x0FFF;                 // set PWM frequency to 977Hz
-    OC1RS = OC1R/2;                 // 50% duty cycle 
-    OC1CON2bits.SYNCSEL = 0x1F;         // select OC1 as synchronization source
-    OC1CON1bits.OCTSEL = 0;             // select timer 2 as clock source
-    OC1CON1bits.OCM = 111;              // center-aligned PWM mode
-}
+// void PWM_init(void)
+// {
+//     RPOR1bits.RP2R = 13;            // set pin 6 to PWM out pin (OC1)
+//     OC1R  = 0x0FFF;                 // set PWM frequency to 977Hz
+//     OC1RS = OC1R/2;                 // 50% duty cycle 
+//     OC1CON2bits.SYNCSEL = 0x1F;         // select OC1 as synchronization source
+//     OC1CON1bits.OCTSEL = 0;             // select timer 2 as clock source
+//     OC1CON1bits.OCM = 111;              // center-aligned PWM mode
+// }
 
-void adc_init(void)
-{
-    AD1CON2bits.PVCFG = 0;      //Selects Positive voltage reference
-    AD1CON2bits.NVCFG0 = 0;     //Selects Negative voltage reference
-    
-    //Setup Channel 0 sample A
-    AD1CHSbits.CH0NA = 0;       //Negative input is selected as gnd
-    AD1CHSbits.CH0SA = 5;       //Positive input selected as AN5 (PIN7)
-    
-    AD1CON3bits.ADCS = 255;     //AD Conversion clock is set to 256 * Tcy 
-    AD1CON1bits.SSRC = 7;       //ADC occurs based off SAMP 
-    AD1CON1bits.FORM = 0;       //Data output is absolute decimal unsigned right justified
-    AD1CON5bits.ASEN = 0;       //Disable auto scan
-    AD1CON1bits.DMAEN = 0;      //Disable DMA 
-    AD1CON2bits.SMPI = 0;       //Interrupts at the completion of each sample
-    AD1CON1bits.MODE12 = 0;     //10-bit ADC mode
-    AD1CON1bits.ASAM = 0;       //Sampling starts when SAMP is set manually
-    
-    AD1CON1bits.ADON = 1;       //Enable ADC
-    AD1CON1bits.SAMP = 0; 
-}
