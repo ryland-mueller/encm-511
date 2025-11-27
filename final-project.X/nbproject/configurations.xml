@@ -64,9 +64,10 @@
       <itemPath>button_task.c</itemPath>
       <itemPath>button_task.h</itemPath>
       <itemPath>do_adc_task.c</itemPath>
-      <itemPath>do_uart_task.c</itemPath>
       <itemPath>uart_functions.c</itemPath>
       <itemPath>uart_functions.h</itemPath>
+      <itemPath>do_uart_transmit_task.c</itemPath>
+      <itemPath>do_uart_recieve_task.c</itemPath>
     </logicalFolder>
   </logicalFolder>
   <sourceRootList>

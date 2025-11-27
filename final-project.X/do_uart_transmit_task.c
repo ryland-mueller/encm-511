@@ -15,11 +15,12 @@
 
 //uint8_t RXFlag = 0;
 
-void do_uart_init(void) 
+void do_uart_transmit_init(void) 
 {
-
     xUartTransmitQueue = xQueueCreate(64,1);
 
+    #ifndef UART2_CONFIG
+    #define UART2_CONFIG
     RPINR19bits.U2RXR = 11;     // Assign U2RX to RP11 (pin 22)
     RPOR5bits.RP10R = 5;        // Assign RP10 (pin 21) to U2TX
 
@@ -46,6 +47,7 @@ void do_uart_init(void)
 
 	U2STAbits.UTXEN = 1;        // Enable UART Tx
 	return;
+    #endif
 }
 
 void vDoUartTransmitTask( void * pvParameters )
@@ -72,9 +74,9 @@ void vDoUartTransmitTask( void * pvParameters )
         XmitUART2('\n',1);
 
         // dump the xUartTransmitQueue
-        uint8_t charToDisplay = 0;
-        if (xQueueReceive(xUartTransmitQueue, &charToDisplay, 0) == pdTRUE) {
-            XmitUART2(charToDisplay,1);
+        uint8_t char_to_display = 0;
+        if (xQueueReceive(xUartTransmitQueue, &char_to_display, 0) == pdTRUE) {
+            XmitUART2(char_to_display,1);
         }
 
         xSemaphoreGive(uart_tx_sem);                  // give uart mutex

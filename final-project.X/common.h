@@ -69,6 +69,9 @@ typedef enum
 extern SemaphoreHandle_t uart_tx_sem;       // mutex to transmit on the UART (might not be needed if only one task uses)
 extern QueueHandle_t xUartTransmitQueue;    // queue to transmit on the UART
 
+extern SemaphoreHandle_t uart_rx_sem;       // mutex to recieve on the UART (might not be needed if only one task uses)
+extern QueueHandle_t xUartRecieveQueue;    // queue to transmit on the UART
+
 
 extern uint16_t global_adc_value;           // global adc value
 extern SemaphoreHandle_t adc_value_sem;     // and its mutex
@@ -85,9 +88,13 @@ extern SemaphoreHandle_t adc_value_sem;     // and its mutex
 void do_adc_init(void);
 void vDoAdcTask( void * pvParameters );
 
-// UART task and its initalization
-void do_uart_init(void);
+// UART transmit task and its initalization
+void do_uart_transmit_init(void);
 void vDoUartTransmitTask( void * pvParameters );
+
+// UART transmit task and its initalization
+void do_uart_recieve_init(void);
+void vDoUartRecieveTask( void * pvParameters );
 
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -132,7 +132,7 @@ void prvHardwareSetup(void)
 
 void prvTaskSetup()
 {
-    do_uart_init();
+    do_uart_transmit_init();
     do_adc_init();
 }
 
@@ -142,6 +142,8 @@ int main(void) {
     adc_value_sem = xSemaphoreCreateMutex();
     
     uart_tx_sem = xSemaphoreCreateMutex();
+    
+    uart_rx_sem = xSemaphoreCreateMutex();
 
     prvHardwareSetup();
 

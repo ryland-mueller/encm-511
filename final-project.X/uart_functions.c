@@ -131,18 +131,22 @@ char RecvUartChar(void)
         RXFlag = 0;
         return received_char;
     }
-    return 0;
+    return NULL;
 }
 
 void __attribute__ ((interrupt, no_auto_psv)) _U2RXInterrupt(void) {
 
+    // reset the flag
 	IFS1bits.U2RXIF = 0;
     
+    // read out of UART rx buffer
     received_char = U2RXREG;
     
+    // notfiy vDoUartRecieveTask but don't request a context switch
+    vTaskNotifyGiveFromISR(vDoUartRecieveTask,NULL);
+
+    // set flag for recieve function
     RXFlag = 1;
-    
-    //_LATB5 ^= 1;
 }
 
 void __attribute__ ((interrupt, no_auto_psv)) _U2TXInterrupt(void) {
