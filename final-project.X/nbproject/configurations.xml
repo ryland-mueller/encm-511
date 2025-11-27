@@ -67,6 +67,7 @@
       <itemPath>do_uart_task.c</itemPath>
       <itemPath>uart_functions.c</itemPath>
       <itemPath>uart_functions.h</itemPath>
+      <itemPath>timer_control.c</itemPath>
     </logicalFolder>
   </logicalFolder>
   <sourceRootList>
