@@ -17,7 +17,7 @@
 
 void do_uart_transmit_init(void) 
 {
-    xUartTransmitQueue = xQueueCreate(64,1);
+    xUartTransmitQueue = xQueueCreate(64, sizeof(uint8_t));
 
     #ifndef UART2_CONFIG
     #define UART2_CONFIG
@@ -74,12 +74,12 @@ void vDoUartTransmitTask( void * pvParameters )
         XmitUART2('\n',1);
 
         // dump the xUartTransmitQueue
-        uint8_t char_to_display = 0;
-        if (xQueueReceive(xUartTransmitQueue, &char_to_display, 0) == pdTRUE) {
-            XmitUART2(char_to_display,1);
+        uint8_t char_to_display;
+        if (xQueueReceive(xUartRecieveQueue, &char_to_display, portMAX_DELAY) == pdTRUE) {
+            XmitUART2(char_to_display, 1);
         }
 
-        xSemaphoreGive(uart_tx_sem);                  // give uart mutex
+        xSemaphoreGive(uart_tx_sem);               // give uart mutex
         xSemaphoreGive(adc_value_sem);             // give adc mutex
     
     }

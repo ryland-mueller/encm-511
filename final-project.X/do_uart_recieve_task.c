@@ -15,7 +15,7 @@
 
 void do_uart_recieve_init(void) 
 {
-    xUartRecieveQueue = xQueueCreate(64,1);
+    xUartRecieveQueue = xQueueCreate(64, sizeof(uint8_t));
 
     #ifndef UART2_CONFIG
     #define UART2_CONFIG
@@ -59,17 +59,17 @@ void vDoUartRecieveTask( void * pvParameters )
         xSemaphoreTake(uart_rx_sem, portMAX_DELAY);
 
         // char to store char from rx buffer
-        uint8_t char_recieved;
+        uint8_t char_received;
         
         // get char from rx buffer
-        char_recieved = RecvUartChar();
+        char_received = RecvUartChar();
 
         // give uart mutex here so it doesn't keep it while waiting for queue space
         xSemaphoreGive(uart_rx_sem);                    
 
         // if there was something in the buffer put it in the queue
-        if (char_recieved != NULL)
-            xQueueSendToBack(xUartRecieveQueue, (void*)&char_recieved, portMAX_DELAY);
+        // xQueueSendToBack(xUartRecieveQueue, (void*)&char_recieved, portMAX_DELAY);
+        xQueueSendToBack(xUartTransmitQueue, &char_received, portMAX_DELAY);
     }
 }
 

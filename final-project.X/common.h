@@ -87,15 +87,17 @@ extern SemaphoreHandle_t adc_value_sem;     // and its mutex
 // ADC task and its initalization
 void do_adc_init(void);
 void vDoAdcTask( void * pvParameters );
+extern TaskHandle_t DoUartAdcTaskHandle;
 
 // UART transmit task and its initalization
 void do_uart_transmit_init(void);
 void vDoUartTransmitTask( void * pvParameters );
+extern TaskHandle_t DoUartTransmitTaskHandle;
 
 // UART transmit task and its initalization
 void do_uart_recieve_init(void);
 void vDoUartRecieveTask( void * pvParameters );
-
+extern TaskHandle_t DoUartRecieveTaskHandle;
 
 ///////////////////////////////////////////////////////////////////////////////
 

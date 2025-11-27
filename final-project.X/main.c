@@ -149,9 +149,10 @@ int main(void) {
 
     prvTaskSetup();
 
-	xTaskCreate( vDoAdcTask, "vDoAdcTask", configMINIMAL_STACK_SIZE, NULL, 1, NULL );
-    xTaskCreate( vDoUartTransmitTask, "vDoUartTransmitTask", configMINIMAL_STACK_SIZE, NULL, 2, NULL );
-    //xTaskCreate( vButtonTask, "vButtonTask", configMINIMAL_STACK_SIZE, NULL, 3, NULL );
+    TaskHandle_t DoUartAdcTaskHandle = xTaskCreate( vDoAdcTask, "vDoAdcTask", configMINIMAL_STACK_SIZE, NULL, 1, NULL );
+    TaskHandle_t DoUartTransmitTaskHandle = xTaskCreate( vDoUartTransmitTask, "vDoUartTransmitTask", configMINIMAL_STACK_SIZE, NULL, 2, NULL );
+    TaskHandle_t DoUartRecieveTaskHandle = xTaskCreate( vDoUartRecieveTask, "vDoUartRecieveTask", configMINIMAL_STACK_SIZE, NULL, 3, NULL );
+
     
     // uint8_t charToSend = 66;
     // xQueueSendToBack(xUartTransmitQueue, (void*)&charToSend, portMAX_DELAY);
