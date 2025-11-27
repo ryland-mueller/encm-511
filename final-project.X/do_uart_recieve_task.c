@@ -50,17 +50,22 @@ void do_uart_recieve_init(void)
 
 void vDoUartRecieveTask( void * pvParameters )
 {
+    TickType_t LastWakeTime;
+    const TickType_t Frequency = 10;    // Perform an action every n ticks.
+
+    // char to store char from rx buffer
+    uint8_t char_received;
+
+    LastWakeTime = xTaskGetTickCount(); // get current time.
+
     for( ;; )
     {
-       // block until the UART rx ISR notifies something is in the buffer
-        ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
+        // Wait for the next cycle.
+        vTaskDelayUntil( &LastWakeTime, Frequency );
 
         // take uart rx mutex
         xSemaphoreTake(uart_rx_sem, portMAX_DELAY);
-
-        // char to store char from rx buffer
-        uint8_t char_received;
-        
+       
         // get char from rx buffer
         char_received = RecvUartChar();
 
@@ -69,7 +74,8 @@ void vDoUartRecieveTask( void * pvParameters )
 
         // if there was something in the buffer put it in the queue
         // xQueueSendToBack(xUartRecieveQueue, (void*)&char_recieved, portMAX_DELAY);
-        xQueueSendToBack(xUartTransmitQueue, &char_received, portMAX_DELAY);
+        if(char_received != NULL)
+            xQueueSendToBack(xUartTransmitQueue, &char_received, portMAX_DELAY);
     }
 }
 

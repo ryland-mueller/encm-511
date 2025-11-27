@@ -67,7 +67,7 @@ void vDoUartTransmitTask( void * pvParameters )
         xSemaphoreTake(uart_tx_sem, portMAX_DELAY);     // take uart mutex
 
         // print the present ADC value
-        Disp2String("\033[2J");
+        //Disp2String("\033[2J");
         Disp2String("\033[H");
         Disp2Dec(global_adc_value);
         XmitUART2('\r',1);
@@ -75,7 +75,7 @@ void vDoUartTransmitTask( void * pvParameters )
 
         // dump the xUartTransmitQueue
         uint8_t char_to_display;
-        if (xQueueReceive(xUartRecieveQueue, &char_to_display, portMAX_DELAY) == pdTRUE) {
+        if (xQueueReceive(xUartTransmitQueue, &char_to_display, 0) == pdTRUE) {
             XmitUART2(char_to_display, 1);
         }
 

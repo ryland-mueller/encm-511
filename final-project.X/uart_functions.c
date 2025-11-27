@@ -131,7 +131,7 @@ char RecvUartChar(void)
         RXFlag = 0;
         return received_char;
     }
-    return 0;
+    return NULL;
 }
 
 void __attribute__ ((interrupt, no_auto_psv)) _U2RXInterrupt(void) {
@@ -142,9 +142,6 @@ void __attribute__ ((interrupt, no_auto_psv)) _U2RXInterrupt(void) {
     // read out of UART rx buffer
     received_char = U2RXREG;
     
-    // notfiy vDoUartRecieveTask but don't request a context switch
-    vTaskNotifyGiveFromISR(DoUartTransmitTaskHandle,NULL);
-
     // set flag for recieve function
     RXFlag = 1;
 }

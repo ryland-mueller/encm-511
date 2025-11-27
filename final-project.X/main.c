@@ -138,7 +138,7 @@ void prvTaskSetup()
 
 int main(void) {
     
-    global_adc_value = 0;
+    global_adc_value = 10;
     adc_value_sem = xSemaphoreCreateMutex();
     
     uart_tx_sem = xSemaphoreCreateMutex();
