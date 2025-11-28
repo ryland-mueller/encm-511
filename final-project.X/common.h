@@ -80,6 +80,7 @@ extern QueueHandle_t xUartRecieveQueue;    // queue to transmit on the UART
 extern uint16_t global_adc_value;           // global adc value
 extern SemaphoreHandle_t adc_value_sem;     // and its mutex
 
+extern uint16_t countdown_seconds;          //Global timer variable
 
 //definitions must be in common.c
 ///////////////////////////////////////////////////////////////////////////////

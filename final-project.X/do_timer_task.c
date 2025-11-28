@@ -1,5 +1,6 @@
 #include "common.h"
 
+uint16_t countdown_seconds = 65;
 
 void do_timer_init(void)
 { 
@@ -19,18 +20,35 @@ void do_timer_init(void)
 void vDoTimerTask(void *pvParameters)
 {
     uint8_t current_time = 'A';
-
+    char buffer[10];
+    
+    
     for (;;) {
         // wait for notify from timer ISR
         ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
 
+        if(countdown_seconds > 0)
+            countdown_seconds--;
+        
+        uint16_t local_copy = countdown_seconds;
         // send the cursor to the timer line
         for (const char *p = TIMER_HOME; *p != '\0'; p++) {
             xQueueSendToBack(xUartTransmitQueue, p, portMAX_DELAY);
         }
-
+        
+        int minutes = local_copy / 60;
+        int seconds = local_copy % 60;
+        buffer[0] = minutes + '0';
+        buffer[1] = ':';
+        buffer[2] = (seconds / 10) + '0';
+        buffer[3] = (seconds % 10) + '0';
+        buffer[4] = '\0';
+        
         // print the current time
-        xQueueSendToBack(xUartTransmitQueue, &current_time, portMAX_DELAY);
+        for (const char *p = buffer; *p != '\0'; p++) {
+            xQueueSendToBack(xUartTransmitQueue, p, portMAX_DELAY);
+        }
+        
     }
 }
 

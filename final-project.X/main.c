@@ -148,6 +148,8 @@ int main(void) {
     
     uart_rx_sem = xSemaphoreCreateMutex();
 
+    
+    
     prvHardwareSetup();
 
     prvTaskSetup();
