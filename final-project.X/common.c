@@ -12,6 +12,8 @@ QueueHandle_t xUartRecieveQueue = NULL;    // queue to transmit on the UART
 uint16_t global_adc_value = 0;              // global ADC value
 SemaphoreHandle_t adc_value_sem = NULL;     // and its mutex
 
+SemaphoreHandle_t pb_sem = NULL;
+SemaphoreHandle_t state_sem = NULL;
 void StringToQueue(char *String)
 {
     uint8_t char_to_send = 0;
@@ -21,6 +23,5 @@ void StringToQueue(char *String)
         char_to_send = String[string_index];
         xQueueSendToBack(xUartTransmitQueue, (void*)&char_to_send, portMAX_DELAY);
     }
-    
-    
+
 }

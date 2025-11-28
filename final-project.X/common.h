@@ -52,6 +52,9 @@ extern uint8_t pb_stat;      // Bit-field for button status flags
 #define PB1_PB2_CLICKED   ((1 << PB1_CLICKED_FLAG) | \
                             (1 << PB2_CLICKED_FLAG))
 
+
+
+
 typedef enum
 {
     waiting_state,
@@ -67,6 +70,26 @@ typedef enum
     timer_finished       
 } states;
 
+//holds the next state
+extern states next_state;
+//holds the current state
+extern states current_state;
+//hold the last value of each pb, initialized in main
+extern uint8_t pb0_last;
+extern uint8_t pb1_last;
+extern uint8_t pb2_last;
+//hold the flag if the button is held, initialized in main. Automatically reset when not held
+extern uint8_t pb0_held;
+extern uint8_t pb1_held;
+extern uint8_t pb2_held;
+//hold the flag for click, initialized in main. Needs to be reset
+extern uint8_t pb0_click;
+extern uint8_t pb1_click;
+extern uint8_t pb2_click;
+
+// Goes high when a click or held has been registered. Needs to be reset
+extern uint8_t pb_change;
+
 static const char WaitingMessage[] = "Please press PB0 to start";
 static const char SetTimerMessage[] = "Please enter a time";
 static const char ADCMessage[] = "ADC value: ";
@@ -80,11 +103,14 @@ extern SemaphoreHandle_t uart_tx_sem;       // mutex to transmit on the UART (mi
 extern QueueHandle_t xUartTransmitQueue;    // queue to transmit on the UART
 
 extern SemaphoreHandle_t uart_rx_sem;       // mutex to recieve on the UART (might not be needed if only one task uses)
-extern QueueHandle_t xUartRecieveQueue;    // queue to transmit on the UART
+extern QueueHandle_t xUartRecieveQueue;     // queue to transmit on the UART
 
 
 extern uint16_t global_adc_value;           // global adc value
 extern SemaphoreHandle_t adc_value_sem;     // and its mutex
+
+extern SemaphoreHandle_t pb_sem;            // semaphore for push buttons
+extern SemaphoreHandle_t state_sem;         // semaphore for state 
 
 
 //definitions must be in common.c

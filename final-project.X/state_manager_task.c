@@ -8,94 +8,95 @@ void vStateManagerTask( void * pvParameters )
     for(;;)
     {
         xTaskDelayUntil(LastWakeTime, 50);
-        //get adc values
-        //get uart message
-        //do state transistions based on uart message 
         
+        xSemaphoreTake(pb_sem, portMAX_DELAY);
+        xSemaphoreTake(state_sem, portMAX_DELAY);
         
-        if(pb_stat)
+        if(pb_change)
         {
-            
             if(current_state == waiting_state)
             {
-                if(pb_stat == PB0_CLICKED)
+                if(pb0_click == 1)
                     next_state = set_timer;
                 else
                     next_state = waiting_state;
             }
             if(current_state == set_timer)
             {
-                if(pb_stat == PB1_PB2_CLICKED)
+                if(pb0_click == 1 && pb1_click == 1)
                     next_state = timer_countdown;
                 else
                     next_state = set_timer;
             }
             if(current_state == timer_countdown)
             {
-                if(pb_stat == PB2_CLICKED)
+                if(pb2_click == 1)
                     next_state == timer_paused;
-                else if (pb_stat == PB2_HELD)
+                else if (pb2_held == 1)
                     next_state == set_timer;
                 else
                     next_state == timer_countdown;
             }
             if(current_state == timer_paused)
             {
-                if(pb_stat == PB2_CLICKED)
+                if(pb2_click == 1)
                     next_state == timer_countdown;
                 else
                     next_state == timer_paused;
             }
             if(current_state == timer_countdown_info)
             {
-                if(pb_stat == PB2_CLICKED)
+                if(pb2_click == 1)
                     next_state == timer_info_paused;
-                else if (pb_stat == PB2_HELD)
+                else if (pb2_held == 1)
                     next_state == set_timer;
                 else
                     next_state == timer_countdown_info;
             }
             if(current_state == timer_info_paused)
             {
-                if(pb_stat == PB2_CLICKED)
+                if(pb2_click == 1)
                     next_state == timer_countdown_info;
                 else
                     next_state == timer_info_paused;
             }
             if(current_state == timer_countdown_nblink)
             {
-                if(pb_stat == PB2_CLICKED)
+                if(pb2_click == 1)
                     next_state == timer_nblink_paused;
-                else if (pb_stat == PB2_HELD)
+                else if (pb2_held == 1)
                     next_state == set_timer;
                 else
                     next_state == timer_countdown_nblink;
             }
             if(current_state == timer_nblink_paused)
             {
-                if(pb_stat == PB2_CLICKED)
+                if(pb2_click == 1)
                     next_state == timer_countdown_nblink;
                 else
                     next_state == timer_nblink_paused;
             }
             if(current_state == timer_countdown_info_nblink)
             {
-                if(pb_stat == PB2_CLICKED)
+                if(pb2_click == 1)
                     next_state == timer_info_nblink_paused;
-                else if (pb_stat == PB2_HELD)
+                else if (pb2_held == 1)
                     next_state == set_timer;
                 else
                     next_state == timer_countdown_info_nblink;
             }
             if(current_state == timer_info_nblink_paused)
             {
-                if(pb_stat == PB2_CLICKED)
+                if(pb2_click == 1)
                     next_state == timer_countdown_info_nblink;
                 else
                     next_state == timer_info_nblink_paused;
             }
         
-        
+            pb_change = 0;
+            pb0_click = 0;
+            pb1_click = 0;
+            pb2_click = 0;
         }
         
         
@@ -111,6 +112,9 @@ void vStateManagerTask( void * pvParameters )
                 //Display UART with the user inputs 
             }
         }
+        
+        xSemaphoreGive(pb_sem);
+        xSemaphoreGive(state_sem);
         
     }
 }

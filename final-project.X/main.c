@@ -62,6 +62,7 @@
 uint8_t pb_stat = 0;    // extern in header, initialized to zero here
 uint8_t pb_manager_flags = 0;
 
+
 states next_state = waiting_state;
 states current_state = waiting_state;
 
@@ -149,6 +150,7 @@ uint8_t pb2_last = 1;
 uint8_t pb2_held = 0;
 uint8_t pb2_click = 0;
 
+uint8_t pb_change;
 
 int main(void) {
     
@@ -159,12 +161,17 @@ int main(void) {
     current_state = waiting_state;
     
     global_adc_value = 0;
+    
     adc_value_sem = xSemaphoreCreateMutex();
     
     uart_tx_sem = xSemaphoreCreateMutex();
     
     uart_rx_sem = xSemaphoreCreateMutex();
 
+    pb_sem = xSemaphoreCreateMutex();
+    
+    state_sem = xSemaphoreCreateMutex();
+    
     prvHardwareSetup();
     prvTaskSetup();
 
