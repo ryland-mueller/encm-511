@@ -133,7 +133,10 @@ void prvHardwareSetup(void)
 void prvTaskSetup()
 {
     do_uart_transmit_init();
+    do_uart_recieve_init();
     do_adc_init();
+    do_timer_init();
+    
 }
 
 int main(void) {
@@ -149,15 +152,23 @@ int main(void) {
 
     prvTaskSetup();
 
-    TaskHandle_t DoUartAdcTaskHandle = xTaskCreate( vDoAdcTask, "vDoAdcTask", configMINIMAL_STACK_SIZE, NULL, 1, NULL );
-    TaskHandle_t DoUartTransmitTaskHandle = xTaskCreate( vDoUartTransmitTask, "vDoUartTransmitTask", configMINIMAL_STACK_SIZE, NULL, 2, NULL );
-    TaskHandle_t DoUartRecieveTaskHandle = xTaskCreate( vDoUartRecieveTask, "vDoUartRecieveTask", configMINIMAL_STACK_SIZE, NULL, 3, NULL );
+    xTaskCreate( vDoAdcTask, "vDoAdcTask", configMINIMAL_STACK_SIZE, NULL, 1, &DoUartAdcTaskHandle );
+    xTaskCreate( vDoUartTransmitTask, "vDoUartTransmitTask", configMINIMAL_STACK_SIZE, NULL, 2, &DoUartTransmitTaskHandle );
+    xTaskCreate( vDoUartRecieveTask, "vDoUartRecieveTask", configMINIMAL_STACK_SIZE, NULL, 3, &DoUartRecieveTaskHandle );
+    xTaskCreate( vDoTimerTask, "vDoTimerTask", configMINIMAL_STACK_SIZE, NULL, 4, &DoTimerTaskHandle );
 
     
+
+    // for debug only
+    T2CONbits.TON = 1;              // start the timer
+
     // uint8_t charToSend = 66;
     // xQueueSendToBack(xUartTransmitQueue, (void*)&charToSend, portMAX_DELAY);
     
+
+
     vTaskStartScheduler();
     
     for(;;);
 }
+

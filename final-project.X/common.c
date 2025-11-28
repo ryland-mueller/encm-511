@@ -13,6 +13,7 @@ uint16_t global_adc_value = 0;           // global ADC value
 SemaphoreHandle_t adc_value_sem = NULL;     // and its mutex
 
 
-extern TaskHandle_t DoUartAdcTaskHandle = 0;
-extern TaskHandle_t DoUartTransmitTaskHandle = 0;
-extern TaskHandle_t DoUartRecieveTaskHandle = 0;
+extern TaskHandle_t DoUartAdcTaskHandle = NULL;
+extern TaskHandle_t DoUartTransmitTaskHandle = NULL;
+extern TaskHandle_t DoUartRecieveTaskHandle = NULL;
+extern TaskHandle_t DoTimerTaskHandle = NULL;

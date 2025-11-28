@@ -75,9 +75,10 @@ void vDoUartTransmitTask( void * pvParameters )
 
         // dump the xUartTransmitQueue
         uint8_t char_to_display;
-        if (xQueueReceive(xUartTransmitQueue, &char_to_display, 0) == pdTRUE) {
+        while (xQueueReceive(xUartTransmitQueue, &char_to_display, 0) == pdTRUE) {
             XmitUART2(char_to_display, 1);
         }
+
 
         xSemaphoreGive(uart_tx_sem);               // give uart mutex
         xSemaphoreGive(adc_value_sem);             // give adc mutex

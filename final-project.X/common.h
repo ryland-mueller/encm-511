@@ -19,6 +19,11 @@
 #define PB1     PORTBbits.RB8
 #define PB2     PORTBbits.RB9
 
+#define TIMER_HOME "\033[3;1H"
+#define ADC_HOME   "\033[2;1H"
+
+#define ISR_PRIORITY 3
+
 #define SET_BIT(flags, n)       ((flags) |= (1 << (n)))
 #define CHECK_BIT(flags, n)     (((flags) >> (n)) & 1)
 #define CLEAR_BIT(flags, n)     ((flags) &= ~(1 << (n)))
@@ -72,7 +77,6 @@ extern QueueHandle_t xUartTransmitQueue;    // queue to transmit on the UART
 extern SemaphoreHandle_t uart_rx_sem;       // mutex to recieve on the UART (might not be needed if only one task uses)
 extern QueueHandle_t xUartRecieveQueue;    // queue to transmit on the UART
 
-
 extern uint16_t global_adc_value;           // global adc value
 extern SemaphoreHandle_t adc_value_sem;     // and its mutex
 
@@ -98,6 +102,11 @@ extern TaskHandle_t DoUartTransmitTaskHandle;
 void do_uart_recieve_init(void);
 void vDoUartRecieveTask( void * pvParameters );
 extern TaskHandle_t DoUartRecieveTaskHandle;
+
+// Timer task and its initalization
+void do_timer_init(void);
+void vDoTimerTask( void * pvParameters );
+extern TaskHandle_t DoTimerTaskHandle;
 
 ///////////////////////////////////////////////////////////////////////////////
 
