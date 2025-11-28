@@ -158,7 +158,7 @@ int main(void) {
     pb_manager_flags = 0;
 
     next_state = waiting_state;
-    current_state = waiting_state;
+    current_state = timer_finished;
     
     global_adc_value = 0;
     
@@ -178,7 +178,7 @@ int main(void) {
 	//xTaskCreate( vDoAdcTask, "vDoAdcTask", configMINIMAL_STACK_SIZE, NULL, 1, NULL );
     //xTaskCreate( vDoUartTransmitTask, "vDoUartTransmitTask", configMINIMAL_STACK_SIZE, NULL, 2, NULL );
     xTaskCreate( vButtonTask, "vButtonTask", configMINIMAL_STACK_SIZE, NULL, 3, NULL );
-    //xTaskCreate( vStateManagerTask, "vStateManagerTask", configMINIMAL_STACK_SIZE, NULL, 3, NULL );
+   // xTaskCreate( vStateManagerTask, "vStateManagerTask", configMINIMAL_STACK_SIZE, NULL, 3, NULL );
     
     // uint8_t charToSend = 66;
     // xQueueSendToBack(xUartTransmitQueue, (void*)&charToSend, portMAX_DELAY);

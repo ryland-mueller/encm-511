@@ -7,7 +7,7 @@ void vStateManagerTask( void * pvParameters )
 
     for(;;)
     {
-        xTaskDelayUntil(LastWakeTime, 50);
+        xTaskDelayUntil(LastWakeTime, 10);
         
         xSemaphoreTake(pb_sem, portMAX_DELAY);
         xSemaphoreTake(state_sem, portMAX_DELAY);
@@ -92,7 +92,8 @@ void vStateManagerTask( void * pvParameters )
                 else
                     next_state == timer_info_nblink_paused;
             }
-        
+            if(current_state == timer_finished)
+                next_state = waiting_state;
             pb_change = 0;
             pb0_click = 0;
             pb1_click = 0;
@@ -104,11 +105,14 @@ void vStateManagerTask( void * pvParameters )
         {
             if(current_state == waiting_state) 
             {
-                StringToQueue(WaitingMessage);
+                //StringToQueue(WaitingMessage);
+                LED0 = 1;
             }
             else if(current_state == set_timer) 
             {
-                StringToQueue(SetTimerMessage);
+                //StringToQueue(SetTimerMessage);
+                LED0 = 0;
+                LED1 = 1;
                 //Display UART with the user inputs 
             }
         }
