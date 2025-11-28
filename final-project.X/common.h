@@ -12,9 +12,13 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "semphr.h"
+#include <string.h>
 #include <xc.h>
 
 #define LED0    LATBbits.LATB5
+#define LED1    LATBbits.LATB6
+#define LED2    LATBbits.LATB7
+
 #define PB0     PORTAbits.RA4
 #define PB1     PORTBbits.RB8
 #define PB2     PORTBbits.RB9
@@ -62,6 +66,12 @@ typedef enum
     timer_info_nblink_paused,
     timer_finished       
 } states;
+
+static const char WaitingMessage[] = "Please press PB0 to start";
+static const char SetTimerMessage[] = "Please enter a time";
+static const char ADCMessage[] = "ADC value: ";
+static const char DutyMessage[] = "Duty ratio: ";
+
 ///////////////////////////////////////////////////////////////////////////////
 ///////  mutexs, semaphores, queues declerations here for global use  /////////
 ///////////////////////////////////////////////////////////////////////////////
@@ -96,6 +106,8 @@ void vDoUartTransmitTask( void * pvParameters );
 void do_uart_recieve_init(void);
 void vDoUartRecieveTask( void * pvParameters );
 
+void vButtonTask( void * pvParameters);
+void vStateManagerTask( void * pvParameters);
 
 ///////////////////////////////////////////////////////////////////////////////
 

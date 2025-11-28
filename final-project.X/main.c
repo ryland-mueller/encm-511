@@ -60,6 +60,7 @@
 #define TASK_STACK_SIZE 200
 #define TASK_PRIORITY 5
 uint8_t pb_stat = 0;    // extern in header, initialized to zero here
+uint8_t pb_manager_flags = 0;
 
 states next_state = waiting_state;
 states current_state = waiting_state;
@@ -136,7 +137,26 @@ void prvTaskSetup()
     do_adc_init();
 }
 
+uint8_t pb0_last = 1;
+uint8_t pb0_held = 0;
+uint8_t pb0_click = 0;
+
+uint8_t pb1_last = 1;
+uint8_t pb1_held = 0;
+uint8_t pb1_click = 0;
+
+uint8_t pb2_last = 1;
+uint8_t pb2_held = 0;
+uint8_t pb2_click = 0;
+
+
 int main(void) {
+    
+    pb_stat = 0;    // extern in header, initialized to zero here
+    pb_manager_flags = 0;
+
+    next_state = waiting_state;
+    current_state = waiting_state;
     
     global_adc_value = 0;
     adc_value_sem = xSemaphoreCreateMutex();
@@ -146,16 +166,18 @@ int main(void) {
     uart_rx_sem = xSemaphoreCreateMutex();
 
     prvHardwareSetup();
-
     prvTaskSetup();
 
-	xTaskCreate( vDoAdcTask, "vDoAdcTask", configMINIMAL_STACK_SIZE, NULL, 1, NULL );
-    xTaskCreate( vDoUartTransmitTask, "vDoUartTransmitTask", configMINIMAL_STACK_SIZE, NULL, 2, NULL );
-    //xTaskCreate( vButtonTask, "vButtonTask", configMINIMAL_STACK_SIZE, NULL, 3, NULL );
+	//xTaskCreate( vDoAdcTask, "vDoAdcTask", configMINIMAL_STACK_SIZE, NULL, 1, NULL );
+    //xTaskCreate( vDoUartTransmitTask, "vDoUartTransmitTask", configMINIMAL_STACK_SIZE, NULL, 2, NULL );
+    xTaskCreate( vButtonTask, "vButtonTask", configMINIMAL_STACK_SIZE, NULL, 3, NULL );
+    //xTaskCreate( vStateManagerTask, "vStateManagerTask", configMINIMAL_STACK_SIZE, NULL, 3, NULL );
     
     // uint8_t charToSend = 66;
     // xQueueSendToBack(xUartTransmitQueue, (void*)&charToSend, portMAX_DELAY);
-    
+    //LED0 = 1;
+    //LED1 = 1;
+    //LED2 = 1;
     vTaskStartScheduler();
     
     for(;;);

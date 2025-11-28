@@ -68,7 +68,8 @@
       <itemPath>uart_functions.h</itemPath>
       <itemPath>do_uart_transmit_task.c</itemPath>
       <itemPath>do_uart_recieve_task.c</itemPath>
-      <itemPath>timer_control.c</itemPath>
+      <itemPath>state_manager_task.c</itemPath>
+      <itemPath>state_manager_task.h</itemPath>
     </logicalFolder>
   </logicalFolder>
   <sourceRootList>
