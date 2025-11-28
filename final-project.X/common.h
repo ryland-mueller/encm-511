@@ -15,6 +15,9 @@
 #include <xc.h>
 
 #define LED0    LATBbits.LATB5
+#define LED1    LATBbits.LATB6
+#define LED2    LATBbits.LATB7
+
 #define PB0     PORTAbits.RA4
 #define PB1     PORTBbits.RB8
 #define PB2     PORTBbits.RB9
@@ -107,6 +110,12 @@ extern TaskHandle_t DoUartRecieveTaskHandle;
 void do_timer_init(void);
 void vDoTimerTask( void * pvParameters );
 extern TaskHandle_t DoTimerTaskHandle;
+
+// Button task and its initalization
+void do_button_init(void);
+void vDoButtonTask( void * pvParameters );
+extern TaskHandle_t DoButtonTaskHandle;
+
 
 ///////////////////////////////////////////////////////////////////////////////
 

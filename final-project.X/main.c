@@ -136,6 +136,7 @@ void prvTaskSetup()
     do_uart_recieve_init();
     do_adc_init();
     do_timer_init();
+    do_button_init();
     
 }
 
@@ -156,7 +157,7 @@ int main(void) {
     xTaskCreate( vDoUartTransmitTask, "vDoUartTransmitTask", configMINIMAL_STACK_SIZE, NULL, 2, &DoUartTransmitTaskHandle );
     xTaskCreate( vDoUartRecieveTask, "vDoUartRecieveTask", configMINIMAL_STACK_SIZE, NULL, 3, &DoUartRecieveTaskHandle );
     xTaskCreate( vDoTimerTask, "vDoTimerTask", configMINIMAL_STACK_SIZE, NULL, 4, &DoTimerTaskHandle );
-
+    xTaskCreate( vDoButtonTask, "vDoButtonTask", configMINIMAL_STACK_SIZE, NULL, 7, &DoButtonTaskHandle );
     
 
     // for debug only
