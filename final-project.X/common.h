@@ -19,8 +19,13 @@
 #define PB1     PORTBbits.RB8
 #define PB2     PORTBbits.RB9
 
-#define TIMER_HOME "\033[3;1H"
-#define ADC_HOME   "\033[2;1H"
+#define MESSAGE_HOME "\033[1;1H"
+#define TIMER_HOME "\033[2;1H"
+#define ADC_HOME   "\033[3;1H"
+
+#define ADC_MESSAGE "ADC VALUE: "
+#define SET_MESSAGE "Please enter a time to countdown"
+#define COUNTDOWN_MESSAGE "The time remaining on the counter is:"
 
 #define ISR_PRIORITY 3
 
@@ -67,6 +72,9 @@ typedef enum
     timer_info_nblink_paused,
     timer_finished       
 } states;
+
+extern states current_state;
+extern states next_state;
 ///////////////////////////////////////////////////////////////////////////////
 ///////  mutexs, semaphores, queues declerations here for global use  /////////
 ///////////////////////////////////////////////////////////////////////////////
@@ -75,7 +83,7 @@ extern SemaphoreHandle_t uart_tx_sem;       // mutex to transmit on the UART (mi
 extern QueueHandle_t xUartTransmitQueue;    // queue to transmit on the UART
 
 extern SemaphoreHandle_t uart_rx_sem;       // mutex to recieve on the UART (might not be needed if only one task uses)
-extern QueueHandle_t xUartRecieveQueue;    // queue to transmit on the UART
+extern QueueHandle_t xUartReceiveQueue;    // queue to transmit on the UART
 
 extern uint16_t global_adc_value;           // global adc value
 extern SemaphoreHandle_t adc_value_sem;     // and its mutex
@@ -83,6 +91,9 @@ extern SemaphoreHandle_t adc_value_sem;     // and its mutex
 extern uint16_t set_time;                   //Global variable that holds the set time by the user
 extern uint16_t countdown_seconds;          //Global timer variable
 extern SemaphoreHandle_t countdown_sem;     //Mutex for safely changing the countdown seconds
+
+extern SemaphoreHandle_t uart_tx_queue_sem; //Mutex for adding to the transmit queue
+extern SemaphoreHandle_t state_sem;         //Mutex for accessing the current state
 
 //definitions must be in common.c
 ///////////////////////////////////////////////////////////////////////////////
@@ -110,6 +121,10 @@ extern TaskHandle_t DoUartRecieveTaskHandle;
 void do_timer_init(void);
 void vDoTimerTask( void * pvParameters );
 extern TaskHandle_t DoTimerTaskHandle;
+
+// Set timer tasks
+void vSetTimerTask( void * pvParameters );
+extern TaskHandle_t SetTimerTaskHandle;
 
 ///////////////////////////////////////////////////////////////////////////////
 

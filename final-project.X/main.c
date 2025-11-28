@@ -142,24 +142,24 @@ void prvTaskSetup()
 int main(void) {
     
     global_adc_value = 10;
+    current_state = timer_countdown;
+    next_state = timer_countdown;
+    
     adc_value_sem = xSemaphoreCreateMutex();
-    
     uart_tx_sem = xSemaphoreCreateMutex();
-    
     uart_rx_sem = xSemaphoreCreateMutex();
-    
     countdown_sem = xSemaphoreCreateMutex();
-    
+    uart_tx_queue_sem = xSemaphoreCreateMutex();
+    state_sem = xSemaphoreCreateMutex();
     
     prvHardwareSetup();
-
     prvTaskSetup();
 
-    xTaskCreate( vDoAdcTask, "vDoAdcTask", configMINIMAL_STACK_SIZE, NULL, 1, &DoUartAdcTaskHandle );
-    xTaskCreate( vDoUartTransmitTask, "vDoUartTransmitTask", configMINIMAL_STACK_SIZE, NULL, 2, &DoUartTransmitTaskHandle );
+    xTaskCreate( vDoAdcTask, "vDoAdcTask", configMINIMAL_STACK_SIZE, NULL, 3, &DoUartAdcTaskHandle );
+    xTaskCreate( vDoUartTransmitTask, "vDoUartTransmitTask", configMINIMAL_STACK_SIZE, NULL, 5, &DoUartTransmitTaskHandle );
     xTaskCreate( vDoUartRecieveTask, "vDoUartRecieveTask", configMINIMAL_STACK_SIZE, NULL, 3, &DoUartRecieveTaskHandle );
+    xTaskCreate( vSetTimerTask, "vSetTimerTask", configMINIMAL_STACK_SIZE, NULL, 4, &SetTimerTaskHandle );
     xTaskCreate( vDoTimerTask, "vDoTimerTask", configMINIMAL_STACK_SIZE, NULL, 4, &DoTimerTaskHandle );
-
     
 
     // for debug only
@@ -167,9 +167,6 @@ int main(void) {
 
     // uint8_t charToSend = 66;
     // xQueueSendToBack(xUartTransmitQueue, (void*)&charToSend, portMAX_DELAY);
-    
-
-
     vTaskStartScheduler();
     
     for(;;);

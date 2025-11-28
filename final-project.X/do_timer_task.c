@@ -1,5 +1,6 @@
 #include "common.h"
 
+//should be in set timer
 uint16_t countdown_seconds = 65;
 
 void do_timer_init(void)
@@ -28,32 +29,48 @@ void vDoTimerTask(void *pvParameters)
         ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
         
         xSemaphoreTake(countdown_sem, portMAX_DELAY);   // take mutex
+        xSemaphoreTake(uart_tx_queue_sem, portMAX_DELAY);     // take uart mutex
+        xSemaphoreTake(state_sem, portMAX_DELAY);     // take uart mutex
         
-        if(countdown_seconds > 0)
-            countdown_seconds--;
-        
-        uint16_t local_copy = countdown_seconds;
-        xSemaphoreGive(countdown_sem);                  // give mutex
-        
-        // send the cursor to the timer line
-        for (const char *p = TIMER_HOME; *p != '\0'; p++) {
-            xQueueSendToBack(xUartTransmitQueue, p, portMAX_DELAY);
+        if(current_state == timer_countdown)
+        {
+            if(countdown_seconds > 0)
+                countdown_seconds--;
+
+            uint16_t local_copy = countdown_seconds;
+            xSemaphoreGive(countdown_sem);                  // give mutex
+            
+            // send the cursor to the message line
+            for (const char *p = MESSAGE_HOME; *p != '\0'; p++) {
+                xQueueSendToBack(xUartTransmitQueue, p, portMAX_DELAY);
+            }
+            //Display the set timer message
+            for (const char *p = COUNTDOWN_MESSAGE; *p != '\0'; p++) {
+                xQueueSendToBack(xUartTransmitQueue, p, portMAX_DELAY);
+            }
+            
+            // send the cursor to the timer line
+            for (const char *p = TIMER_HOME; *p != '\0'; p++) {
+                xQueueSendToBack(xUartTransmitQueue, p, portMAX_DELAY);
+            }
+
+            int minutes = local_copy / 60;
+            int seconds = local_copy % 60;
+            buffer[0] = (minutes / 10) + '0';
+            buffer[1] = (minutes % 10) + '0';
+            buffer[2] = ':';
+            buffer[3] = (seconds / 10) + '0';
+            buffer[4] = (seconds % 10) + '0';
+            buffer[5] = '\0';
+
+            // print the current time
+            for (const char *p = buffer; *p != '\0'; p++) {
+                xQueueSendToBack(xUartTransmitQueue, p, portMAX_DELAY);
+            }
         }
-        
-        int minutes = local_copy / 60;
-        int seconds = local_copy % 60;
-        buffer[0] = (minutes / 10) + '0';
-        buffer[1] = (minutes % 10) + '0';
-        buffer[2] = ':';
-        buffer[3] = (seconds / 10) + '0';
-        buffer[4] = (seconds % 10) + '0';
-        buffer[5] = '\0';
-        
-        // print the current time
-        for (const char *p = buffer; *p != '\0'; p++) {
-            xQueueSendToBack(xUartTransmitQueue, p, portMAX_DELAY);
-        }
-        
+        xSemaphoreGive(uart_tx_queue_sem);
+        xSemaphoreGive(state_sem);
+
     }
 }
 
