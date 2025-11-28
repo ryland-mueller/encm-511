@@ -147,7 +147,8 @@ int main(void) {
     uart_tx_sem = xSemaphoreCreateMutex();
     
     uart_rx_sem = xSemaphoreCreateMutex();
-
+    
+    countdown_sem = xSemaphoreCreateMutex();
     
     
     prvHardwareSetup();
