@@ -13,6 +13,7 @@ void vSetTimerTask( void * pvParameters )
     uint32_t input_digits = 0;
     TickType_t frequency = 100;
     states temp_state = waiting_state; // state variable so mutex can be quickly released 
+    uint8_t temp_pb_stat = 0;          // stat variable so mutex can be quickly released
     uint8_t minutes;
     uint8_t seconds;
     uint8_t count = 0;
@@ -25,6 +26,7 @@ void vSetTimerTask( void * pvParameters )
        
         xSemaphoreTake(state_sem, portMAX_DELAY);               // take state mutex
         temp_state = current_state;
+        temp_pb_stat = pb_stat;
         xSemaphoreGive(state_sem);
         
         if (current_state == set_timer)
@@ -53,6 +55,12 @@ void vSetTimerTask( void * pvParameters )
                     }
                 }
                 
+            }
+
+            if(CHECK_BIT(pb_stat,PB1_PB2_HELD))
+            {
+                input_digits = 0;
+                count = 0;
             }
 
             SetTimerBuffer[0] = ((input_digits / 1000) % 10) + '0';
