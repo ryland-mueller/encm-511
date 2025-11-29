@@ -14,7 +14,7 @@ void vDoStateTransitionTask( void * pvParameters )
 
     TickType_t LastWakeTime;
     const TickType_t Frequency = 100;    // Perform an action every n ticks.
-    
+    uint8_t count_for_end = 0;
     LastWakeTime = xTaskGetTickCount(); // get current time.
 
     uint8_t uart_input = 0;
@@ -31,6 +31,7 @@ void vDoStateTransitionTask( void * pvParameters )
         {
             case waiting_state:
                 // Actions for waiting_state
+                count_for_end = 0; //Reset the timer finished counter
                 T2CONbits.TON = 0;
                 xSemaphoreTake(uart_tx_queue_sem, portMAX_DELAY);     // take uart mutex
                 // clear the screen because it looks better on startup/reset
@@ -234,10 +235,11 @@ void vDoStateTransitionTask( void * pvParameters )
                 // Actions for timer_finished
                 T2CONbits.TON = 0;
                 LastWakeTime = xTaskGetTickCount(); // get current time.
-
+                
                 // Transition logic
-                vTaskDelayUntil( &LastWakeTime, 5000 );
-                next_state = waiting_state;
+                count_for_end ++;
+                if (count_for_end > 70)
+                    next_state = waiting_state;
                 break;
 
             default:

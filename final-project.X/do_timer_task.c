@@ -1,7 +1,5 @@
 #include "common.h"
 
-//should be in set timer
-//uint16_t countdown_seconds = 65;
 uint16_t time_counted;
 uint16_t local_copy;
 
@@ -95,8 +93,6 @@ void __attribute__((interrupt, no_auto_psv)) _T2Interrupt(void){
     
     LED1 ^= 1;
     time_counted ++;
-    //if(time_counted >= local_copy)
-        //time_counted = 0;
     IFS0bits.T2IF = 0; // Clear Timer 2 interrupt flag
 }
 
