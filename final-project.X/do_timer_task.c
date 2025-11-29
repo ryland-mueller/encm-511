@@ -38,9 +38,6 @@ void vDoTimerTask(void *pvParameters)
         {
             if(countdown_seconds > 0)
                 countdown_seconds--;
-
-            uint16_t local_copy = countdown_seconds;
-            xSemaphoreGive(countdown_sem);                  // give mutex
             
             // send the cursor to the message line
             for (const char *p = MESSAGE_HOME; *p != '\0'; p++) {
@@ -82,7 +79,7 @@ void __attribute__((interrupt, no_auto_psv)) _T2Interrupt(void){
     // notify the timer task and notify the scheduler it should run
     vTaskNotifyGiveFromISR(DoTimerTaskHandle, NULL);
     
-    //LED0 ^= 1;
+    LED0 ^= 1;
     
     IFS0bits.T2IF = 0; // Clear Timer 2 interrupt flag
 }
