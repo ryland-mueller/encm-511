@@ -158,6 +158,7 @@ int main(void) {
     xTaskCreate( vDoUartRecieveTask, "vDoUartRecieveTask", configMINIMAL_STACK_SIZE, NULL, 3, &DoUartRecieveTaskHandle );
     xTaskCreate( vSetTimerTask, "vSetTimerTask", configMINIMAL_STACK_SIZE, NULL, 6, &SetTimerTaskHandle );
     xTaskCreate( vDoTimerTask, "vDoTimerTask", configMINIMAL_STACK_SIZE, NULL, 4, &DoTimerTaskHandle );
+    xTaskCreate( vDoLED2Task, "vDoLED2Task", configMINIMAL_STACK_SIZE, NULL, 4, &DoLED2TaskHandle );
     xTaskCreate( vDoButtonTask, "vDoButtonTask", configMINIMAL_STACK_SIZE, NULL, 4, &DoButtonTaskHandle );
     xTaskCreate( vDoStateTransitionTask, "vDoStateTransitionTask", configMINIMAL_STACK_SIZE, NULL, 4, &DoStateTransitionHandle );
 

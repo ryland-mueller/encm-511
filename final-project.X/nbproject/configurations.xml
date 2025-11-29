@@ -68,6 +68,7 @@
       <itemPath>do_uart_recieve_task.c</itemPath>
       <itemPath>do_timer_task.c</itemPath>
       <itemPath>set_timer_task.c</itemPath>
+      <itemPath>do_led2_task.c</itemPath>
       <itemPath>do_button_task.c</itemPath>
       <itemPath>do_state_transition_task.c</itemPath>
     </logicalFolder>
