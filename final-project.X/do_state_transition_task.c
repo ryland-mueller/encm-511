@@ -71,6 +71,10 @@ void vDoStateTransitionTask( void * pvParameters )
                 if (pb_stat == PB2_CLICKED){
                     next_state = timer_paused;
                 }
+                else if (xTaskNotifyWait( 0UL, ULONG_MAX, NULL, 0UL ) == pdPASS); // check if timer expired
+                {
+                    next_state = timer_finished;
+                }
                 else
                 {
                     uart_input = ValidCharInput();          // check the next UART char 
@@ -108,6 +112,10 @@ void vDoStateTransitionTask( void * pvParameters )
                 // must do this first otherwise clicked flag will be missed
                 if (pb_stat == PB2_CLICKED){
                     next_state = timer_info_paused;
+                }
+                else if (xTaskNotifyWait( 0UL, ULONG_MAX, NULL, 0UL ) == pdPASS); // check if timer expired
+                {
+                    next_state = timer_finished;
                 }
                 else
                 {
@@ -147,6 +155,10 @@ void vDoStateTransitionTask( void * pvParameters )
                 if (pb_stat == PB2_CLICKED){
                     next_state = timer_nblink_paused;
                 }
+                else if (xTaskNotifyWait( 0UL, ULONG_MAX, NULL, 0UL ) == pdPASS); // check if timer expired
+                {
+                    next_state = timer_finished;
+                }
                 else
                 {
                     uart_input = ValidCharInput();          // check the next UART char 
@@ -184,6 +196,10 @@ void vDoStateTransitionTask( void * pvParameters )
                 // must do this first otherwise clicked flag will be missed
                 if (pb_stat == PB2_CLICKED){
                     next_state = timer_info_nblink_paused;
+                }
+                else if (xTaskNotifyWait( 0UL, ULONG_MAX, NULL, 0UL ) == pdPASS); // check if timer expired
+                {
+                    next_state = timer_finished;
                 }
                 else
                 {
