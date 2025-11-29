@@ -1,7 +1,7 @@
 #include "common.h"
 
 //should be in set timer
-uint16_t countdown_seconds = 65;
+//uint16_t countdown_seconds = 65;
 uint16_t time_counted;
 uint16_t local_copy;
 
@@ -30,7 +30,6 @@ void vDoTimerTask(void *pvParameters)
     
     for (;;) 
     {
-        // wait for notify from timer ISR
         vTaskDelayUntil(&LastWakeTime, frequency);
         
         xSemaphoreTake(countdown_sem, portMAX_DELAY);   // take mutex
@@ -48,7 +47,7 @@ void vDoTimerTask(void *pvParameters)
          || current_state == timer_countdown_info_nblink
          || current_state == timer_info_nblink_paused)
         {
-            
+            // determine the time remaining
             time_remaining = local_copy - time_counted;
             if (time_remaining == 0)
                 vTaskNotifyGiveFromISR(DoStateTransitionHandle, NULL);
@@ -81,6 +80,8 @@ void vDoTimerTask(void *pvParameters)
                 xQueueSendToBack(xUartTransmitQueue, p, portMAX_DELAY);
             }
         }
+        else
+            time_counted = 0;
         
         
         xSemaphoreGive(uart_tx_queue_sem);
@@ -92,13 +93,10 @@ void vDoTimerTask(void *pvParameters)
 // Timer 2 ISR
 void __attribute__((interrupt, no_auto_psv)) _T2Interrupt(void){
     
-    // notify the timer task and notify the scheduler it should run
-    //vTaskNotifyGiveFromISR(DoTimerTaskHandle, NULL);
-    
     LED1 ^= 1;
     time_counted ++;
-    if(time_counted >= local_copy)
-        time_counted = 0;
+    //if(time_counted >= local_copy)
+        //time_counted = 0;
     IFS0bits.T2IF = 0; // Clear Timer 2 interrupt flag
 }
 

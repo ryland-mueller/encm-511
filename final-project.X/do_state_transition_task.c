@@ -232,6 +232,7 @@ void vDoStateTransitionTask( void * pvParameters )
 
             case timer_finished:
                 // Actions for timer_finished
+                T2CONbits.TON = 0;
                 LastWakeTime = xTaskGetTickCount(); // get current time.
 
                 // Transition logic

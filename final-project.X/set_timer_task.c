@@ -1,6 +1,6 @@
 #include "common.h"
 
-
+uint16_t countdown_seconds;
 
 //Displays the user input, after the timer is started it will convert to minutes and sceonds
 void vSetTimerTask( void * pvParameters )
@@ -13,7 +13,10 @@ void vSetTimerTask( void * pvParameters )
     uint32_t input_digits = 0;
     TickType_t frequency = 100;
     states temp_state = waiting_state; // state variable so mutex can be quickly released 
-
+    uint8_t minutes;
+    uint8_t seconds;
+    uint8_t count = 0;
+    
     LastWakeTime = xTaskGetTickCount();
     
     for(;;)
@@ -41,10 +44,15 @@ void vSetTimerTask( void * pvParameters )
             while (xQueueReceive(xUartReceiveQueue, &char_received, 0) == pdTRUE) {
                 if (char_received >= 48 && char_received <= 57) //Is the char between 0 and 9
                 {
-                    digit = char_received - '0';
-                    input_digits = 10 * input_digits + digit;
-                    input_digits %= 10000;
+                    if (count <= 3)
+                    {
+                        digit = char_received - '0';
+                        input_digits = 10 * input_digits + digit;
+                        input_digits %= 10000;
+                        count++;
+                    }
                 }
+                
             }
 
             SetTimerBuffer[0] = ((input_digits / 1000) % 10) + '0';
@@ -65,9 +73,19 @@ void vSetTimerTask( void * pvParameters )
             }
             
             // If pb is pressed convert input_digits to countdown_seconds
-        
+            minutes = input_digits /100;
+            seconds = input_digits % 100;
+
+            minutes += seconds /60;
+            seconds = seconds %60;
+
+            countdown_seconds = minutes * 60 + seconds;
+            
+            
             xSemaphoreGive(countdown_sem);
             xSemaphoreGive(uart_tx_queue_sem);
-        }    
+        }
+        else
+            count = 0; // When it moves from this state reset the input count
     }
 }
