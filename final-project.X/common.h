@@ -132,6 +132,10 @@ extern TaskHandle_t SetTimerTaskHandle;
 void do_timer3_init(void);
 void vDoLED2Task(void *pvParameters);
 extern TaskHandle_t DoLED2TaskHandle;
+// Button task and initalization
+void do_button_init(void);
+void vDoButtonTask( void * pvParameters );
+extern TaskHandle_t DoButtonTaskHandle;
 
 ///////////////////////////////////////////////////////////////////////////////
 

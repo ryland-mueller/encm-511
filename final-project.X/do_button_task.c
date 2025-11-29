@@ -83,10 +83,6 @@ void vDoButtonTask(void *pvParameters)
     TickType_t holdCounter1 = 0;
     TickType_t holdCounter2 = 0;
 
-    LED0 = 0;
-    LED1 = 0;
-    LED2 = 0;
-
     for (;;)
     {
         vTaskDelayUntil(&LastWakeTime, SamplePeriod);
@@ -207,6 +203,11 @@ void vDoButtonTask(void *pvParameters)
                 SET_BIT(pb_stat,PB2_HELD_FLAG);
             }
         }   
+    
+//    LED0 = CHECK_BIT(pb_stat,PB2_HELD_FLAG);
+//    LED1 = CHECK_BIT(pb_stat,PB2_CLICKED_FLAG);
+
+    
     }
 }
 

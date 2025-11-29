@@ -136,6 +136,7 @@ void prvTaskSetup()
     do_uart_recieve_init();
     do_adc_init();
     do_timer_init();
+    do_button_init();
     
 }
 
@@ -161,6 +162,8 @@ int main(void) {
     xTaskCreate( vSetTimerTask, "vSetTimerTask", configMINIMAL_STACK_SIZE, NULL, 4, &SetTimerTaskHandle );
     xTaskCreate( vDoTimerTask, "vDoTimerTask", configMINIMAL_STACK_SIZE, NULL, 4, &DoTimerTaskHandle );
     xTaskCreate( vDoLED2Task, "vDoLED2Task", configMINIMAL_STACK_SIZE, NULL, 4, &DoLED2TaskHandle );
+    xTaskCreate( vDoButtonTask, "vDoButtonTask", configMINIMAL_STACK_SIZE, NULL, 4, &DoButtonTaskHandle );
+  
 
     // for debug only
     T2CONbits.TON = 1;              // start the timer
