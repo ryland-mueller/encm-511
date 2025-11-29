@@ -3,8 +3,8 @@
 
 void do_state_transition_init(void)
 {
-    current_state = timer_info_paused;
-    next_state = timer_info_paused;
+    current_state = waiting_state;
+    next_state = waiting_state;
 }
 
 void vDoStateTransitionTask( void * pvParameters )
@@ -65,9 +65,11 @@ void vDoStateTransitionTask( void * pvParameters )
                 break;
 
             case timer_paused:
+                T2CONbits.TON = 1;
+                LED1 = 0;
                 // Actions for timer_paused
                 // Transition logic
-                next_state = timer_countdown_info;
+                //next_state = timer_countdown_info;
                 break;
 
             case timer_countdown_info:
