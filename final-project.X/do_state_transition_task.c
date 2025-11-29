@@ -138,7 +138,7 @@ void vDoStateTransitionTask( void * pvParameters )
 
             case timer_info_paused:
                 // Actions for timer_info_paused
-                T2CONbits.TON = 1;
+                T2CONbits.TON = 0;
                 // Transition logic
 
                 // must do this first otherwise clicked flag will be missed
