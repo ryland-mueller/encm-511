@@ -26,6 +26,7 @@
 #define TIMER_HOME "\033[2;1H"
 #define ADC_HOME   "\033[3;1H"
 #define DR_HOME   "\033[4;1H"
+#define CLEAR_SCREEN "\033[2J"
 
 #define ADC_MESSAGE "ADC VALUE: "
 #define DUTY_MESSAGE "DUTY VALUE: "

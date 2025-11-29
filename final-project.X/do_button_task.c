@@ -92,6 +92,8 @@ void vDoButtonTask(void *pvParameters)
         raw_pb1_status = PB1;
         raw_pb2_status = PB2;
 
+        xSemaphoreTake(state_sem, portMAX_DELAY);     // take uart mutex
+        
     /////////////   PB0   //////////////////////
         if (raw_pb0_status != stable_pb0_status) {
             debounceCounter0++;
@@ -206,7 +208,7 @@ void vDoButtonTask(void *pvParameters)
     // LED0 = CHECK_BIT(pb_stat,PB0_HELD_FLAG);
     // LED1 = CHECK_BIT(pb_stat,PB0_CLICKED_FLAG);
 
-    
+        xSemaphoreGive(state_sem);     // take uart mutex
     }
 }
 
