@@ -48,8 +48,8 @@ void vDoTimerTask(void *pvParameters)
             // determine the time remaining
             time_remaining = local_copy - time_counted;
             if (time_remaining == 0)
-                xTaskNotifyGive(DoStateTransitionHandle);
-
+                vTaskNotifyGiveFromISR(DoStateTransitionHandle, NULL);
+            
             // send the cursor to the message line
             for (const char *p = MESSAGE_HOME; *p != '\0'; p++) {
                 xQueueSendToBack(xUartTransmitQueue, p, portMAX_DELAY);

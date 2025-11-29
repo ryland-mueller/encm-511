@@ -46,6 +46,10 @@ void do_uart_transmit_init(void)
 	U2MODEbits.UARTEN = 1;	    // Enable UART Rx
 
 	U2STAbits.UTXEN = 1;        // Enable UART Tx
+
+    Disp2String(HIDE_CURSOR);
+    Disp2String(CLEAR_SCREEN);
+
 	return;
     #endif
 }
