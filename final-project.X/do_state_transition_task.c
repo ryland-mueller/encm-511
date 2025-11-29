@@ -71,6 +71,7 @@ void vDoStateTransitionTask( void * pvParameters )
                 }
                 else if (pb_stat == PB2_HELD){
                     next_state == set_timer;
+
                 }            
                 else if (ulTaskNotifyTake(pdTRUE, 0) > 0) 
                 {
