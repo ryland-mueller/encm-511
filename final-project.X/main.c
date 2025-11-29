@@ -160,7 +160,7 @@ int main(void) {
     xTaskCreate( vDoUartRecieveTask, "vDoUartRecieveTask", configMINIMAL_STACK_SIZE, NULL, 3, &DoUartRecieveTaskHandle );
     xTaskCreate( vSetTimerTask, "vSetTimerTask", configMINIMAL_STACK_SIZE, NULL, 4, &SetTimerTaskHandle );
     xTaskCreate( vDoTimerTask, "vDoTimerTask", configMINIMAL_STACK_SIZE, NULL, 4, &DoTimerTaskHandle );
-    
+    xTaskCreate( vDoLED2Task, "vDoLED2Task", configMINIMAL_STACK_SIZE, NULL, 4, &DoLED2TaskHandle );
 
     // for debug only
     T2CONbits.TON = 1;              // start the timer

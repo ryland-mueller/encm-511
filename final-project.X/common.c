@@ -24,3 +24,4 @@ extern TaskHandle_t DoUartTransmitTaskHandle = NULL;
 extern TaskHandle_t DoUartRecieveTaskHandle = NULL;
 extern TaskHandle_t DoTimerTaskHandle = NULL;
 extern TaskHandle_t SetTimerTaskHandle = NULL;
+extern TaskHandle_t DoLED2TaskHandle = NULL;

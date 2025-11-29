@@ -15,6 +15,9 @@
 #include <xc.h>
 
 #define LED0    LATBbits.LATB5
+#define LED1    LATBbits.LATB6
+#define LED2    LATBbits.LATB7
+
 #define PB0     PORTAbits.RA4
 #define PB1     PORTBbits.RB8
 #define PB2     PORTBbits.RB9
@@ -125,6 +128,10 @@ extern TaskHandle_t DoTimerTaskHandle;
 // Set timer tasks
 void vSetTimerTask( void * pvParameters );
 extern TaskHandle_t SetTimerTaskHandle;
+
+void do_timer3_init(void);
+void vDoLED2Task(void *pvParameters);
+extern TaskHandle_t DoLED2TaskHandle;
 
 ///////////////////////////////////////////////////////////////////////////////
 
