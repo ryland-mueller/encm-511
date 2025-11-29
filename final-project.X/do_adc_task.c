@@ -27,7 +27,7 @@ void vDoAdcTask( void * pvParameters )
 {
     char SetADCBuffer[4];
     TickType_t LastWakeTime;
-    const TickType_t Frequency = 100;    // Perform an action every n ticks.
+    const TickType_t Frequency = 10;    // Perform an action every n ticks.
     
     LastWakeTime = xTaskGetTickCount(); // get current time.
 
@@ -35,26 +35,23 @@ void vDoAdcTask( void * pvParameters )
     {
         // Wait for the next cycle.
         vTaskDelayUntil( &LastWakeTime, Frequency );
-        
         // Perform action here.
         xSemaphoreTake(adc_value_sem, portMAX_DELAY);   // take mutex
-        xSemaphoreTake(uart_tx_queue_sem, portMAX_DELAY);     // take uart mutex
-        
         //Sample ADC
         AD1CON1bits.SAMP = 1;                   // start A/D conversion
         while (!AD1CON1bits.DONE){}             // wait for ADC read to finish
         AD1CON1bits.SAMP = 0;                   // stop conversion
         global_adc_value = ADC1BUF0;            // update global adc value
+        xSemaphoreGive(adc_value_sem);
         
+        xSemaphoreTake(uart_tx_queue_sem, portMAX_DELAY);     // take uart mutex
+
         //If in the mode needed to display, display the ADC value
-        if (current_state == timer_countdown_info 
+        if(current_state == timer_countdown_info 
             || current_state == timer_info_paused
             || current_state == timer_countdown_info_nblink
-            ||  current_state == timer_info_nblink_paused)            
+            || current_state == timer_info_nblink_paused)            
         {    
-        
-            
-
             for (const char *p = ADC_HOME; *p != '\0'; p++) {
                 xQueueSendToBack(xUartTransmitQueue, p, portMAX_DELAY);
             }
@@ -73,7 +70,7 @@ void vDoAdcTask( void * pvParameters )
                xQueueSendToBack(xUartTransmitQueue, p, portMAX_DELAY);
             }
         }
-        xSemaphoreGive(adc_value_sem);                  // give mutex
+                          // give mutex
         xSemaphoreGive(uart_tx_queue_sem);  
     }
 }

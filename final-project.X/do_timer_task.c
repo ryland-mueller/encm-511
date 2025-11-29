@@ -34,7 +34,14 @@ void vDoTimerTask(void *pvParameters)
         xSemaphoreTake(uart_tx_queue_sem, portMAX_DELAY);     // take uart mutex
         xSemaphoreTake(state_sem, portMAX_DELAY);     // take uart mutex
         
-        if(current_state == timer_countdown)
+        if( current_state == timer_countdown
+         || current_state == timer_paused
+         || current_state == timer_countdown_info
+         || current_state == timer_info_paused
+         || current_state == timer_countdown_nblink
+         || current_state == timer_nblink_paused
+         || current_state == timer_countdown_info_nblink
+         || current_state == timer_info_nblink_paused)
         {
             if(countdown_seconds > 0)
                 countdown_seconds--;
