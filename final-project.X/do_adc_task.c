@@ -25,7 +25,7 @@ void do_adc_init(void)
 
 void vDoAdcTask( void * pvParameters )
 {
-    char SetADCBuffer[4];
+    char SetADCBuffer[6];
     TickType_t LastWakeTime;
     const TickType_t Frequency = 10;    // Perform an action every n ticks.
     
@@ -59,7 +59,7 @@ void vDoAdcTask( void * pvParameters )
             for (const char *p = ADC_MESSAGE; *p != '\0'; p++) {
                 xQueueSendToBack(xUartTransmitQueue, p, portMAX_DELAY);
             }
-
+            SetADCBuffer[5] = '\0';  // null terminator
             SetADCBuffer[4] = (global_adc_value % 10) + '0';
             SetADCBuffer[3] = ((global_adc_value/10) % 10) + '0';
             SetADCBuffer[2] = ((global_adc_value/100) % 10) + '0';
@@ -69,8 +69,8 @@ void vDoAdcTask( void * pvParameters )
             for (const char *p = SetADCBuffer; *p != '\0'; p++) {
                xQueueSendToBack(xUartTransmitQueue, p, portMAX_DELAY);
             }
-        }
-                          // give mutex
-        xSemaphoreGive(uart_tx_queue_sem);  
+            
+        }         
+        xSemaphoreGive(uart_tx_queue_sem);  // give mutex
     }
 }

@@ -5,8 +5,8 @@ uint8_t ValidCharInput(void);
 
 void do_state_transition_init(void)
 {
-    current_state = timer_finished;
-    next_state = timer_finished;
+    current_state = waiting_state;
+    next_state = waiting_state;
 }
 
 void vDoStateTransitionTask( void * pvParameters )
