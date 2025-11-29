@@ -18,6 +18,7 @@ void vDoStateTransitionTask( void * pvParameters )
     LastWakeTime = xTaskGetTickCount(); // get current time.
 
     uint8_t uart_input = 0;
+    states previous_state = waiting_state;
 
     for( ;; )
     {
@@ -32,6 +33,16 @@ void vDoStateTransitionTask( void * pvParameters )
             case waiting_state:
                 // Actions for waiting_state
                 T2CONbits.TON = 0;
+                xSemaphoreTake(uart_tx_queue_sem, portMAX_DELAY);     // take uart mutex
+                // send the cursor to the message line
+                for (const char *p = MESSAGE_HOME; *p != '\0'; p++) {
+                    xQueueSendToBack(xUartTransmitQueue, p, portMAX_DELAY);
+                }
+                //Display the welcom message
+                for (const char *p = WELCOME_MESSAGE; *p != '\0'; p++) {
+                    xQueueSendToBack(xUartTransmitQueue, p, portMAX_DELAY);
+                }
+                xSemaphoreGive(uart_tx_queue_sem);
                 // Transition logic
                 if (pb_stat == PB0_CLICKED){
                     next_state = set_timer;
@@ -59,8 +70,7 @@ void vDoStateTransitionTask( void * pvParameters )
                 }
                 else
                 {
-                    uart_input = ValidCharInput();
-
+                    uart_input = ValidCharInput();          // check the next UART char 
                     if (uart_input == 'i')
                         next_state = timer_countdown_info;
                     else if (uart_input == 'b')
@@ -72,8 +82,8 @@ void vDoStateTransitionTask( void * pvParameters )
                 // Actions for timer_paused
                 T2CONbits.TON = 0;
                 // Transition logic
-
-                next_state = current_state;
+                if (pb_stat == PB2_CLICKED)
+                    next_state = previous_state;
                 break;
 
             case timer_countdown_info:
@@ -135,6 +145,7 @@ void vDoStateTransitionTask( void * pvParameters )
         }
         xSemaphoreGive(uart_tx_queue_sem);
     }
+    previous_state = current_state;
     current_state = next_state;
     xSemaphoreGive(state_sem);
 

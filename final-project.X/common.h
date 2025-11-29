@@ -32,6 +32,7 @@
 #define DUTY_MESSAGE "DUTY VALUE: "
 #define SET_MESSAGE "Please enter a time to countdown"
 #define COUNTDOWN_MESSAGE "The time remaining on the counter is:"
+#define WELCOME_MESSAGE "Please press PB0 to start"
 
 #define ISR_PRIORITY 3
 
