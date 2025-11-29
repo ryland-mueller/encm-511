@@ -37,23 +37,23 @@ void vDoAdcTask( void * pvParameters )
         vTaskDelayUntil( &LastWakeTime, Frequency );
         
         // Perform action here.
-        
         xSemaphoreTake(adc_value_sem, portMAX_DELAY);   // take mutex
         xSemaphoreTake(uart_tx_queue_sem, portMAX_DELAY);     // take uart mutex
         
+        //Sample ADC
+        AD1CON1bits.SAMP = 1;                   // start A/D conversion
+        while (!AD1CON1bits.DONE){}             // wait for ADC read to finish
+        AD1CON1bits.SAMP = 0;                   // stop conversion
+        global_adc_value = ADC1BUF0;            // update global adc value
+        
+        //If in the mode needed to display, display the ADC value
         if (current_state == timer_countdown_info 
             || current_state == timer_info_paused
             || current_state == timer_countdown_info_nblink
             ||  current_state == timer_info_nblink_paused)            
         {    
         
-            AD1CON1bits.SAMP = 1;                   // start A/D conversion
-
-            while (!AD1CON1bits.DONE){}             // wait for ADC read to finish
-
-            AD1CON1bits.SAMP = 0;                   // stop conversion
-
-            global_adc_value = ADC1BUF0;            // update global adc value
+            
 
             for (const char *p = ADC_HOME; *p != '\0'; p++) {
                 xQueueSendToBack(xUartTransmitQueue, p, portMAX_DELAY);
