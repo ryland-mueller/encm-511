@@ -29,7 +29,6 @@ void vSetTimerTask( void * pvParameters )
 
             xSemaphoreTake(countdown_sem, portMAX_DELAY);         // Take countdown mutex
             xSemaphoreTake(uart_tx_queue_sem, portMAX_DELAY);     // take uart mutex
-            
             // send the cursor to the message line
             for (const char *p = MESSAGE_HOME; *p != '\0'; p++) {
                 xQueueSendToBack(xUartTransmitQueue, p, portMAX_DELAY);

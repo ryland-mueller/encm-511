@@ -15,7 +15,7 @@
 
 void do_uart_recieve_init(void) 
 {
-    xUartReceiveQueue = xQueueCreate(64, sizeof(uint8_t));
+    xUartReceiveQueue = xQueueCreate(8, sizeof(uint8_t));
 
     #ifndef UART2_CONFIG
     #define UART2_CONFIG
@@ -74,7 +74,7 @@ void vDoUartRecieveTask( void * pvParameters )
 
         // if there was something in the buffer put it in the queue
         // xQueueSendToBack(xUartRecieveQueue, (void*)&char_recieved, portMAX_DELAY);
-        if(char_received != NULL)
+        if(char_received != '\0')
             xQueueSendToBack(xUartReceiveQueue, &char_received, portMAX_DELAY);
     }
 }
