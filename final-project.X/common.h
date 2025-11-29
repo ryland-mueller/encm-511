@@ -78,6 +78,7 @@ typedef enum
 
 extern states current_state;
 extern states next_state;
+
 ///////////////////////////////////////////////////////////////////////////////
 ///////  mutexs, semaphores, queues declerations here for global use  /////////
 ///////////////////////////////////////////////////////////////////////////////
@@ -133,6 +134,11 @@ extern TaskHandle_t SetTimerTaskHandle;
 void do_button_init(void);
 void vDoButtonTask( void * pvParameters );
 extern TaskHandle_t DoButtonTaskHandle;
+
+// State transistion task and its initalization
+void do_state_transition_init(void);
+void vDoStateTransitionTask( void * pvParameters );
+extern TaskHandle_t DoStateTransitionHandle;
 
 ///////////////////////////////////////////////////////////////////////////////
 

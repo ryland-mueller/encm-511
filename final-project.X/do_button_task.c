@@ -138,7 +138,6 @@ void vDoButtonTask(void *pvParameters)
 
             if (stable_pb1_status == 0 && last_stable_status0 == 1) {
                 // button pressed (active low)
-                LED0 = 1;
                 holdCounter1 = 0; // start counting hold time
             }
             else if (stable_pb1_status == 1 && last_stable_status1 == 0) {
@@ -204,8 +203,8 @@ void vDoButtonTask(void *pvParameters)
             }
         }   
     
-//    LED0 = CHECK_BIT(pb_stat,PB2_HELD_FLAG);
-//    LED1 = CHECK_BIT(pb_stat,PB2_CLICKED_FLAG);
+    // LED0 = CHECK_BIT(pb_stat,PB0_HELD_FLAG);
+    // LED1 = CHECK_BIT(pb_stat,PB0_CLICKED_FLAG);
 
     
     }

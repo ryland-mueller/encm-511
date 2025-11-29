@@ -61,8 +61,6 @@
 #define TASK_PRIORITY 5
 uint8_t pb_stat = 0;    // extern in header, initialized to zero here
 
-states next_state = waiting_state;
-states current_state = waiting_state;
 
 void vApplicationIdleHook( void )
 {
@@ -137,15 +135,14 @@ void prvTaskSetup()
     do_adc_init();
     do_timer_init();
     do_button_init();
+    do_state_transition_init();
     
 }
 
 int main(void) {
     
     global_adc_value = 10;
-    current_state = timer_countdown;
-    next_state = timer_countdown;
-    
+
     adc_value_sem = xSemaphoreCreateMutex();
     uart_tx_sem = xSemaphoreCreateMutex();
     uart_rx_sem = xSemaphoreCreateMutex();
@@ -159,10 +156,10 @@ int main(void) {
     xTaskCreate( vDoAdcTask, "vDoAdcTask", configMINIMAL_STACK_SIZE, NULL, 3, &DoUartAdcTaskHandle );
     xTaskCreate( vDoUartTransmitTask, "vDoUartTransmitTask", configMINIMAL_STACK_SIZE, NULL, 5, &DoUartTransmitTaskHandle );
     xTaskCreate( vDoUartRecieveTask, "vDoUartRecieveTask", configMINIMAL_STACK_SIZE, NULL, 3, &DoUartRecieveTaskHandle );
-    xTaskCreate( vSetTimerTask, "vSetTimerTask", configMINIMAL_STACK_SIZE, NULL, 4, &SetTimerTaskHandle );
+    xTaskCreate( vSetTimerTask, "vSetTimerTask", configMINIMAL_STACK_SIZE, NULL, 6, &SetTimerTaskHandle );
     xTaskCreate( vDoTimerTask, "vDoTimerTask", configMINIMAL_STACK_SIZE, NULL, 4, &DoTimerTaskHandle );
     xTaskCreate( vDoButtonTask, "vDoButtonTask", configMINIMAL_STACK_SIZE, NULL, 4, &DoButtonTaskHandle );
-  
+    xTaskCreate( vDoStateTransitionTask, "vDoStateTransitionTask", configMINIMAL_STACK_SIZE, NULL, 4, &DoStateTransitionHandle );
 
     // for debug only
     T2CONbits.TON = 1;              // start the timer

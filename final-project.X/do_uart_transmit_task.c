@@ -53,7 +53,7 @@ void do_uart_transmit_init(void)
 void vDoUartTransmitTask( void * pvParameters )
 {
     TickType_t LastWakeTime;
-    const TickType_t Frequency = 1000;    // Perform an action every n ticks.
+    const TickType_t Frequency = 10;    // Perform an action every n ticks.
 
     LastWakeTime = xTaskGetTickCount(); // get current time.
     

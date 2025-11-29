@@ -29,6 +29,8 @@ void vDoTimerTask(void *pvParameters)
         ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
         
         xSemaphoreTake(countdown_sem, portMAX_DELAY);   // take mutex
+        uint16_t local_copy = countdown_seconds;
+        xSemaphoreGive(countdown_sem);                      // give mutex
         xSemaphoreTake(uart_tx_queue_sem, portMAX_DELAY);     // take uart mutex
         xSemaphoreTake(state_sem, portMAX_DELAY);     // take uart mutex
         

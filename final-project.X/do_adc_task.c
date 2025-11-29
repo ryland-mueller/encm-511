@@ -27,7 +27,7 @@ void vDoAdcTask( void * pvParameters )
 {
     char SetADCBuffer[4];
     TickType_t LastWakeTime;
-    const TickType_t Frequency = 10;    // Perform an action every n ticks.
+    const TickType_t Frequency = 30;    // Perform an action every n ticks.
     
     LastWakeTime = xTaskGetTickCount(); // get current time.
 

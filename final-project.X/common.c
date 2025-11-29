@@ -13,9 +13,10 @@ uint16_t global_adc_value = 0;           // global ADC value
 SemaphoreHandle_t adc_value_sem = NULL;     // and its mutex
 
 uint16_t set_time;                   //Global variable that holds the set time by the user
-SemaphoreHandle_t countdown_sem;     //Mutex for safely changing the countdown seconds
+SemaphoreHandle_t countdown_sem = NULL;     //Mutex for safely changing the countdown seconds
 
 SemaphoreHandle_t uart_tx_queue_sem = NULL;
+
 SemaphoreHandle_t state_sem = NULL;
 
 
@@ -25,3 +26,7 @@ extern TaskHandle_t DoUartRecieveTaskHandle = NULL;
 extern TaskHandle_t DoTimerTaskHandle = NULL;
 extern TaskHandle_t SetTimerTaskHandle = NULL;
 extern TaskHandle_t DoButtonTaskHandle = NULL;
+extern TaskHandle_t DoStateTransitionHandle = NULL;
+
+extern states current_state = waiting_state;
+extern states next_state = waiting_state;
