@@ -153,7 +153,7 @@ int main(void) {
     prvHardwareSetup();
     prvTaskSetup();
 
-    //xTaskCreate( vDoAdcTask, "vDoAdcTask", configMINIMAL_STACK_SIZE, NULL, 3, &DoUartAdcTaskHandle );
+    xTaskCreate( vDoAdcTask, "vDoAdcTask", configMINIMAL_STACK_SIZE, NULL, 3, &DoUartAdcTaskHandle );
     xTaskCreate( vDoUartTransmitTask, "vDoUartTransmitTask", configMINIMAL_STACK_SIZE, NULL, 4, &DoUartTransmitTaskHandle );
     xTaskCreate( vDoUartRecieveTask, "vDoUartRecieveTask", configMINIMAL_STACK_SIZE, NULL, 3, &DoUartRecieveTaskHandle );
     xTaskCreate( vSetTimerTask, "vSetTimerTask", configMINIMAL_STACK_SIZE, NULL, 6, &SetTimerTaskHandle );

@@ -3,8 +3,8 @@
 
 void do_state_transition_init(void)
 {
-    current_state = waiting_state;
-    next_state = waiting_state;
+    current_state = timer_info_paused;
+    next_state = timer_info_paused;
 }
 
 void vDoStateTransitionTask( void * pvParameters )
@@ -92,13 +92,13 @@ void vDoStateTransitionTask( void * pvParameters )
             case timer_countdown_info:
                 // Actions for timer_countdown_info
                 // Transition logic
-                next_state = timer_info_paused;
+                //next_state = timer_info_paused;
                 break;
 
             case timer_info_paused:
                 // Actions for timer_info_paused
                 // Transition logic
-                next_state = timer_countdown_nblink;
+                //next_state = timer_countdown_nblink;
                 break;
 
             case timer_countdown_nblink:
