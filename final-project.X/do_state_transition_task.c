@@ -18,7 +18,6 @@ void vDoStateTransitionTask( void * pvParameters )
     LastWakeTime = xTaskGetTickCount(); // get current time.
 
     uint8_t uart_input = 0;
-    states previous_state = waiting_state;
 
     for( ;; )
     {
@@ -34,6 +33,10 @@ void vDoStateTransitionTask( void * pvParameters )
                 // Actions for waiting_state
                 T2CONbits.TON = 0;
                 xSemaphoreTake(uart_tx_queue_sem, portMAX_DELAY);     // take uart mutex
+                // clear the screen because it looks better on startup/reset
+                for (const char *p = CLEAR_SCREEN; *p != '\0'; p++) {
+                    xQueueSendToBack(xUartTransmitQueue, p, portMAX_DELAY);
+                }
                 // send the cursor to the message line
                 for (const char *p = MESSAGE_HOME; *p != '\0'; p++) {
                     xQueueSendToBack(xUartTransmitQueue, p, portMAX_DELAY);
@@ -68,6 +71,10 @@ void vDoStateTransitionTask( void * pvParameters )
                 if (pb_stat == PB2_CLICKED){
                     next_state = timer_paused;
                 }
+                else if (xTaskNotifyWait( 0UL, UINT32_MAX, NULL, 0UL ) == pdPASS)// check if timer expired
+                {
+                    next_state = timer_finished;
+                }
                 else
                 {
                     uart_input = ValidCharInput();          // check the next UART char 
@@ -79,56 +86,158 @@ void vDoStateTransitionTask( void * pvParameters )
                 break;
 
             case timer_paused:
-                T2CONbits.TON = 1;
-                LED1 = 0;
                 // Actions for timer_paused
                 T2CONbits.TON = 0;
                 // Transition logic
-                if (pb_stat == PB2_CLICKED)
-                    next_state = previous_state;
+
+                // must do this first otherwise clicked flag will be missed
+                if (pb_stat == PB2_CLICKED){
+                    next_state = timer_countdown;
+                }
+                else
+                {
+                    uart_input = ValidCharInput();          // check the next UART char 
+                    if (uart_input == 'i')
+                        next_state = timer_info_paused;
+                    else if (uart_input == 'b')
+                        next_state = timer_nblink_paused;
+                }
                 break;
 
             case timer_countdown_info:
                 // Actions for timer_countdown_info
+                T2CONbits.TON = 1;
                 // Transition logic
-                //next_state = timer_info_paused;
+
+                // must do this first otherwise clicked flag will be missed
+                if (pb_stat == PB2_CLICKED){
+                    next_state = timer_info_paused;
+                }
+                else if (xTaskNotifyWait( 0UL, UINT32_MAX, NULL, 0UL ) == pdPASS)// check if timer expired
+                {
+                    next_state = timer_finished;
+                }
+                else
+                {
+                    uart_input = ValidCharInput();          // check the next UART char 
+                    if (uart_input == 'i')
+                        next_state = timer_countdown;
+                    else if (uart_input == 'b')
+                        next_state = timer_countdown_info_nblink;
+                }
                 break;
 
             case timer_info_paused:
                 // Actions for timer_info_paused
+                T2CONbits.TON = 1;
                 // Transition logic
-                //next_state = timer_countdown_nblink;
+
+                // must do this first otherwise clicked flag will be missed
+                if (pb_stat == PB2_CLICKED){
+                    next_state = timer_countdown_info;
+                }
+                else
+                {
+                    uart_input = ValidCharInput();          // check the next UART char 
+                    if (uart_input == 'i')
+                        next_state = timer_paused;
+                    else if (uart_input == 'b')
+                        next_state = timer_info_nblink_paused;
+                }
                 break;
 
             case timer_countdown_nblink:
                 // Actions for timer_countdown_nblink
+                T2CONbits.TON = 1;
                 // Transition logic
-                //next_state = timer_nblink_paused;
+
+                // must do this first otherwise clicked flag will be missed
+                if (pb_stat == PB2_CLICKED){
+                    next_state = timer_nblink_paused;
+                }
+                else if (xTaskNotifyWait( 0UL, UINT32_MAX, NULL, 0UL ) == pdPASS)// check if timer expired
+                {
+                    next_state = timer_finished;
+                }
+                else
+                {
+                    uart_input = ValidCharInput();          // check the next UART char 
+                    if (uart_input == 'i')
+                        next_state = timer_countdown_info_nblink;
+                    else if (uart_input == 'b')
+                        next_state = timer_countdown;
+                }
                 break;
 
             case timer_nblink_paused:
                 // Actions for timer_nblink_paused
+                T2CONbits.TON = 0;
                 // Transition logic
-                next_state = timer_countdown_info_nblink;
+
+                // must do this first otherwise clicked flag will be missed
+                if (pb_stat == PB2_CLICKED){
+                    next_state = timer_countdown_info_nblink;
+                }
+                else
+                {
+                    uart_input = ValidCharInput();          // check the next UART char 
+                    if (uart_input == 'i')
+                        next_state = timer_info_nblink_paused;
+                    else if (uart_input == 'b')
+                        next_state = timer_paused;
+                }
                 break;
 
             case timer_countdown_info_nblink:
                 // Actions for timer_countdown_info_nblink
+                T2CONbits.TON = 1;
                 // Transition logic
-                next_state = timer_info_nblink_paused;
+
+                // must do this first otherwise clicked flag will be missed
+                if (pb_stat == PB2_CLICKED){
+                    next_state = timer_info_nblink_paused;
+                }
+                else if (xTaskNotifyWait( 0UL, UINT32_MAX, NULL, 0UL ) == pdPASS)// check if timer expired
+                {
+                    next_state = timer_finished;
+                }
+                else
+                {
+                    uart_input = ValidCharInput();          // check the next UART char 
+                    if (uart_input == 'i')
+                        next_state = timer_countdown_nblink;
+                    else if (uart_input == 'b')
+                        next_state = timer_countdown_info;
+                }
                 break;
 
             case timer_info_nblink_paused:
                 // Actions for timer_info_nblink_paused
+                T2CONbits.TON = 0;
                 // Transition logic
-                next_state = timer_finished;
+
+                // must do this first otherwise clicked flag will be missed
+                if (pb_stat == PB2_CLICKED){
+                    next_state = timer_countdown_info_nblink;
+                }
+                else
+                {
+                    uart_input = ValidCharInput();          // check the next UART char 
+                    if (uart_input == 'i')
+                        next_state = timer_nblink_paused;
+                    else if (uart_input == 'b')
+                        next_state = timer_info_paused;
+                }
                 break;
 
             case timer_finished:
                 // Actions for timer_finished
                 T2CONbits.TON = 0;
+                LastWakeTime = xTaskGetTickCount(); // get current time.
+
                 // Transition logic
-                //next_state = waiting_state;
+                vTaskDelayUntil( &LastWakeTime, 5000 );
+                next_state = waiting_state;
                 break;
 
             default:
@@ -148,7 +257,6 @@ void vDoStateTransitionTask( void * pvParameters )
         }
         xSemaphoreGive(uart_tx_queue_sem);
     }
-    previous_state = current_state;
     current_state = next_state;
     xSemaphoreGive(state_sem);
 
