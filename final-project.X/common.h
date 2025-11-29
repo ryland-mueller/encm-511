@@ -25,8 +25,10 @@
 #define MESSAGE_HOME "\033[1;1H"
 #define TIMER_HOME "\033[2;1H"
 #define ADC_HOME   "\033[3;1H"
+#define DR_HOME   "\033[4;1H"
 
 #define ADC_MESSAGE "ADC VALUE: "
+#define DUTY_MESSAGE "DUTY VALUE: "
 #define SET_MESSAGE "Please enter a time to countdown"
 #define COUNTDOWN_MESSAGE "The time remaining on the counter is:"
 
