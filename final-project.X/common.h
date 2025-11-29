@@ -27,6 +27,7 @@
 #define ADC_HOME   "\033[3;1H"
 #define DR_HOME   "\033[4;1H"
 #define CLEAR_SCREEN "\033[2J"
+#define HIDE_CURSOR "\033[?25l"
 
 #define ADC_MESSAGE "ADC VALUE: "
 #define DUTY_MESSAGE "DUTY VALUE: "
