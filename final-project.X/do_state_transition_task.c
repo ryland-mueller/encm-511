@@ -54,7 +54,7 @@ void vDoStateTransitionTask( void * pvParameters )
 
             case set_timer:
                 // Actions for set_timer
-                LED0 = 1;
+                //LED0 = 1;
                 // Transition logic
                 if (pb_stat == PB1_PB2_CLICKED){
                     xQueueReset(xUartReceiveQueue); // reset queue after set_time has been locked in
