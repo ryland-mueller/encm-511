@@ -41,6 +41,7 @@ void vDoLED2Task(void *pvParameters)
         
         if (current_state == waiting_state)
         {
+            // Breath the led
             duty_ratio_tick += step;
 
                 if (duty_ratio_tick >= pwm_period)

@@ -27,7 +27,7 @@ void vDoAdcTask( void * pvParameters )
 {
     char SetADCBuffer[4];
     TickType_t LastWakeTime;
-    const TickType_t Frequency = 30;    // Perform an action every n ticks.
+    const TickType_t Frequency = 100;    // Perform an action every n ticks.
     
     LastWakeTime = xTaskGetTickCount(); // get current time.
 
@@ -41,32 +41,38 @@ void vDoAdcTask( void * pvParameters )
         xSemaphoreTake(adc_value_sem, portMAX_DELAY);   // take mutex
         xSemaphoreTake(uart_tx_queue_sem, portMAX_DELAY);     // take uart mutex
         
-        AD1CON1bits.SAMP = 1;                   // start A/D conversion
+        if (current_state == timer_countdown_info 
+            || current_state == timer_info_paused
+            || current_state == timer_countdown_info_nblink
+            ||  current_state == timer_info_nblink_paused)            
+        {    
+        
+            AD1CON1bits.SAMP = 1;                   // start A/D conversion
 
-        while (!AD1CON1bits.DONE){}             // wait for ADC read to finish
+            while (!AD1CON1bits.DONE){}             // wait for ADC read to finish
 
-        AD1CON1bits.SAMP = 0;                   // stop conversion
-        
-        global_adc_value = ADC1BUF0;            // update global adc value
-        
-        for (const char *p = ADC_HOME; *p != '\0'; p++) {
-            xQueueSendToBack(xUartTransmitQueue, p, portMAX_DELAY);
-        }
-        
-        for (const char *p = ADC_MESSAGE; *p != '\0'; p++) {
-            xQueueSendToBack(xUartTransmitQueue, p, portMAX_DELAY);
-        }
-        
-        SetADCBuffer[4] = (global_adc_value % 10) + '0';
-        SetADCBuffer[3] = ((global_adc_value/10) % 10) + '0';
-        SetADCBuffer[2] = ((global_adc_value/100) % 10) + '0';
-        SetADCBuffer[1] = ((global_adc_value/1000) % 10) + '0';
-        SetADCBuffer[0] = ((global_adc_value/10000) % 10) + '0';
-        
-        for (const char *p = SetADCBuffer; *p != '\0'; p++) {
-           xQueueSendToBack(xUartTransmitQueue, p, portMAX_DELAY);
-        }
+            AD1CON1bits.SAMP = 0;                   // stop conversion
 
+            global_adc_value = ADC1BUF0;            // update global adc value
+
+            for (const char *p = ADC_HOME; *p != '\0'; p++) {
+                xQueueSendToBack(xUartTransmitQueue, p, portMAX_DELAY);
+            }
+
+            for (const char *p = ADC_MESSAGE; *p != '\0'; p++) {
+                xQueueSendToBack(xUartTransmitQueue, p, portMAX_DELAY);
+            }
+
+            SetADCBuffer[4] = (global_adc_value % 10) + '0';
+            SetADCBuffer[3] = ((global_adc_value/10) % 10) + '0';
+            SetADCBuffer[2] = ((global_adc_value/100) % 10) + '0';
+            SetADCBuffer[1] = ((global_adc_value/1000) % 10) + '0';
+            SetADCBuffer[0] = ((global_adc_value/10000) % 10) + '0';
+
+            for (const char *p = SetADCBuffer; *p != '\0'; p++) {
+               xQueueSendToBack(xUartTransmitQueue, p, portMAX_DELAY);
+            }
+        }
         xSemaphoreGive(adc_value_sem);                  // give mutex
         xSemaphoreGive(uart_tx_queue_sem);  
     }
