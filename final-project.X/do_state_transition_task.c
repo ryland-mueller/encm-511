@@ -1,10 +1,12 @@
 #include "common.h"
 
+// prototypes
+uint8_t ValidCharInput(void);
 
 void do_state_transition_init(void)
 {
-    current_state = timer_info_paused;
-    next_state = timer_info_paused;
+    current_state = waiting_state;
+    next_state = waiting_state;
 }
 
 void vDoStateTransitionTask( void * pvParameters )
@@ -15,7 +17,7 @@ void vDoStateTransitionTask( void * pvParameters )
     
     LastWakeTime = xTaskGetTickCount(); // get current time.
 
-    char uart_input;
+    uint8_t uart_input = 0;
 
     for( ;; )
     {
@@ -24,19 +26,6 @@ void vDoStateTransitionTask( void * pvParameters )
         
         // Perform action here.
         xSemaphoreTake(state_sem, portMAX_DELAY);     // take uart mutex
-
-        
-        // if (pb_stat == PB0_CLICKED){
-        //     next_state = set_timer;
-        // }
-        // pb_stat = 0;
-        // current_state = next_state;
-
-        // if (current_state == set_timer){
-        //     LED2 ^= 1;}
-
-        // xSemaphoreGive(state_sem);
-
 
         switch (current_state)
         {
@@ -72,11 +61,10 @@ void vDoStateTransitionTask( void * pvParameters )
                 {
                     uart_input = ValidCharInput();
 
-                    if(uart_input == 'i')
-                        next_state == timer_countdown_info;
-
-                    else if(uart_input == 'b')
-                        next_state == timer_countdown_nblink
+                    if (uart_input == 'i')
+                        next_state = timer_countdown_info;
+                    else if (uart_input == 'b')
+                        next_state = timer_countdown_nblink;
                 }
                 break;
 
@@ -84,7 +72,6 @@ void vDoStateTransitionTask( void * pvParameters )
                 // Actions for timer_paused
                 T2CONbits.TON = 0;
                 // Transition logic
-                if()
 
                 next_state = current_state;
                 break;
@@ -155,12 +142,15 @@ void vDoStateTransitionTask( void * pvParameters )
     }
 }
 
-char ValidCharInput(void)
-    // read the xUartRecieveQueue until there is an 'i' or 'b' or no more chars
-    uint8_t char_to_read;
+uint8_t ValidCharInput(void) {
+    // read the xUartReceiveQueue until there is an 'i' or 'b' or no more chars
+    uint8_t char_to_read = 0;
     while (xQueueReceive(xUartReceiveQueue, &char_to_read, 0) == pdTRUE) {
-        if(char_to_read == 'i')
-            return('i')
-        else if(char_to_read == 'b')
-            return('b')
+        if (char_to_read == 'i') {
+            return 'i';   // ASCII code for 'i'
+        } else if (char_to_read == 'b') {
+            return 'b';   // ASCII code for 'b'
+        }
     }
+    return 0; // return a default value if neither 'i' nor 'b' found
+}
