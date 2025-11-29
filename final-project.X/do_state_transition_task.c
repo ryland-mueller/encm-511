@@ -79,6 +79,8 @@ void vDoStateTransitionTask( void * pvParameters )
                 break;
 
             case timer_paused:
+                T2CONbits.TON = 1;
+                LED1 = 0;
                 // Actions for timer_paused
                 T2CONbits.TON = 0;
                 // Transition logic

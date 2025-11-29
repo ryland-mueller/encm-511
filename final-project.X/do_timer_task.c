@@ -2,6 +2,8 @@
 
 //should be in set timer
 uint16_t countdown_seconds = 65;
+uint16_t time_counted;
+uint16_t local_copy;
 
 void do_timer_init(void)
 { 
@@ -22,14 +24,17 @@ void vDoTimerTask(void *pvParameters)
 {
     
     char buffer[10];
+    uint16_t time_remaining;
+    TickType_t LastWakeTime;
+    TickType_t frequency = 200;
     
-    
-    for (;;) {
+    for (;;) 
+    {
         // wait for notify from timer ISR
-        ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
+        vTaskDelayUntil(&LastWakeTime, frequency);
         
         xSemaphoreTake(countdown_sem, portMAX_DELAY);   // take mutex
-        uint16_t local_copy = countdown_seconds;
+        local_copy = countdown_seconds;
         xSemaphoreGive(countdown_sem);                      // give mutex
         xSemaphoreTake(uart_tx_queue_sem, portMAX_DELAY);     // take uart mutex
         xSemaphoreTake(state_sem, portMAX_DELAY);     // take uart mutex
@@ -43,9 +48,8 @@ void vDoTimerTask(void *pvParameters)
          || current_state == timer_countdown_info_nblink
          || current_state == timer_info_nblink_paused)
         {
-            if(countdown_seconds > 0)
-                countdown_seconds--;
             
+            time_remaining = local_copy - time_counted;
             // send the cursor to the message line
             for (const char *p = MESSAGE_HOME; *p != '\0'; p++) {
                 xQueueSendToBack(xUartTransmitQueue, p, portMAX_DELAY);
@@ -60,8 +64,8 @@ void vDoTimerTask(void *pvParameters)
                 xQueueSendToBack(xUartTransmitQueue, p, portMAX_DELAY);
             }
 
-            int minutes = local_copy / 60;
-            int seconds = local_copy % 60;
+            int minutes = time_remaining / 60;
+            int seconds = time_remaining % 60;
             buffer[0] = (minutes / 10) + '0';
             buffer[1] = (minutes % 10) + '0';
             buffer[2] = ':';
@@ -74,6 +78,8 @@ void vDoTimerTask(void *pvParameters)
                 xQueueSendToBack(xUartTransmitQueue, p, portMAX_DELAY);
             }
         }
+        
+        
         xSemaphoreGive(uart_tx_queue_sem);
         xSemaphoreGive(state_sem);
 
@@ -84,10 +90,12 @@ void vDoTimerTask(void *pvParameters)
 void __attribute__((interrupt, no_auto_psv)) _T2Interrupt(void){
     
     // notify the timer task and notify the scheduler it should run
-    vTaskNotifyGiveFromISR(DoTimerTaskHandle, NULL);
+    //vTaskNotifyGiveFromISR(DoTimerTaskHandle, NULL);
     
-    LED0 ^= 1;
-    
+    LED1 ^= 1;
+    time_counted ++;
+    if(time_counted >= local_copy)
+        time_counted = 0;
     IFS0bits.T2IF = 0; // Clear Timer 2 interrupt flag
 }
 
