@@ -71,6 +71,7 @@
       <itemPath>do_led2_task.c</itemPath>
       <itemPath>do_button_task.c</itemPath>
       <itemPath>do_state_transition_task.c</itemPath>
+      <itemPath>do_led0_1_task.c</itemPath>
     </logicalFolder>
   </logicalFolder>
   <sourceRootList>

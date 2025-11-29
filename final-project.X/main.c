@@ -81,48 +81,6 @@ void vApplicationStackOverflowHook( TaskHandle_t pxTask, char *pcTaskName )
 
 static int counter = 0;
 
-//void vTask1(void *pvParameters)
-//{
-//    for(;;)
-//    {
-//        xSemaphoreTake(uart_tx_sem, portMAX_DELAY);
-//        Disp2String("hello from Task 1\n\r");
-//        xSemaphoreGive(uart_tx_sem);
-//        
-//        vTaskDelay(pdMS_TO_TICKS(1000));
-//    }
-//}
-
-
-void vBreathingLedTask( void * pvParameters )
-{
-    TickType_t LastWakeTime;
-    const TickType_t Frequency = 1000;    // Perform an action every n ticks.
-
-    LastWakeTime = xTaskGetTickCount(); // get current time.
-
-    for( ;; )
-    {
-        // Wait for the next cycle.
-        vTaskDelayUntil( &LastWakeTime, Frequency );
-
-        // Perform action here.
-        OC1RS = OC1RS*2;                // double the duty cycle (overflow intentional here, just testing)
-    }
-}
-
-
-void vTask3(void *pvParameters)
-{
-    for(;;)
-    {
-
-        _LATB5 ^= 1;
-        
-        vTaskDelay(pdMS_TO_TICKS(200));
-    }
-}
-
 void prvHardwareSetup(void)
 {
     IO_init();
@@ -161,12 +119,11 @@ int main(void) {
     xTaskCreate( vDoLED2Task, "vDoLED2Task", configMINIMAL_STACK_SIZE, NULL, 4, &DoLED2TaskHandle );
     xTaskCreate( vDoButtonTask, "vDoButtonTask", configMINIMAL_STACK_SIZE, NULL, 4, &DoButtonTaskHandle );
     xTaskCreate( vDoStateTransitionTask, "vDoStateTransitionTask", configMINIMAL_STACK_SIZE, NULL, 4, &DoStateTransitionHandle );
-
+    xTaskCreate( vDoLED01Task, "vDoLED01Task", configMINIMAL_STACK_SIZE, NULL, 2, &DoLED01Handle );
+    
     // for debug only
     T2CONbits.TON = 1;              // start the timer
 
-    // uint8_t charToSend = 66;
-    // xQueueSendToBack(xUartTransmitQueue, (void*)&charToSend, portMAX_DELAY);
     vTaskStartScheduler();
     
     for(;;);

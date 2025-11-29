@@ -30,7 +30,6 @@ void vDoTimerTask(void *pvParameters)
     
     for (;;) 
     {
-        // wait for notify from timer ISR
         vTaskDelayUntil(&LastWakeTime, frequency);
         
         xSemaphoreTake(countdown_sem, portMAX_DELAY);   // take mutex
@@ -48,7 +47,7 @@ void vDoTimerTask(void *pvParameters)
          || current_state == timer_countdown_info_nblink
          || current_state == timer_info_nblink_paused)
         {
-            
+            // determine the time remaining
             time_remaining = local_copy - time_counted;
             // send the cursor to the message line
             for (const char *p = MESSAGE_HOME; *p != '\0'; p++) {
@@ -88,9 +87,6 @@ void vDoTimerTask(void *pvParameters)
 
 // Timer 2 ISR
 void __attribute__((interrupt, no_auto_psv)) _T2Interrupt(void){
-    
-    // notify the timer task and notify the scheduler it should run
-    //vTaskNotifyGiveFromISR(DoTimerTaskHandle, NULL);
     
     LED1 ^= 1;
     time_counted ++;

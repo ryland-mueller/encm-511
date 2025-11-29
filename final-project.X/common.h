@@ -147,6 +147,10 @@ void do_state_transition_init(void);
 void vDoStateTransitionTask( void * pvParameters );
 extern TaskHandle_t DoStateTransitionHandle;
 
+//LED0 and LED1 blink at the end task
+void vDoLED01Task(void *pvParameters);
+extern TaskHandle_t DoLED01Handle;
+
 ///////////////////////////////////////////////////////////////////////////////
 
 #endif	/* COMMON_H */

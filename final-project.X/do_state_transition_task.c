@@ -5,8 +5,8 @@ uint8_t ValidCharInput(void);
 
 void do_state_transition_init(void)
 {
-    current_state = waiting_state;
-    next_state = waiting_state;
+    current_state = timer_finished;
+    next_state = timer_finished;
 }
 
 void vDoStateTransitionTask( void * pvParameters )
@@ -38,7 +38,7 @@ void vDoStateTransitionTask( void * pvParameters )
                 for (const char *p = MESSAGE_HOME; *p != '\0'; p++) {
                     xQueueSendToBack(xUartTransmitQueue, p, portMAX_DELAY);
                 }
-                //Display the welcom message
+                //Display the welcome message
                 for (const char *p = WELCOME_MESSAGE; *p != '\0'; p++) {
                     xQueueSendToBack(xUartTransmitQueue, p, portMAX_DELAY);
                 }
@@ -126,8 +126,9 @@ void vDoStateTransitionTask( void * pvParameters )
 
             case timer_finished:
                 // Actions for timer_finished
+                T2CONbits.TON = 0;
                 // Transition logic
-                next_state = waiting_state;
+                //next_state = waiting_state;
                 break;
 
             default:

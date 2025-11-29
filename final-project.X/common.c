@@ -31,3 +31,4 @@ extern TaskHandle_t DoStateTransitionHandle = NULL;
 extern states current_state = waiting_state;
 extern states next_state = waiting_state;
 extern TaskHandle_t DoLED2TaskHandle = NULL;
+extern TaskHandle_t DoLED01Handle = NULL;
