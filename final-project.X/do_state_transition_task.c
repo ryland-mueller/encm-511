@@ -15,6 +15,8 @@ void vDoStateTransitionTask( void * pvParameters )
     
     LastWakeTime = xTaskGetTickCount(); // get current time.
 
+    char uart_input;
+
     for( ;; )
     {
         // Wait for the next cycle.
@@ -49,25 +51,42 @@ void vDoStateTransitionTask( void * pvParameters )
 
             case set_timer:
                 // Actions for set_timer
+                LED0 = 1;
                 // Transition logic
                 if (pb_stat == PB1_PB2_CLICKED){
+                    xQueueReset(xUartReceiveQueue); // reset queue after set_time has been locked in
                     next_state = timer_countdown;
                 }
                 break;
 
             case timer_countdown:
                 // Actions for timer_countdown
-                T2CONbits.TON = 1;
+                T2CONbits.TON = 1;                  // run the countdown
                 // Transition logic
+
+                // must do this first otherwise clicked flag will be missed
                 if (pb_stat == PB2_CLICKED){
                     next_state = timer_paused;
+                }
+                else
+                {
+                    uart_input = ValidCharInput();
+
+                    if(uart_input == 'i')
+                        next_state == timer_countdown_info;
+
+                    else if(uart_input == 'b')
+                        next_state == timer_countdown_nblink
                 }
                 break;
 
             case timer_paused:
                 // Actions for timer_paused
+                T2CONbits.TON = 0;
                 // Transition logic
-                next_state = timer_countdown_info;
+                if()
+
+                next_state = current_state;
                 break;
 
             case timer_countdown_info:
@@ -122,17 +141,26 @@ void vDoStateTransitionTask( void * pvParameters )
     // Update current state at the end of the cycle
     pb_stat = 0;
 
-    if(current_state != next_state)
+    if(current_state != next_state){
+        xSemaphoreTake(uart_tx_queue_sem,portMAX_DELAY);
         for (const char *p = CLEAR_SCREEN; *p != '\0'; p++) {
             xQueueSendToBack(xUartTransmitQueue, p, portMAX_DELAY);
         }
-
-
+        xSemaphoreGive(uart_tx_queue_sem);
+    }
     current_state = next_state;
     xSemaphoreGive(state_sem);
-
 
 
     }
 }
 
+char ValidCharInput(void)
+    // read the xUartRecieveQueue until there is an 'i' or 'b' or no more chars
+    uint8_t char_to_read;
+    while (xQueueReceive(xUartReceiveQueue, &char_to_read, 0) == pdTRUE) {
+        if(char_to_read == 'i')
+            return('i')
+        else if(char_to_read == 'b')
+            return('b')
+    }

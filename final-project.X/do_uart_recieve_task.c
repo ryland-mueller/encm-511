@@ -15,7 +15,7 @@
 
 void do_uart_recieve_init(void) 
 {
-    xUartReceiveQueue = xQueueCreate(64, sizeof(uint8_t));
+    xUartReceiveQueue = xQueueCreate(8, sizeof(uint8_t));
 
     #ifndef UART2_CONFIG
     #define UART2_CONFIG
