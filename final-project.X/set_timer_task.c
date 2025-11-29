@@ -11,13 +11,13 @@ void vSetTimerTask( void * pvParameters )
     uint8_t char_received;
     uint8_t digit;
     uint32_t input_digits;
-    
+    TickType_t frequency = 10;
     
     LastWakeTime = xTaskGetTickCount();
     
     for(;;)
     {
-        vTaskDelayUntil( &LastWakeTime, pdMS_TO_TICKS(10));
+        vTaskDelayUntil( &LastWakeTime, frequency);
 
         xSemaphoreTake(countdown_sem, portMAX_DELAY);         // Take countdown mutex
         xSemaphoreTake(uart_tx_queue_sem, portMAX_DELAY);     // take uart mutex

@@ -137,14 +137,15 @@ void prvTaskSetup()
     do_adc_init();
     do_timer_init();
     do_button_init();
+    do_timer3_init();
     
 }
 
 int main(void) {
     
     global_adc_value = 10;
-    current_state = timer_countdown;
-    next_state = timer_countdown;
+    current_state = set_timer;
+    next_state = set_timer;
     
     adc_value_sem = xSemaphoreCreateMutex();
     uart_tx_sem = xSemaphoreCreateMutex();
@@ -157,7 +158,7 @@ int main(void) {
     prvTaskSetup();
 
     xTaskCreate( vDoAdcTask, "vDoAdcTask", configMINIMAL_STACK_SIZE, NULL, 3, &DoUartAdcTaskHandle );
-    xTaskCreate( vDoUartTransmitTask, "vDoUartTransmitTask", configMINIMAL_STACK_SIZE, NULL, 5, &DoUartTransmitTaskHandle );
+    xTaskCreate( vDoUartTransmitTask, "vDoUartTransmitTask", configMINIMAL_STACK_SIZE, NULL, 4, &DoUartTransmitTaskHandle );
     xTaskCreate( vDoUartRecieveTask, "vDoUartRecieveTask", configMINIMAL_STACK_SIZE, NULL, 3, &DoUartRecieveTaskHandle );
     xTaskCreate( vSetTimerTask, "vSetTimerTask", configMINIMAL_STACK_SIZE, NULL, 4, &SetTimerTaskHandle );
     xTaskCreate( vDoTimerTask, "vDoTimerTask", configMINIMAL_STACK_SIZE, NULL, 4, &DoTimerTaskHandle );
