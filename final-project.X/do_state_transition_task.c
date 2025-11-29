@@ -71,7 +71,7 @@ void vDoStateTransitionTask( void * pvParameters )
                 }
                 else if (pb_stat == PB2_HELD){
                     next_state == set_timer;
-                }
+                }            
                 else if (ulTaskNotifyTake(pdTRUE, 0) > 0) 
                 {
                     next_state = timer_finished;
@@ -95,6 +95,10 @@ void vDoStateTransitionTask( void * pvParameters )
                 if (pb_stat == PB2_CLICKED){
                     next_state = timer_countdown;
                 }
+                else if (pb_stat == PB2_HELD)
+                {
+                    next_state = set_timer;
+                }                
                 else
                 {
                     uart_input = ValidCharInput();          // check the next UART char 
@@ -114,6 +118,10 @@ void vDoStateTransitionTask( void * pvParameters )
                 if (pb_stat == PB2_CLICKED){
                     next_state = timer_info_paused;
                 }
+                else if (pb_stat == PB2_HELD)
+                {
+                    next_state = set_timer;
+                }                
                 else if (ulTaskNotifyTake(pdTRUE, 0) > 0) 
                 {
                     next_state = timer_finished;
@@ -137,6 +145,10 @@ void vDoStateTransitionTask( void * pvParameters )
                 if (pb_stat == PB2_CLICKED){
                     next_state = timer_countdown_info;
                 }
+                else if (pb_stat == PB2_HELD)
+                {
+                    next_state = set_timer;
+                }                
                 else
                 {
                     uart_input = ValidCharInput();          // check the next UART char 
@@ -156,6 +168,10 @@ void vDoStateTransitionTask( void * pvParameters )
                 if (pb_stat == PB2_CLICKED){
                     next_state = timer_nblink_paused;
                 }
+                else if (pb_stat == PB2_HELD)
+                {
+                    next_state = set_timer;
+                }                
                 else if (ulTaskNotifyTake(pdTRUE, 0) > 0) 
                 {
                     next_state = timer_finished;
@@ -179,6 +195,10 @@ void vDoStateTransitionTask( void * pvParameters )
                 if (pb_stat == PB2_CLICKED){
                     next_state = timer_countdown_info_nblink;
                 }
+                else if (pb_stat == PB2_HELD)
+                {
+                    next_state = set_timer;
+                }                
                 else
                 {
                     uart_input = ValidCharInput();          // check the next UART char 
@@ -197,6 +217,14 @@ void vDoStateTransitionTask( void * pvParameters )
                 // must do this first otherwise clicked flag will be missed
                 if (pb_stat == PB2_CLICKED){
                     next_state = timer_info_nblink_paused;
+                }
+                else if (pb_stat == PB2_HELD)
+                {
+                    next_state = set_timer;
+                }                
+                else if (pb_stat == PB2_HELD)
+                {
+                    next_state = set_timer;
                 }
                 else if (ulTaskNotifyTake(pdTRUE, 0) > 0) 
                 {
@@ -220,6 +248,14 @@ void vDoStateTransitionTask( void * pvParameters )
                 // must do this first otherwise clicked flag will be missed
                 if (pb_stat == PB2_CLICKED){
                     next_state = timer_countdown_info_nblink;
+                }
+                else if (pb_stat == PB2_HELD)
+                {
+                    next_state = set_timer;
+                }                
+                else if (pb_stat == PB2_HELD)
+                {
+                    next_state = set_timer;
                 }
                 else
                 {
