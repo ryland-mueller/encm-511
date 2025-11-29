@@ -71,7 +71,7 @@ void vDoStateTransitionTask( void * pvParameters )
                 if (pb_stat == PB2_CLICKED){
                     next_state = timer_paused;
                 }
-                else if (xTaskNotifyWait( 0UL, ULONG_MAX, NULL, 0UL ) == pdPASS); // check if timer expired
+                else if (xTaskNotifyWait( 0UL, UINT32_MAX, NULL, 0UL ) == pdPASS)// check if timer expired
                 {
                     next_state = timer_finished;
                 }
@@ -113,7 +113,7 @@ void vDoStateTransitionTask( void * pvParameters )
                 if (pb_stat == PB2_CLICKED){
                     next_state = timer_info_paused;
                 }
-                else if (xTaskNotifyWait( 0UL, ULONG_MAX, NULL, 0UL ) == pdPASS); // check if timer expired
+                else if (xTaskNotifyWait( 0UL, UINT32_MAX, NULL, 0UL ) == pdPASS)// check if timer expired
                 {
                     next_state = timer_finished;
                 }
@@ -155,7 +155,7 @@ void vDoStateTransitionTask( void * pvParameters )
                 if (pb_stat == PB2_CLICKED){
                     next_state = timer_nblink_paused;
                 }
-                else if (xTaskNotifyWait( 0UL, ULONG_MAX, NULL, 0UL ) == pdPASS); // check if timer expired
+                else if (xTaskNotifyWait( 0UL, UINT32_MAX, NULL, 0UL ) == pdPASS)// check if timer expired
                 {
                     next_state = timer_finished;
                 }
@@ -197,7 +197,7 @@ void vDoStateTransitionTask( void * pvParameters )
                 if (pb_stat == PB2_CLICKED){
                     next_state = timer_info_nblink_paused;
                 }
-                else if (xTaskNotifyWait( 0UL, ULONG_MAX, NULL, 0UL ) == pdPASS); // check if timer expired
+                else if (xTaskNotifyWait( 0UL, UINT32_MAX, NULL, 0UL ) == pdPASS)// check if timer expired
                 {
                     next_state = timer_finished;
                 }
