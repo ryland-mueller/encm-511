@@ -33,6 +33,7 @@ void vDoStateTransitionTask( void * pvParameters )
                 // Actions for waiting_state
                 count_for_end = 0; //Reset the timer finished counter
                 T2CONbits.TON = 0;
+                LED1= 0;
                 xSemaphoreTake(uart_tx_queue_sem, portMAX_DELAY);     // take uart mutex
 
                 // send the cursor to the message line
@@ -52,7 +53,7 @@ void vDoStateTransitionTask( void * pvParameters )
 
             case set_timer:
                 // Actions for set_timer
-                //LED0 = 1;
+                T2CONbits.TON = 0;
                 // Transition logic
                 if (pb_stat == PB1_PB2_CLICKED){
                     xQueueReset(xUartReceiveQueue); // reset queue after set_time has been locked in
@@ -70,7 +71,7 @@ void vDoStateTransitionTask( void * pvParameters )
                     next_state = timer_paused;
                 }
                 else if (pb_stat == PB2_HELD){
-                    next_state == set_timer;
+                    next_state = set_timer;
 
                 }            
                 else if (ulTaskNotifyTake(pdTRUE, 0) > 0) 
@@ -194,7 +195,7 @@ void vDoStateTransitionTask( void * pvParameters )
 
                 // must do this first otherwise clicked flag will be missed
                 if (pb_stat == PB2_CLICKED){
-                    next_state = timer_countdown_info_nblink;
+                    next_state = timer_countdown_nblink;
                 }
                 else if (pb_stat == PB2_HELD)
                 {
@@ -271,7 +272,17 @@ void vDoStateTransitionTask( void * pvParameters )
             case timer_finished:
                 // Actions for timer_finished
                 T2CONbits.TON = 0;
-                LastWakeTime = xTaskGetTickCount(); // get current time.
+                xSemaphoreTake(uart_tx_queue_sem, portMAX_DELAY);     // take uart mutex
+
+                // send the cursor to the message line
+                for (const char *p = MESSAGE_HOME; *p != '\0'; p++) {
+                    xQueueSendToBack(xUartTransmitQueue, p, portMAX_DELAY);
+                }
+                //Display the finished message
+                for (const char *p = FINISH_MESSAGE; *p != '\0'; p++) {
+                    xQueueSendToBack(xUartTransmitQueue, p, portMAX_DELAY);
+                }
+                xSemaphoreGive(uart_tx_queue_sem);
                 
                 // Transition logic
                 count_for_end ++;

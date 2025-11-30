@@ -34,14 +34,14 @@ void vDoLED2Task(void *pvParameters)
     
     for(;;)
     {
-        vTaskDelayUntil( &LastWakeTime, pdMS_TO_TICKS(100) );
+        vTaskDelayUntil( &LastWakeTime, pdMS_TO_TICKS(150) );
         
         xSemaphoreTake(adc_value_sem, portMAX_DELAY);   //take adc_value mutex
         local_adc_value = global_adc_value;             //save the value locally to give up the mutex
         xSemaphoreGive(adc_value_sem);                  //Give adc_value mutex
         
         blink_counter += frequency;  //increment the blink counter every time the task runs
-        if (blink_counter >= 1000) 
+        if (blink_counter >= 500) 
         {
             blink_counter = 0;
             blink_enable ^= 1;       //toggle blink ON/OFF
@@ -66,7 +66,8 @@ void vDoLED2Task(void *pvParameters)
         }
         
         else if (current_state == timer_countdown_nblink
-                || current_state == timer_finished)
+                || current_state == timer_finished
+                || current_state == timer_nblink_paused)
         {
             T3CONbits.TON = 1;
             duty_ratio_tick = (local_adc_value * pwm_period) / 1023;

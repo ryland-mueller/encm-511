@@ -204,9 +204,6 @@ void vDoButtonTask(void *pvParameters)
                 SET_BIT(pb_stat,PB2_HELD_FLAG);
             }
         }   
-    
-    // LED0 = CHECK_BIT(pb_stat,PB0_HELD_FLAG);
-    // LED1 = CHECK_BIT(pb_stat,PB0_CLICKED_FLAG);
 
         xSemaphoreGive(state_sem);     // take uart mutex
     }
