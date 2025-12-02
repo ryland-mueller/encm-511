@@ -3,7 +3,7 @@
 uint16_t countdown_seconds;
 
 //Displays the user input, after the timer is started it will convert to minutes and sceonds
-void vSetTimerTask( void * pvParameters )
+void vSetTimerTask(void * pvParameters)
 {
     
     TickType_t LastWakeTime;

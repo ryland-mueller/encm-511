@@ -54,7 +54,7 @@ void vDoTimerTask(void *pvParameters)
             for (const char *p = MESSAGE_HOME; *p != '\0'; p++) {
                 xQueueSendToBack(xUartTransmitQueue, p, portMAX_DELAY);
             }
-            //Display the set timer message
+            //Display the countdown message
             for (const char *p = COUNTDOWN_MESSAGE; *p != '\0'; p++) {
                 xQueueSendToBack(xUartTransmitQueue, p, portMAX_DELAY);
             }

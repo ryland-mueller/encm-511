@@ -11,8 +11,6 @@
 #include "common.h"
 #include "uart_functions.h"
 
-//uint8_t RXFlag = 0;
-
 void do_uart_recieve_init(void) 
 {
     xUartReceiveQueue = xQueueCreate(8, sizeof(uint8_t));
@@ -48,7 +46,7 @@ void do_uart_recieve_init(void)
     #endif
 }
 
-void vDoUartRecieveTask( void * pvParameters )
+void vDoUartRecieveTask(void * pvParameters)
 {
     TickType_t LastWakeTime;
     const TickType_t Frequency = 10;    // Perform an action every n ticks.
@@ -73,7 +71,6 @@ void vDoUartRecieveTask( void * pvParameters )
         xSemaphoreGive(uart_rx_sem);                    
 
         // if there was something in the buffer put it in the queue
-        // xQueueSendToBack(xUartRecieveQueue, (void*)&char_recieved, portMAX_DELAY);
         if(char_received != '\0')
             xQueueSendToBack(xUartReceiveQueue, &char_received, portMAX_DELAY);
     }
