@@ -11,8 +11,6 @@
 #include "common.h"
 #include "uart_functions.h"
 
-//uint8_t RXFlag = 0;
-
 void do_uart_recieve_init(void) 
 {
     xUartReceiveQueue = xQueueCreate(8, sizeof(uint8_t));
