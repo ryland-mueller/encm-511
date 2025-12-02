@@ -1,0 +1,15 @@
+{
+    "configurations": [
+        {
+            "name": "xc16",
+                "includePath": [
+                    "${workspaceFolder}/**",
+                    "C:/Program Files/Microchip/xc16/v2.10/support/**"
+                ],
+                "defines": [],
+                "compilerPath": "C:/Program Files/Microchip/xc16/v2.10/bin/xc16-gcc.exe", 
+                "intelliSenseMode": "gcc-arm"
+        }
+    ],
+    "version": 4
+}

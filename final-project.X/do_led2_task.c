@@ -28,13 +28,13 @@ void vDoLED2Task(void *pvParameters)
 {
     TickType_t LastWakeTime;        
     LastWakeTime = xTaskGetTickCount(); //get current tick
-    TickType_t frequency = 100;         //frequency of the task
+    TickType_t frequency = 150;         //frequency of the task
     uint16_t local_adc_value = 0;       //Used to store the global adc value locally
     char DRbuffer[4];                   //buffer to send the duty ratio over UART
     
     for(;;)
     {
-        vTaskDelayUntil( &LastWakeTime, pdMS_TO_TICKS(150) );
+        vTaskDelayUntil( &LastWakeTime, frequency );
         
         xSemaphoreTake(adc_value_sem, portMAX_DELAY);   //take adc_value mutex
         local_adc_value = global_adc_value;             //save the value locally to give up the mutex
