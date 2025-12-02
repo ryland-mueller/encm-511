@@ -57,7 +57,6 @@ void vSetTimerTask( void * pvParameters )
                 
             }
 
-            // MIGHT BE FUCKED (PATRICK MITENKO SITUATION)
             if(CHECK_BIT(pb_stat,PB1_PB2_HELD))
             {
                 input_digits = 0;
