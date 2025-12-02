@@ -54,7 +54,7 @@ void do_uart_transmit_init(void)
     #endif
 }
 
-void vDoUartTransmitTask( void * pvParameters )
+void vDoUartTransmitTask(void * pvParameters)
 {
     TickType_t LastWakeTime;
     const TickType_t Frequency = 10;    // Perform an action every n ticks.
